@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+  iredMail:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ZyVYmLGLkQgcDEkU7ZYb4xNHZYmmPrMC
+      MYSQL_DATABASE: vmail
+      MYSQL_USER: vmail
+      MYSQL_PASSWORD: sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./dump:/docker-entrypoint-initdb.d
+    ports:
+      - 8806:3306
+    
+
+
