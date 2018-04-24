@@ -1,36 +1,37 @@
 package iredmail
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
 
-type Mailboxes []string
+type Mailbox struct {
+	Email        string
+	Name         string
+	Domain       string
+	PasswordHash string
+	Quota        int
+}
+
+type Mailboxes []Mailbox
 
 func (m Mailboxes) Len() int      { return len(m) }
 func (m Mailboxes) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
 func (m Mailboxes) Less(i, j int) bool {
-	iSplit := strings.Split(m[i], "@")
-	iUsername := iSplit[0]
-	iDomain := iSplit[1]
-
-	jSplit := strings.Split(m[j], "@")
-	jUsername := jSplit[0]
-	jDomain := jSplit[1]
-
-	if iDomain == jDomain {
-		usernameSlice := []string{iUsername, jUsername}
+	if m[i].Domain == m[j].Domain {
+		usernameSlice := []string{m[i].Name, m[j].Name}
 		sort.Strings(usernameSlice)
-		if iUsername == usernameSlice[0] {
+		if m[i].Name == usernameSlice[0] {
 			return true
 		}
 
 		return false
 	}
 
-	domainSlice := []string{iDomain, jDomain}
+	domainSlice := []string{m[i].Domain, m[j].Domain}
 	sort.Strings(domainSlice)
-	if domainSlice[0] == iDomain {
+	if m[i].Domain == domainSlice[0] {
 		return true
 	}
 
@@ -41,7 +42,7 @@ func (m Mailboxes) FilterBy(filter string) Mailboxes {
 	filteredMailboxes := Mailboxes{}
 
 	for _, mailbox := range m {
-		if strings.Contains(mailbox, filter) {
+		if strings.Contains(mailbox.Email, filter) {
 			filteredMailboxes = append(filteredMailboxes, mailbox)
 		}
 	}
@@ -51,23 +52,36 @@ func (m Mailboxes) FilterBy(filter string) Mailboxes {
 
 func (s *Server) MailboxList() (Mailboxes, error) {
 	mailboxes := Mailboxes{}
-	rows, err := s.DB.Query(`SELECT username FROM mailbox;`)
+	rows, err := s.DB.Query(`SELECT username, password, name, domain, quota FROM mailbox;`)
 	if err != nil {
 		return mailboxes, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var username string
+		var username, password, name, domain string
+		var quota int
 
-		err := rows.Scan(&username)
+		err := rows.Scan(&username, &password, &name, &domain, &quota)
 		if err != nil {
 			return mailboxes, err
 		}
 
-		mailboxes = append(mailboxes, username)
+		mailboxes = append(mailboxes, Mailbox{
+			Email:        username,
+			Name:         name,
+			Domain:       domain,
+			PasswordHash: password,
+			Quota:        quota,
+		})
 	}
 	err = rows.Err()
 
 	return mailboxes, err
+}
+
+func (s *Server) MailboxCreate(email, password string) error {
+	fmt.Println("create email")
+
+	return nil
 }

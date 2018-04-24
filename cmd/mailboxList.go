@@ -17,17 +17,20 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 	"sort"
+	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
+// mailboxListCmd represents the list command
+var mailboxListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List domains",
 	Long:  ``,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
@@ -45,20 +48,25 @@ var listCmd = &cobra.Command{
 			mailboxes = mailboxes.FilterBy(domainFilter)
 		}
 
-		for _, mailbox := range mailboxes {
-			fmt.Println(mailbox)
+		w := new(tabwriter.Writer)
+		w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "Email (user name)", "Quota", "Name", "Domain")
+		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "-----------------", "-----", "----", "------")
+		for _, m := range mailboxes {
+			fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", m.Email, m.Quota, m.Name, m.Domain)
 		}
+		w.Flush()
 	},
 }
 
 func init() {
-	mailboxCmd.AddCommand(listCmd)
+	mailboxCmd.AddCommand(mailboxListCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// mailboxListCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	listCmd.Flags().StringP("filter", "f", "", "Filter result")
+	mailboxListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }

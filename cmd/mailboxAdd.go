@@ -15,6 +15,12 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
+	"log"
+
+	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
@@ -23,8 +29,27 @@ var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a mailbox",
 	Long:  ``,
-	Args:  cobra.ExactArgs(2),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 2 {
+			return errors.New("requires email and password as arguments")
+		}
+
+		err := emailx.Validate(args[0])
+		if err != nil {
+			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
+		}
+
+		args[0] = emailx.Normalize(args[0])
+
+		return err
+	},
 	Run: func(cmd *cobra.Command, args []string) {
+		server, err := iredmail.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		server.MailboxCreate(args[0], args[1])
 	},
 }
 
