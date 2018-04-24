@@ -1,8 +1,9 @@
 package iredmail
 
 import (
-	"fmt"
+	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -80,8 +81,46 @@ func (s *Server) MailboxList() (Mailboxes, error) {
 	return mailboxes, err
 }
 
-func (s *Server) MailboxCreate(email, password string) error {
-	fmt.Println("create email")
+func (s *Server) MailboxCreate(email, password string, quota int, storageBasePath string) (Mailbox, error) {
+	name, domain := parseEmail(email)
+	m := Mailbox{
+		Email:  email,
+		Name:   name,
+		Domain: domain,
+		Quota:  quota,
+	}
 
-	return nil
+	domainExists, err := s.DomainExists(domain)
+	if err != nil {
+		return m, err
+	}
+
+	if !domainExists {
+		err = s.DomainCreate(domain, quota)
+		if err != nil {
+			return m, err
+		}
+	}
+
+	hash, err := generatePassword(password)
+	if err != nil {
+		return m, err
+	}
+
+	m.PasswordHash = hash
+
+	mailDirHash := generateMaildirHash(name, domain)
+	storageBase := filepath.Dir(storageBasePath)
+	storageNode := filepath.Base(storageBasePath)
+
+	_, err = s.DB.Exec(`
+		INSERT INTO mailbox (username, password, name,
+			storagebasedirectory,storagenode, maildir,
+			quota, domain, active, passwordlastchange, created)
+		VALUES ('` + email + `', '` + hash + `', '` + name + `',
+			'` + storageBase + `','` + storageNode + `', '` + mailDirHash + `',
+			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
+		`)
+
+	return m, nil
 }

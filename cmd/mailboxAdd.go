@@ -24,6 +24,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	quota           int
+	storageBasePath string
+)
+
 // mailboxAddCmd represents the add command
 var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
@@ -41,6 +46,10 @@ var mailboxAddCmd = &cobra.Command{
 
 		args[0] = emailx.Normalize(args[0])
 
+		if len(args[1]) < 10 {
+			return errors.New("Password length to short (min length 10)")
+		}
+
 		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -49,21 +58,15 @@ var mailboxAddCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		server.MailboxCreate(args[0], args[1])
+		server.MailboxCreate(args[0], args[1], quota, storageBasePath)
 	},
 }
 
 func init() {
 	mailboxCmd.AddCommand(mailboxAddCmd)
-	// Here you will define your flags and configuration settings.
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// mailboxAddCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// mailboxAddCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	mailboxCmd.PersistentFlags().IntVarP(&quota, "quota", "q", 2048, "Quota (default 2048 MB)")
+	mailboxCmd.PersistentFlags().IntVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
 
 	mailboxAddCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
 	iredmail-cli mailbox add user@example.com plain_password{{end}}{{if .HasAvailableSubCommands}}
