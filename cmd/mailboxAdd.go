@@ -58,7 +58,12 @@ var mailboxAddCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		server.MailboxCreate(args[0], args[1], quota, storageBasePath)
+		mailbox, err := server.MailboxAdd(args[0], args[1], quota, storageBasePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		iredmail.PrintMailboxes(iredmail.Mailboxes{mailbox})
 	},
 }
 
@@ -66,7 +71,7 @@ func init() {
 	mailboxCmd.AddCommand(mailboxAddCmd)
 
 	mailboxCmd.PersistentFlags().IntVarP(&quota, "quota", "q", 2048, "Quota (default 2048 MB)")
-	mailboxCmd.PersistentFlags().IntVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
+	mailboxCmd.PersistentFlags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
 
 	mailboxAddCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
 	iredmail-cli mailbox add user@example.com plain_password{{end}}{{if .HasAvailableSubCommands}}

@@ -15,11 +15,8 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"sort"
-	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
@@ -48,14 +45,7 @@ var mailboxListCmd = &cobra.Command{
 			mailboxes = mailboxes.FilterBy(domainFilter)
 		}
 
-		w := new(tabwriter.Writer)
-		w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "Email (user name)", "Quota", "Name", "Domain")
-		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "-----------------", "-----", "----", "------")
-		for _, m := range mailboxes {
-			fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", m.Email, m.Quota, m.Name, m.Domain)
-		}
-		w.Flush()
+		iredmail.PrintMailboxes(mailboxes)
 	},
 }
 

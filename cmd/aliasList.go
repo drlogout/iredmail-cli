@@ -15,19 +15,40 @@
 package cmd
 
 import (
+	"log"
+	"sort"
+
+	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
-// mailboxCmd represents the mailbox command
-var mailboxCmd = &cobra.Command{
-	Use:   "mailbox",
-	Short: "Add, revome, list mailboxes",
-	Long:  ``,
+// aliasListCmd represents the list command
+var aliasListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List aliases",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		server, err := iredmail.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		aliases, err := server.AliasList()
+		if err != nil {
+			log.Fatal(err)
+		}
+		sort.Sort(aliases)
+
+		filter := cmd.Flag("filter").Value.String()
+		if filter != "" {
+			aliases = aliases.FilterBy(filter)
+		}
+
+		iredmail.PrintAliases(aliases)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(mailboxCmd)
+	aliasCmd.AddCommand(aliasListCmd)
+
+	aliasListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }

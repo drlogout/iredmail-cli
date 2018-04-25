@@ -81,7 +81,7 @@ func (s *Server) MailboxList() (Mailboxes, error) {
 	return mailboxes, err
 }
 
-func (s *Server) MailboxCreate(email, password string, quota int, storageBasePath string) (Mailbox, error) {
+func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath string) (Mailbox, error) {
 	name, domain := parseEmail(email)
 	m := Mailbox{
 		Email:  email,
@@ -109,7 +109,7 @@ func (s *Server) MailboxCreate(email, password string, quota int, storageBasePat
 
 	m.PasswordHash = hash
 
-	mailDirHash := generateMaildirHash(name, domain)
+	mailDirHash := generateMaildirHash(email)
 	storageBase := filepath.Dir(storageBasePath)
 	storageNode := filepath.Base(storageBasePath)
 
@@ -122,5 +122,7 @@ func (s *Server) MailboxCreate(email, password string, quota int, storageBasePat
 			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
 		`)
 
-	return m, nil
+	err = s.ForwardingAdd(email, email)
+
+	return m, err
 }

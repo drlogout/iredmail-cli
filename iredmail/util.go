@@ -1,8 +1,11 @@
 package iredmail
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 	"strings"
+	"text/tabwriter"
 	"time"
 )
 
@@ -23,8 +26,10 @@ func generatePassword(password string) (string, error) {
 	return string(out), err
 }
 
-func generateMaildirHash(name, domain string) string {
+func generateMaildirHash(email string) string {
 	var str1, str2, str3 string
+
+	name, domain := parseEmail(email)
 	date := time.Now().UTC().Format("2006.01.02.15.04.05")
 
 	switch len(name) {
@@ -43,4 +48,26 @@ func generateMaildirHash(name, domain string) string {
 	}
 
 	return domain + `/` + str1 + `/` + str2 + `/` + str3 + `/` + name + `-` + date + `/`
+}
+
+func PrintMailboxes(mailboxes Mailboxes) {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "Email (user name)", "Quota", "Name", "Domain")
+	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "-----------------", "-----", "----", "------")
+	for _, m := range mailboxes {
+		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", m.Email, m.Quota, m.Name, m.Domain)
+	}
+	w.Flush()
+}
+
+func PrintAliases(aliases Aliases) {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\t%v\n", "Alias", "Domain", "Active")
+	fmt.Fprintf(w, "%v\t%v\t%v\n", "-------", "------", "------")
+	for _, a := range aliases {
+		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Address, a.Domain, a.Active)
+	}
+	w.Flush()
 }
