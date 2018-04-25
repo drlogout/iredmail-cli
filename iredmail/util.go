@@ -12,6 +12,10 @@ import (
 func parseEmail(email string) (string, string) {
 	split := strings.Split(email, "@")
 
+	if len(split) < 2 {
+		return email, ""
+	}
+
 	return split[0], split[1]
 }
 
@@ -68,6 +72,17 @@ func PrintAliases(aliases Aliases) {
 	fmt.Fprintf(w, "%v\t%v\t%v\n", "-------", "------", "------")
 	for _, a := range aliases {
 		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Address, a.Domain, a.Active)
+	}
+	w.Flush()
+}
+
+func PrintForwardings(forwardings Forwardings) {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\n", "Address", "Forwarding")
+	fmt.Fprintf(w, "%v\t%v\n", "-------", "----------")
+	for _, f := range forwardings {
+		fmt.Fprintf(w, "%v\t%v\n", f.Address, f.Forwarding)
 	}
 	w.Flush()
 }

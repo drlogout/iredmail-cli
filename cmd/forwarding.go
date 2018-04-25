@@ -4,15 +4,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var mailboxCmd = &cobra.Command{
-	Use:   "mailbox",
-	Short: "Add, revome, list mailboxes",
-	Long:  ``,
+var forwardingCmd = &cobra.Command{
+	Use:   "forwarding",
+	Short: "Add, remove, list forwardings",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(mailboxCmd)
+	rootCmd.AddCommand(forwardingCmd)
 }
