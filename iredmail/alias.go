@@ -7,9 +7,10 @@ import (
 )
 
 type Alias struct {
-	Address string
-	Domain  string
-	Active  bool
+	Email  string
+	Name   string
+	Domain string
+	Active bool
 }
 
 type Aliases []Alias
@@ -17,13 +18,10 @@ type Aliases []Alias
 func (a Aliases) Len() int      { return len(a) }
 func (a Aliases) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a Aliases) Less(i, j int) bool {
-	iName, _ := parseEmail(a[i].Address)
-	jName, _ := parseEmail(a[j].Address)
-
 	if a[i].Domain == a[j].Domain {
-		usernameSlice := []string{iName, jName}
+		usernameSlice := []string{a[i].Name, a[j].Name}
 		sort.Strings(usernameSlice)
-		if iName == usernameSlice[0] {
+		if a[i].Name == usernameSlice[0] {
 			return true
 		}
 
@@ -43,7 +41,7 @@ func (a Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
 
 	for _, al := range a {
-		if strings.Contains(al.Address, filter) {
+		if strings.Contains(al.Email, filter) {
 			filteredAliases = append(filteredAliases, al)
 		}
 	}
@@ -68,10 +66,13 @@ func (s *Server) AliasList() (Aliases, error) {
 			return aliases, err
 		}
 
+		name, _ := parseEmail(address)
+
 		aliases = append(aliases, Alias{
-			Address: address,
-			Domain:  domain,
-			Active:  active,
+			Email:  address,
+			Name:   name,
+			Domain: domain,
+			Active: active,
 		})
 	}
 	err = rows.Err()
@@ -82,13 +83,20 @@ func (s *Server) AliasList() (Aliases, error) {
 func (s *Server) AliasAdd(email string) error {
 	_, domain := parseEmail(email)
 
-	exists, err := s.DomainExists(domain)
+	domainExists, err := s.DomainExists(domain)
 	if err != nil {
 		return err
 	}
-
-	if !exists {
+	if !domainExists {
 		return fmt.Errorf("Domain %v does not exist", domain)
+	}
+
+	mailboxExists, err := s.MailboxExists(email)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("A mailbox with %v already exists", email)
 	}
 
 	_, err = s.DB.Exec(`

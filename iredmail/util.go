@@ -69,9 +69,9 @@ func PrintAliases(aliases Aliases) {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
 	fmt.Fprintf(w, "%v\t%v\t%v\n", "Alias", "Domain", "Active")
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "-------", "------", "------")
+	fmt.Fprintf(w, "%v\t%v\t%v\n", "-----", "------", "------")
 	for _, a := range aliases {
-		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Address, a.Domain, a.Active)
+		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Name, a.Domain, a.Active)
 	}
 	w.Flush()
 }
@@ -83,6 +83,17 @@ func PrintForwardings(forwardings Forwardings) {
 	fmt.Fprintf(w, "%v\t%v\n", "-------", "----------")
 	for _, f := range forwardings {
 		fmt.Fprintf(w, "%v\t%v\n", f.Address, f.Forwarding)
+	}
+	w.Flush()
+}
+
+func PrintDomains(domains Domains) {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\t%v\n", "Domain", "Description", "Settings")
+	fmt.Fprintf(w, "%v\t%v\t%v\n", "------", "-----------", "--------")
+	for _, d := range domains {
+		fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Description, d.Settings)
 	}
 	w.Flush()
 }

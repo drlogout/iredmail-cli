@@ -126,3 +126,22 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 
 	return m, err
 }
+
+func (s *Server) MailboxExists(email string) (bool, error) {
+	var exists bool
+
+	query := `select exists
+	(select username from mailbox
+	where username = '` + email + `');`
+
+	err := s.DB.QueryRow(query).Scan(&exists)
+	if err != nil {
+		return exists, err
+	}
+
+	if exists {
+		return true, nil
+	}
+
+	return exists, nil
+}
