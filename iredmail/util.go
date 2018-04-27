@@ -98,7 +98,7 @@ func PrintDomains(domains Domains) {
 	w.Flush()
 }
 
-func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases) {
+func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases, aliasForwardings Forwardings) {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
 	fmt.Fprintf(w, "%v\t%v\n", "Domain", "Description")
@@ -113,10 +113,22 @@ func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases) {
 	}
 
 	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\t%v\n", "Aliases", "Active")
-	fmt.Fprintf(w, "%v\t%v\n", "-------", "------")
+	fmt.Fprintf(w, "%v\n", "Aliases")
+	fmt.Fprintf(w, "%v\n", "-------")
 	for _, a := range aliases {
-		fmt.Fprintf(w, "%v\t%v\n", a.Email, a.Active)
+		aliasText := a.Email
+		if !a.Active {
+			aliasText = aliasText + " (inactive)"
+		}
+		fmt.Fprintf(w, "%v\n", aliasText)
+		forwardings := aliasForwardings.FilterBy(a.Email)
+		for _, f := range forwardings {
+			forwardingText := f.Forwarding
+			if !f.Active {
+				forwardingText = forwardingText + " (inactive)"
+			}
+			fmt.Fprintf(w, "%v\n", "  ->  "+forwardingText)
+		}
 	}
 
 	w.Flush()

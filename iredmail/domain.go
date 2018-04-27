@@ -163,5 +163,18 @@ func (s *Server) DomainInfo(domainName string) {
 	}
 
 	aliases, err := s.queryAliases(`SELECT address, domain, active FROM alias WHERE domain='` + domainName + `';`)
-	PrintDomainInfo(domain, mailboxes, aliases)
+	if err != nil {
+		panic(err)
+	}
+
+	aliasForwardings := Forwardings{}
+	for _, a := range aliases {
+		f, err := s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings WHERE address='` + a.Email + `';`)
+		if err != nil {
+			panic(err)
+		}
+		aliasForwardings = append(aliasForwardings, f...)
+	}
+	PrintDomainInfo(domain, mailboxes, aliases, aliasForwardings)
+
 }

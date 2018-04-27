@@ -52,9 +52,9 @@ func (a Forwardings) FilterBy(filter string) Forwardings {
 	return filteredForwardings
 }
 
-func (s *Server) ForwardingList() (Forwardings, error) {
+func (s *Server) queryForwardings(query string) (Forwardings, error) {
 	Forwardings := Forwardings{}
-	rows, err := s.DB.Query(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings;`)
+	rows, err := s.DB.Query(query)
 	if err != nil {
 		return Forwardings, err
 	}
@@ -80,6 +80,10 @@ func (s *Server) ForwardingList() (Forwardings, error) {
 	err = rows.Err()
 
 	return Forwardings, err
+}
+
+func (s *Server) ForwardingList() (Forwardings, error) {
+	return s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings;`)
 }
 
 func (s *Server) ForwardingAdd(address, forwarding string) error {
