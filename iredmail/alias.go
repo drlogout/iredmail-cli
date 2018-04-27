@@ -49,9 +49,9 @@ func (a Aliases) FilterBy(filter string) Aliases {
 	return filteredAliases
 }
 
-func (s *Server) AliasList() (Aliases, error) {
+func (s *Server) queryAliases(query string) (Aliases, error) {
 	aliases := Aliases{}
-	rows, err := s.DB.Query(`SELECT address, domain, active FROM alias;`)
+	rows, err := s.DB.Query(query)
 	if err != nil {
 		return aliases, err
 	}
@@ -78,6 +78,10 @@ func (s *Server) AliasList() (Aliases, error) {
 	err = rows.Err()
 
 	return aliases, err
+}
+
+func (s *Server) AliasList() (Aliases, error) {
+	return s.queryAliases(`SELECT address, domain, active FROM alias;`)
 }
 
 func (s *Server) AliasAdd(email string) error {

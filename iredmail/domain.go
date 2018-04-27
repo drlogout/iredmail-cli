@@ -150,3 +150,18 @@ func (s *Server) DomainUpdate(d Domain) error {
 
 	return err
 }
+
+func (s *Server) DomainInfo(domainName string) {
+	domain, err := s.DomainGet(domainName)
+	if err != nil {
+		panic(err)
+	}
+
+	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox WHERE domain='` + domainName + `';`)
+	if err != nil {
+		panic(err)
+	}
+
+	aliases, err := s.queryAliases(`SELECT address, domain, active FROM alias WHERE domain='` + domainName + `';`)
+	PrintDomainInfo(domain, mailboxes, aliases)
+}

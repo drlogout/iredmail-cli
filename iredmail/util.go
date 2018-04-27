@@ -97,3 +97,27 @@ func PrintDomains(domains Domains) {
 	}
 	w.Flush()
 }
+
+func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases) {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\n", "Domain", "Description")
+	fmt.Fprintf(w, "%v\t%v\n", "------", "-----------")
+	fmt.Fprintf(w, "%v\t%v\n", domain.Domain, domain.Description)
+
+	fmt.Fprintln(w)
+	fmt.Fprintf(w, "%v\t%v\n", "Mailboxes", "Quota")
+	fmt.Fprintf(w, "%v\t%v\n", "---------", "-----")
+	for _, m := range mailboxes {
+		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
+	}
+
+	fmt.Fprintln(w)
+	fmt.Fprintf(w, "%v\t%v\n", "Aliases", "Active")
+	fmt.Fprintf(w, "%v\t%v\n", "-------", "------")
+	for _, a := range aliases {
+		fmt.Fprintf(w, "%v\t%v\n", a.Email, a.Active)
+	}
+
+	w.Flush()
+}

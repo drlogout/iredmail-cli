@@ -51,9 +51,9 @@ func (m Mailboxes) FilterBy(filter string) Mailboxes {
 	return filteredMailboxes
 }
 
-func (s *Server) MailboxList() (Mailboxes, error) {
+func (s *Server) mailboxQuery(query string) (Mailboxes, error) {
 	mailboxes := Mailboxes{}
-	rows, err := s.DB.Query(`SELECT username, password, name, domain, quota FROM mailbox;`)
+	rows, err := s.DB.Query(query)
 	if err != nil {
 		return mailboxes, err
 	}
@@ -77,6 +77,12 @@ func (s *Server) MailboxList() (Mailboxes, error) {
 		})
 	}
 	err = rows.Err()
+
+	return mailboxes, err
+}
+
+func (s *Server) MailboxList() (Mailboxes, error) {
+	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox;`)
 
 	return mailboxes, err
 }
