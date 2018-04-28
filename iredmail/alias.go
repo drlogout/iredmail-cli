@@ -2,7 +2,6 @@ package iredmail
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -14,28 +13,6 @@ type Alias struct {
 }
 
 type Aliases []Alias
-
-func (a Aliases) Len() int      { return len(a) }
-func (a Aliases) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a Aliases) Less(i, j int) bool {
-	if a[i].Domain == a[j].Domain {
-		usernameSlice := []string{a[i].Name, a[j].Name}
-		sort.Strings(usernameSlice)
-		if a[i].Name == usernameSlice[0] {
-			return true
-		}
-
-		return false
-	}
-
-	domainSlice := []string{a[i].Domain, a[j].Domain}
-	sort.Strings(domainSlice)
-	if a[i].Domain == domainSlice[0] {
-		return true
-	}
-
-	return false
-}
 
 func (a Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
@@ -81,7 +58,7 @@ func (s *Server) queryAliases(query string) (Aliases, error) {
 }
 
 func (s *Server) AliasList() (Aliases, error) {
-	return s.queryAliases(`SELECT address, domain, active FROM alias;`)
+	return s.queryAliases(`SELECT address, domain, active FROM alias ORDER BY domain ASC, address ASC;`)
 }
 
 func (s *Server) AliasAdd(email string) error {

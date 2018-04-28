@@ -2,7 +2,6 @@ package iredmail
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -14,18 +13,6 @@ type Domain struct {
 }
 
 type Domains []Domain
-
-func (d Domains) Len() int      { return len(d) }
-func (d Domains) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
-func (d Domains) Less(i, j int) bool {
-	domainSlice := []string{d[i].Domain, d[j].Domain}
-	sort.Strings(domainSlice)
-	if d[i].Domain == domainSlice[0] {
-		return true
-	}
-
-	return false
-}
 
 func (d Domains) FilterBy(filter string) Domains {
 	filteredDomains := Domains{}
@@ -80,7 +67,7 @@ func (s *Server) DomainCreate(domain string, quota int) error {
 func (s *Server) DomainList() (Domains, error) {
 	domains := Domains{}
 
-	rows, err := s.DB.Query(`SELECT domain, description, settings FROM domain;`)
+	rows, err := s.DB.Query(`SELECT domain, description, settings FROM domain ORDER BY domain ASC;`)
 	if err != nil {
 		return domains, err
 	}
@@ -151,30 +138,31 @@ func (s *Server) DomainUpdate(d Domain) error {
 	return err
 }
 
-func (s *Server) DomainInfo(domainName string) {
+func (s *Server) DomainInfo(domainName string) error {
 	domain, err := s.DomainGet(domainName)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox WHERE domain='` + domainName + `';`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	aliases, err := s.queryAliases(`SELECT address, domain, active FROM alias WHERE domain='` + domainName + `';`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	aliasForwardings := Forwardings{}
 	for _, a := range aliases {
 		f, err := s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings WHERE address='` + a.Email + `';`)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		aliasForwardings = append(aliasForwardings, f...)
 	}
 	PrintDomainInfo(domain, mailboxes, aliases, aliasForwardings)
 
+	return nil
 }

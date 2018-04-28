@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"log"
-	"sort"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
@@ -36,7 +35,6 @@ var forwardingListCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		sort.Sort(forwardings)
 
 		filter := cmd.Flag("filter").Value.String()
 		if filter != "" {

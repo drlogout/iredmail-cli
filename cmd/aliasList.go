@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"log"
-	"sort"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
@@ -22,7 +21,6 @@ var aliasListCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		sort.Sort(aliases)
 
 		filter := cmd.Flag("filter").Value.String()
 		if filter != "" {

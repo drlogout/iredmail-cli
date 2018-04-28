@@ -1,7 +1,6 @@
 package iredmail
 
 import (
-	"sort"
 	"strings"
 )
 
@@ -15,37 +14,24 @@ type Forwarding struct {
 
 type Forwardings []Forwarding
 
-func (a Forwardings) Len() int      { return len(a) }
-func (a Forwardings) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a Forwardings) Less(i, j int) bool {
-	iName, _ := parseEmail(a[i].Address)
-	jName, _ := parseEmail(a[j].Address)
-
-	if a[i].Domain == a[j].Domain {
-		usernameSlice := []string{iName, jName}
-		sort.Strings(usernameSlice)
-		if iName == usernameSlice[0] {
-			return true
-		}
-
-		return false
-	}
-
-	domainSlice := []string{a[i].Domain, a[j].Domain}
-	sort.Strings(domainSlice)
-	if a[i].Domain == domainSlice[0] {
-		return true
-	}
-
-	return false
-}
-
 func (a Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 
 	for _, al := range a {
 		if strings.Contains(al.Address, filter) {
 			filteredForwardings = append(filteredForwardings, al)
+		}
+	}
+
+	return filteredForwardings
+}
+
+func (f Forwardings) GetByAddress(address string) Forwardings {
+	filteredForwardings := Forwardings{}
+
+	for _, forwarding := range f {
+		if forwarding.Address == address {
+			filteredForwardings = append(filteredForwardings, forwarding)
 		}
 	}
 
@@ -83,7 +69,7 @@ func (s *Server) queryForwardings(query string) (Forwardings, error) {
 }
 
 func (s *Server) ForwardingList() (Forwardings, error) {
-	return s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings;`)
+	return s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings ORDER BY domain ASC, address ASC;`)
 }
 
 func (s *Server) ForwardingAdd(address, forwarding string) error {

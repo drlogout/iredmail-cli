@@ -39,7 +39,10 @@ var domainInfoCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		server.DomainInfo(args[0])
+		err = server.DomainInfo(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 

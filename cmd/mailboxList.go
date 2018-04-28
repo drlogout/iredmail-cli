@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"log"
-	"sort"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
@@ -23,7 +22,6 @@ var mailboxListCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		sort.Sort(mailboxes)
 
 		domainFilter := cmd.Flag("filter").Value.String()
 		if domainFilter != "" {

@@ -15,38 +15,30 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 
-	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
-// domainListCmd represents the list command
-var domainListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List domains",
+// aliasAddCmd represents the add command
+var aliasAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Add an alias",
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := iredmail.New()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		domains, err := server.DomainList()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		filter := cmd.Flag("filter").Value.String()
-		if filter != "" {
-			domains = domains.FilterBy(filter)
-		}
-
-		iredmail.PrintDomains(domains, quiet)
+		fmt.Println("add called")
 	},
 }
 
 func init() {
-	domainCmd.AddCommand(domainListCmd)
+	aliasCmd.AddCommand(aliasAddCmd)
 
-	domainListCmd.Flags().StringP("filter", "f", "", "Filter result")
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// aliasAddCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// aliasAddCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

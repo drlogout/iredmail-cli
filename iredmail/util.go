@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -87,13 +88,20 @@ func PrintForwardings(forwardings Forwardings) {
 	w.Flush()
 }
 
-func PrintDomains(domains Domains) {
+func PrintDomains(domains Domains, quiet bool) {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "Domain", "Description", "Settings")
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "------", "-----------", "--------")
-	for _, d := range domains {
-		fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Description, d.Settings)
+	if quiet {
+		for _, d := range domains {
+			fmt.Fprintf(w, "%v\n", d.Domain)
+		}
+	} else {
+		w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+		fmt.Fprintf(w, "%v\t%v\t%v\n", "Domain", "Description", "Settings")
+		fmt.Fprintf(w, "%v\t%v\t%v\n", "------", "-----------", "--------")
+		for _, d := range domains {
+			fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Description, d.Settings)
+		}
 	}
 	w.Flush()
 }
@@ -106,14 +114,14 @@ func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases, aliasF
 	fmt.Fprintf(w, "%v\t%v\n", domain.Domain, domain.Description)
 
 	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\t%v\n", "Mailboxes", "Quota")
+	fmt.Fprintf(w, "%v\t%v\n", "Mailboxes ("+strconv.Itoa(len(mailboxes))+")", "Quota")
 	fmt.Fprintf(w, "%v\t%v\n", "---------", "-----")
 	for _, m := range mailboxes {
 		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
 	}
 
 	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\n", "Aliases")
+	fmt.Fprintf(w, "%v\n", "Aliases ("+strconv.Itoa(len(aliases))+")")
 	fmt.Fprintf(w, "%v\n", "-------")
 	for _, a := range aliases {
 		aliasText := a.Email
@@ -121,7 +129,7 @@ func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases, aliasF
 			aliasText = aliasText + " (inactive)"
 		}
 		fmt.Fprintf(w, "%v\n", aliasText)
-		forwardings := aliasForwardings.FilterBy(a.Email)
+		forwardings := aliasForwardings.GetByAddress(a.Email)
 		for _, f := range forwardings {
 			forwardingText := f.Forwarding
 			if !f.Active {

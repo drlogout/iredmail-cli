@@ -2,7 +2,6 @@ package iredmail
 
 import (
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -16,28 +15,6 @@ type Mailbox struct {
 }
 
 type Mailboxes []Mailbox
-
-func (m Mailboxes) Len() int      { return len(m) }
-func (m Mailboxes) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
-func (m Mailboxes) Less(i, j int) bool {
-	if m[i].Domain == m[j].Domain {
-		usernameSlice := []string{m[i].Name, m[j].Name}
-		sort.Strings(usernameSlice)
-		if m[i].Name == usernameSlice[0] {
-			return true
-		}
-
-		return false
-	}
-
-	domainSlice := []string{m[i].Domain, m[j].Domain}
-	sort.Strings(domainSlice)
-	if m[i].Domain == domainSlice[0] {
-		return true
-	}
-
-	return false
-}
 
 func (m Mailboxes) FilterBy(filter string) Mailboxes {
 	filteredMailboxes := Mailboxes{}
@@ -82,7 +59,7 @@ func (s *Server) mailboxQuery(query string) (Mailboxes, error) {
 }
 
 func (s *Server) MailboxList() (Mailboxes, error) {
-	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox;`)
+	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox ORDER BY domain ASC, name ASC;`)
 
 	return mailboxes, err
 }
