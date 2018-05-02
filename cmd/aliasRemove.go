@@ -15,20 +15,46 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"log"
 
+	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
-// addAliasCmd represents the addAlias command
-var addAliasCmd = &cobra.Command{
-	Use:   "addAlias",
-	Short: "Add mailbox alias",
+// removeCmd represents the remove command
+var removeCmd = &cobra.Command{
+	Use:   "remove",
+	Short: "Remove an alias",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return errors.New("requires alias email")
+		}
+
+		err := emailx.Validate(args[0])
+		if err != nil {
+			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
+		}
+
+		args[0] = emailx.Normalize(args[0])
+
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("addAlias called")
+		server, err := iredmail.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = server.AliasRemove(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
 func init() {
-	mailboxCmd.AddCommand(addAliasCmd)
+	aliasCmd.AddCommand(removeCmd)
 }

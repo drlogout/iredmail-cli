@@ -81,7 +81,7 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 		return fmt.Errorf("A mailbox %v already exists", email)
 	}
 
-	aliasExists, err := s.AliasExists(email)
+	aliasExists, err := s.aliasExists(email)
 	if err != nil {
 		return err
 	}
@@ -89,22 +89,22 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 		return fmt.Errorf("An alias %v already exists", email)
 	}
 
-	aliasPerUserExists, err := s.AliasPerUserExists(email)
+	mailboxAliasExists, err := s.mailboxAliasExists(email)
 	if err != nil {
 		return err
 	}
-	if aliasPerUserExists {
+	if mailboxAliasExists {
 		return fmt.Errorf("An alias %v already exists", email)
 	}
 
-	// If local mailbox create per-user alias address
-	destEmailIsMailbox, err := s.MailboxExists(email)
+	// If domain equals detsDomain and destEmail is a ocal mailbox create mailbox alias
+	destEmailIsMailbox, err := s.MailboxExists(destEmail)
 	if err != nil {
 		return err
 	}
 	if domain == destDomain && destEmailIsMailbox {
 		_, err = s.DB.Exec(`
-			INSERT INTO alias (address, forwarding, domain, dest_domain, is_alias, active)
+			INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
 			VALUES ('` + email + `', '` + destEmail + `', '` + domain + `', '` + destDomain + `', 1, 1)
 		`)
 
@@ -129,7 +129,7 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 	return err
 }
 
-func (s *Server) AliasExists(email string) (bool, error) {
+func (s *Server) aliasExists(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
@@ -147,7 +147,7 @@ func (s *Server) AliasExists(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) AliasPerUserExists(email string) (bool, error) {
+func (s *Server) mailboxAliasExists(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
@@ -167,6 +167,42 @@ func (s *Server) AliasPerUserExists(email string) (bool, error) {
 	return exists, nil
 }
 
+func (s *Server) AliasRemove(email string) error {
+	isAlias, err := s.aliasExists(email)
+	if err != nil {
+		return err
+	}
+
+	if isAlias {
+		_, err = s.DB.Exec(`
+			DELETE FROM forwardings WHERE address='` + email + `' and is_list=1
+		`)
+		if err != nil {
+			return err
+		}
+
+		_, err = s.DB.Exec(`
+			DELETE FROM alias WHERE address='` + email + `'
+		`)
+
+		return err
+	}
+
+	isMailboxAlias, err := s.mailboxAliasExists(email)
+	if err != nil {
+		return err
+	}
+
+	if isMailboxAlias {
+		_, err = s.DB.Exec(`
+			DELETE FROM forwardings WHERE address='` + email + `' AND is_alias=1
+			`)
+		return err
+	}
+
+	return fmt.Errorf("Alias %v does not exist", email)
+}
+
 func (s *Server) aliasCheck() error {
 	result := []string{}
 
@@ -177,7 +213,7 @@ func (s *Server) aliasCheck() error {
 
 	for _, forwarding := range forwardings {
 		// destEmailIsMailbox
-		aliasExists, err := s.AliasExists(forwarding.Address)
+		aliasExists, err := s.aliasExists(forwarding.Address)
 		if err != nil {
 			return err
 		}

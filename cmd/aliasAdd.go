@@ -15,8 +15,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"log"
 
+	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +28,37 @@ import (
 var aliasAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add an alias",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 2 {
+			return errors.New("requires alias email and destination email")
+		}
+
+		err := emailx.Validate(args[0])
+		if err != nil {
+			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
+		}
+
+		args[0] = emailx.Normalize(args[0])
+
+		err = emailx.Validate(args[1])
+		if err != nil {
+			return fmt.Errorf("Invalid destination email format: \"%v\"", args[1])
+		}
+
+		args[1] = emailx.Normalize(args[1])
+
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
+		server, err := iredmail.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = server.AliasAdd(args[0], args[1])
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
