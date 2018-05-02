@@ -1,6 +1,7 @@
 package iredmail
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -73,16 +74,20 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		Quota:  quota,
 	}
 
+	mailboxExists, err := s.MailboxExists(email)
+	if err != nil {
+		return m, err
+	}
+	if mailboxExists {
+		return m, fmt.Errorf("A mailbox %v already exists", email)
+	}
+
 	domainExists, err := s.DomainExists(domain)
 	if err != nil {
 		return m, err
 	}
-
 	if !domainExists {
-		err = s.DomainCreate(domain, quota)
-		if err != nil {
-			return m, err
-		}
+		return m, fmt.Errorf("Domain %v does not exist, please create one first", domain)
 	}
 
 	hash, err := generatePassword(password)

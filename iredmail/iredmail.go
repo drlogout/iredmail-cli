@@ -15,6 +15,10 @@ type Server struct {
 	DB *sql.DB
 }
 
+type queryOptions struct {
+	where string
+}
+
 const (
 	myCnfName = ".my.cnf-vmail"
 )

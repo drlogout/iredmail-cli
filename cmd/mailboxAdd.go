@@ -55,7 +55,7 @@ var mailboxAddCmd = &cobra.Command{
 func init() {
 	mailboxCmd.AddCommand(mailboxAddCmd)
 
-	mailboxCmd.PersistentFlags().IntVarP(&quota, "quota", "q", 2048, "Quota (default 2048 MB)")
+	mailboxCmd.PersistentFlags().IntVarP(&quota, "quota", "", 2048, "Quota (default 2048 MB)")
 	mailboxCmd.PersistentFlags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
 
 	mailboxAddCmd.SetUsageTemplate(`Usage:{{if .Runnable}}

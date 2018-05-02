@@ -72,7 +72,11 @@ func PrintAliases(aliases Aliases) {
 	fmt.Fprintf(w, "%v\t%v\t%v\n", "Alias", "Domain", "Active")
 	fmt.Fprintf(w, "%v\t%v\t%v\n", "-----", "------", "------")
 	for _, a := range aliases {
-		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Name, a.Domain, a.Active)
+		activeText := "active"
+		if !a.Active {
+			activeText = "inactive"
+		}
+		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Name, a.Domain, activeText)
 	}
 	w.Flush()
 }

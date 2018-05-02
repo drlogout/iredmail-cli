@@ -156,7 +156,9 @@ func (s *Server) DomainInfo(domainName string) error {
 
 	aliasForwardings := Forwardings{}
 	for _, a := range aliases {
-		f, err := s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings WHERE address='` + a.Email + `';`)
+		f, err := s.queryForwardings(queryOptions{
+			where: "address='" + a.Email + "'",
+		})
 		if err != nil {
 			return err
 		}

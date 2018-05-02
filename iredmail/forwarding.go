@@ -1,15 +1,19 @@
 package iredmail
 
 import (
+	"fmt"
 	"strings"
 )
 
 type Forwarding struct {
-	Address    string
-	Domain     string
-	Forwarding string
-	DestDomain string
-	Active     bool
+	Address      string
+	Domain       string
+	Forwarding   string
+	DestDomain   string
+	Active       bool
+	IsList       bool
+	IsAlias      bool
+	IsForwarding bool
 }
 
 type Forwardings []Forwarding
@@ -38,9 +42,17 @@ func (f Forwardings) GetByAddress(address string) Forwardings {
 	return filteredForwardings
 }
 
-func (s *Server) queryForwardings(query string) (Forwardings, error) {
+func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
 	Forwardings := Forwardings{}
-	rows, err := s.DB.Query(query)
+
+	whereOption := ""
+	if len(options.where) > 1 {
+		whereOption = fmt.Sprintf("WHERE %v", options.where)
+	}
+
+	rows, err := s.DB.Query(`SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list FROM forwardings
+` + whereOption + `
+ORDER BY domain ASC, address ASC;`)
 	if err != nil {
 		return Forwardings, err
 	}
@@ -48,9 +60,9 @@ func (s *Server) queryForwardings(query string) (Forwardings, error) {
 
 	for rows.Next() {
 		var address, domain, forwarding, destDomain string
-		var active bool
+		var active, isAlias, isForwarding, isList bool
 
-		err := rows.Scan(&address, &domain, &forwarding, &destDomain, &active)
+		err := rows.Scan(&address, &domain, &forwarding, &destDomain, &active, &isAlias, &isForwarding, &isList)
 		if err != nil {
 			return Forwardings, err
 		}
@@ -69,7 +81,9 @@ func (s *Server) queryForwardings(query string) (Forwardings, error) {
 }
 
 func (s *Server) ForwardingList() (Forwardings, error) {
-	return s.queryForwardings(`SELECT address, domain, forwarding, dest_domain, active FROM forwardings ORDER BY domain ASC, address ASC;`)
+	return s.queryForwardings(queryOptions{
+		where: "domain='wirtschaft-symposium.de'",
+	})
 }
 
 func (s *Server) ForwardingAdd(address, forwarding string) error {
