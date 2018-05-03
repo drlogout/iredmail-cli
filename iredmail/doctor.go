@@ -1,6 +1,10 @@
 package iredmail
 
-func (s *Server) Doctor() error {
+import "fmt"
 
-	return s.aliasCheck()
+func (s *Server) Doctor(repair bool) error {
+	if repair {
+		fmt.Printf("Running doctor (repair mode)\n")
+	}
+	return s.checkAliases(repair)
 }

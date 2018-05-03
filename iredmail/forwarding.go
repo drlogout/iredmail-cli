@@ -68,11 +68,14 @@ ORDER BY domain ASC, address ASC;`)
 		}
 
 		Forwardings = append(Forwardings, Forwarding{
-			Address:    address,
-			Domain:     domain,
-			Forwarding: forwarding,
-			DestDomain: destDomain,
-			Active:     active,
+			Address:      address,
+			Domain:       domain,
+			Forwarding:   forwarding,
+			DestDomain:   destDomain,
+			Active:       active,
+			IsAlias:      isAlias,
+			IsForwarding: isForwarding,
+			IsList:       isList,
 		})
 	}
 	err = rows.Err()

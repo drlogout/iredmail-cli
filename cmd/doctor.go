@@ -21,6 +21,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var repair bool
+
 // doctorCmd represents the doctor command
 var doctorCmd = &cobra.Command{
 	Use:   "doctor",
@@ -31,20 +33,11 @@ var doctorCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		server.Doctor()
+		server.Doctor(repair)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(doctorCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// doctorCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// doctorCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	doctorCmd.Flags().BoolVarP(&repair, "repair", "r", false, "Try run")
 }

@@ -1,7 +1,6 @@
 package iredmail
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -57,79 +56,23 @@ func (s *Server) queryAliases(query string) (Aliases, error) {
 	return aliases, err
 }
 
-func (s *Server) AliasList() (Aliases, error) {
-	return s.queryAliases(`SELECT address, domain, active FROM alias ORDER BY domain ASC, address ASC;`)
-}
-
-func (s *Server) AliasAdd(email, destEmail string) error {
-	_, domain := parseEmail(email)
-	_, destDomain := parseEmail(destEmail)
-
-	domainExists, err := s.DomainExists(domain)
-	if err != nil {
-		return err
-	}
-	if !domainExists {
-		return fmt.Errorf("Domain %v does not exist, please create one first", domain)
-	}
-
-	mailboxExists, err := s.MailboxExists(email)
-	if err != nil {
-		return err
-	}
-	if mailboxExists {
-		return fmt.Errorf("A mailbox %v already exists", email)
-	}
-
-	aliasExists, err := s.aliasExists(email)
-	if err != nil {
-		return err
-	}
-	if aliasExists {
-		return fmt.Errorf("An alias %v already exists", email)
-	}
-
-	mailboxAliasExists, err := s.mailboxAliasExists(email)
-	if err != nil {
-		return err
-	}
-	if mailboxAliasExists {
-		return fmt.Errorf("An alias %v already exists", email)
-	}
-
-	// If domain equals detsDomain and destEmail is a ocal mailbox create mailbox alias
-	destEmailIsMailbox, err := s.MailboxExists(destEmail)
-	if err != nil {
-		return err
-	}
-	if domain == destDomain && destEmailIsMailbox {
-		_, err = s.DB.Exec(`
-			INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
-			VALUES ('` + email + `', '` + destEmail + `', '` + domain + `', '` + destDomain + `', 1, 1)
-		`)
-
-		return err
-	}
-
-	if !aliasExists {
-		_, err = s.DB.Exec(`
-			INSERT INTO alias (address, domain, active)
-			VALUES ('` + email + `', '` + domain + `', 1)
-		`)
-		if err != nil {
-			return err
-		}
-	}
-
-	_, err = s.DB.Exec(`
-		INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_list, active)
-		VALUES ('` + email + `', '` + destEmail + `', '` + domain + `', '` + destDomain + `', 1, 1)
-	`)
-
-	return err
-}
-
 func (s *Server) aliasExists(email string) (bool, error) {
+	var exists bool
+
+	isAlias, err := s.isAlias(email)
+	if err != nil {
+		return exists, err
+	}
+
+	isMailboxAlias, err := s.isMailboxAlias(email)
+	if err != nil {
+		return exists, err
+	}
+
+	return (isAlias || isMailboxAlias), nil
+}
+
+func (s *Server) isAlias(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
@@ -147,7 +90,7 @@ func (s *Server) aliasExists(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) mailboxAliasExists(email string) (bool, error) {
+func (s *Server) isMailboxAlias(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
@@ -165,67 +108,4 @@ func (s *Server) mailboxAliasExists(email string) (bool, error) {
 	}
 
 	return exists, nil
-}
-
-func (s *Server) AliasRemove(email string) error {
-	isAlias, err := s.aliasExists(email)
-	if err != nil {
-		return err
-	}
-
-	if isAlias {
-		_, err = s.DB.Exec(`
-			DELETE FROM forwardings WHERE address='` + email + `' and is_list=1
-		`)
-		if err != nil {
-			return err
-		}
-
-		_, err = s.DB.Exec(`
-			DELETE FROM alias WHERE address='` + email + `'
-		`)
-
-		return err
-	}
-
-	isMailboxAlias, err := s.mailboxAliasExists(email)
-	if err != nil {
-		return err
-	}
-
-	if isMailboxAlias {
-		_, err = s.DB.Exec(`
-			DELETE FROM forwardings WHERE address='` + email + `' AND is_alias=1
-			`)
-		return err
-	}
-
-	return fmt.Errorf("Alias %v does not exist", email)
-}
-
-func (s *Server) aliasCheck() error {
-	result := []string{}
-
-	forwardings, err := s.queryForwardings(queryOptions{})
-	if err != nil {
-		return err
-	}
-
-	for _, forwarding := range forwardings {
-		// destEmailIsMailbox
-		aliasExists, err := s.aliasExists(forwarding.Address)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(forwarding.Address, forwarding.IsAlias)
-		if forwarding.IsAlias && aliasExists {
-			result = append(result, fmt.Sprintf("%v Should be per-user alias address", forwarding.Address))
-		}
-	}
-
-	for _, r := range result {
-		fmt.Println(r)
-	}
-	return nil
 }
