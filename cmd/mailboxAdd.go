@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/fatih/color"
 	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
@@ -18,7 +20,6 @@ var (
 var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a mailbox",
-	Long:  ``,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("requires email and password as arguments")
@@ -45,7 +46,8 @@ var mailboxAddCmd = &cobra.Command{
 
 		mailbox, err := server.MailboxAdd(args[0], args[1], quota, storageBasePath)
 		if err != nil {
-			log.Fatal(err)
+			color.Red(err.Error())
+			os.Exit(1)
 		}
 
 		iredmail.PrintMailboxes(iredmail.Mailboxes{mailbox})

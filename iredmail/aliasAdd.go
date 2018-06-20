@@ -14,20 +14,12 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 		return fmt.Errorf("Domain %v does not exist, please create one first", domain)
 	}
 
-	mailboxExists, err := s.MailboxExists(email)
+	mailboxExists, err := s.mailboxExists(email)
 	if err != nil {
 		return err
 	}
 	if mailboxExists {
-		return fmt.Errorf("A mailbox %v already exists", email)
-	}
-
-	isAlias, err := s.isAlias(email)
-	if err != nil {
-		return err
-	}
-	if isAlias {
-		return fmt.Errorf("An alias %v already exists", email)
+		return fmt.Errorf("There is already a mailbox %v", email)
 	}
 
 	isMailboxAlias, err := s.isMailboxAlias(email)
@@ -35,23 +27,13 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 		return err
 	}
 	if isMailboxAlias {
-		return fmt.Errorf("An alias %v already exists", email)
+		return fmt.Errorf("%v is an alias mailbox", email)
 	}
 
-	// If domain equals destDomain and destEmail is a local mailbox create mailbox alias
-	destEmailIsMailbox, err := s.MailboxExists(destEmail)
+	isAlias, err := s.isAlias(email)
 	if err != nil {
 		return err
 	}
-	if domain == destDomain && destEmailIsMailbox {
-		_, err = s.DB.Exec(`
-			INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
-			VALUES ('` + email + `', '` + destEmail + `', '` + domain + `', '` + destDomain + `', 1, 1)
-		`)
-
-		return err
-	}
-
 	if !isAlias {
 		_, err = s.DB.Exec(`
 			INSERT INTO alias (address, domain, active)

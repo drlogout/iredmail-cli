@@ -2,8 +2,11 @@ package iredmail
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
+)
+
+const (
+	DomainDefaultSettings = "default_user_quota:2048"
 )
 
 type Domain struct {
@@ -45,8 +48,8 @@ func (s *Server) DomainExists(domain string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) DomainCreate(domain string, quota int) error {
-	exists, err := s.DomainExists(domain)
+func (s *Server) DomainAdd(domain Domain) error {
+	exists, err := s.DomainExists(domain.Domain)
 	if err != nil {
 		return err
 	}
@@ -54,11 +57,9 @@ func (s *Server) DomainCreate(domain string, quota int) error {
 		return fmt.Errorf("Domain %v already exists", domain)
 	}
 
-	settings := fmt.Sprintf("default_user_quota:%v", strconv.Itoa(quota))
-
 	_, err = s.DB.Exec(`
-		REPLACE INTO domain (domain, description, settings)
-		VALUES ('` + domain + `', '` + domain + `', '` + settings + `')
+		INSERT INTO domain (domain, description, settings)
+		VALUES ('` + domain.Domain + `', '` + domain.Description + `', '` + domain.Settings + `')
 	`)
 
 	return err
@@ -138,33 +139,74 @@ func (s *Server) DomainUpdate(d Domain) error {
 	return err
 }
 
+type DomainInfo struct {
+	Domain    Domain
+	Mailboxes Mailboxes
+	Aliases   Aliases
+}
+
 func (s *Server) DomainInfo(domainName string) error {
 	domain, err := s.DomainGet(domainName)
 	if err != nil {
 		return err
 	}
 
-	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox WHERE domain='` + domainName + `';`)
+	mailboxes, err := s.mailboxQuery(queryOptions{
+		where: `domain='` + domainName + `'`,
+	})
 	if err != nil {
 		return err
 	}
 
-	aliases, err := s.queryAliases(`SELECT address, domain, active FROM alias WHERE domain='` + domainName + `';`)
-	if err != nil {
-		return err
-	}
-
-	aliasForwardings := Forwardings{}
-	for _, a := range aliases {
-		f, err := s.queryForwardings(queryOptions{
-			where: "address='" + a.Email + "'",
+	for i, m := range mailboxes {
+		aliases, err := s.queryForwardings(queryOptions{
+			where: fmt.Sprintf("forwarding='%v' AND domain='%v' AND dest_domain='%v' AND is_alias=1", m.Email, m.Domain, m.Domain),
 		})
 		if err != nil {
 			return err
 		}
-		aliasForwardings = append(aliasForwardings, f...)
+
+		mailboxAliases := MailboxAliases{}
+		for _, a := range aliases {
+			mailboxAliases = append(mailboxAliases, MailboxAlias{
+				Address: a.Address,
+				Mailbox: m.Email,
+			})
+		}
+		mailboxes[i].MailboxAliases = mailboxAliases
+
+		forwardings, err := s.queryForwardings(queryOptions{
+			where: fmt.Sprintf("address='%v' AND forwarding<>'%v' AND is_forwarding=1", m.Email, m.Email),
+		})
+		if err != nil {
+			return err
+		}
+
+		mailboxes[i].Forwardings = forwardings
 	}
-	PrintDomainInfo(domain, mailboxes, aliases, aliasForwardings)
+
+	aliases, err := s.queryAliases(queryOptions{
+		where: fmt.Sprintf("domain='%v'", domainName),
+	})
+	if err != nil {
+		return err
+	}
+
+	for i, a := range aliases {
+		f, err := s.queryForwardings(queryOptions{
+			where: "address='" + a.Address + "'",
+		})
+		if err != nil {
+			return err
+		}
+		aliases[i].Forwardings = f
+	}
+
+	PrintDomainInfo(DomainInfo{
+		Domain:    domain,
+		Mailboxes: mailboxes,
+		Aliases:   aliases,
+	})
 
 	return nil
 }

@@ -2,6 +2,7 @@ package iredmail
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -13,9 +14,20 @@ type Mailbox struct {
 	Domain       string
 	PasswordHash string
 	Quota        int
+	Type         string
+	MailDir      string
+	MailboxAliases
+	Forwardings
 }
 
 type Mailboxes []Mailbox
+
+type MailboxAlias struct {
+	Address string
+	Mailbox string
+}
+
+type MailboxAliases []MailboxAlias
 
 func (m Mailboxes) FilterBy(filter string) Mailboxes {
 	filteredMailboxes := Mailboxes{}
@@ -29,19 +41,27 @@ func (m Mailboxes) FilterBy(filter string) Mailboxes {
 	return filteredMailboxes
 }
 
-func (s *Server) mailboxQuery(query string) (Mailboxes, error) {
+func (s *Server) mailboxQuery(options queryOptions) (Mailboxes, error) {
 	mailboxes := Mailboxes{}
-	rows, err := s.DB.Query(query)
+
+	whereOption := ""
+	if len(options.where) > 1 {
+		whereOption = fmt.Sprintf("WHERE %v", options.where)
+	}
+
+	rows, err := s.DB.Query(`SELECT username, password, name, domain, quota, maildir FROM mailbox
+` + whereOption + `
+ORDER BY domain ASC, name ASC;`)
 	if err != nil {
 		return mailboxes, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var username, password, name, domain string
+		var username, password, name, domain, maildir string
 		var quota int
 
-		err := rows.Scan(&username, &password, &name, &domain, &quota)
+		err := rows.Scan(&username, &password, &name, &domain, &quota, &maildir)
 		if err != nil {
 			return mailboxes, err
 		}
@@ -52,6 +72,7 @@ func (s *Server) mailboxQuery(query string) (Mailboxes, error) {
 			Domain:       domain,
 			PasswordHash: password,
 			Quota:        quota,
+			MailDir:      maildir,
 		})
 	}
 	err = rows.Err()
@@ -60,7 +81,7 @@ func (s *Server) mailboxQuery(query string) (Mailboxes, error) {
 }
 
 func (s *Server) MailboxList() (Mailboxes, error) {
-	mailboxes, err := s.mailboxQuery(`SELECT username, password, name, domain, quota FROM mailbox ORDER BY domain ASC, name ASC;`)
+	mailboxes, err := s.mailboxQuery(queryOptions{})
 
 	return mailboxes, err
 }
@@ -74,7 +95,21 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		Quota:  quota,
 	}
 
-	mailboxExists, err := s.MailboxExists(email)
+	domainExists, err := s.DomainExists(domain)
+	if err != nil {
+		return m, err
+	}
+	if !domainExists {
+		err := s.DomainAdd(Domain{
+			Domain:   domain,
+			Settings: DomainDefaultSettings,
+		})
+		if err != nil {
+			return m, err
+		}
+	}
+
+	mailboxExists, err := s.mailboxExists(email)
 	if err != nil {
 		return m, err
 	}
@@ -82,12 +117,12 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		return m, fmt.Errorf("A mailbox %v already exists", email)
 	}
 
-	domainExists, err := s.DomainExists(domain)
+	aliasExists, err := s.aliasExists(email)
 	if err != nil {
 		return m, err
 	}
-	if !domainExists {
-		return m, fmt.Errorf("Domain %v does not exist, please create one first", domain)
+	if aliasExists {
+		return m, fmt.Errorf("An alias %v already exists", email)
 	}
 
 	hash, err := generatePassword(password)
@@ -109,13 +144,16 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 			'` + storageBase + `','` + storageNode + `', '` + mailDirHash + `',
 			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
 		`)
+	if err != nil {
+		return m, err
+	}
 
-	err = s.ForwardingAdd(email, email)
+	err = s.MailboxForwardingAdd(email, email)
 
 	return m, err
 }
 
-func (s *Server) MailboxExists(email string) (bool, error) {
+func (s *Server) mailboxExists(email string) (bool, error) {
 	var exists bool
 
 	query := `select exists
@@ -132,4 +170,63 @@ func (s *Server) MailboxExists(email string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func (s *Server) MailboxAliasAdd(alias, email string) error {
+	_, domain := parseEmail(email)
+	a := fmt.Sprintf("%v@%v", alias, domain)
+
+	exists, err := s.mailboxExists(a)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return fmt.Errorf("A mailbox with %v already exists", a)
+	}
+
+	aliasExists, err := s.aliasExists(a)
+	if err != nil {
+		return err
+	}
+	if aliasExists {
+		return fmt.Errorf("An alias with %v already exists", a)
+	}
+
+	_, err = s.DB.Exec(`
+		INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
+		VALUES ('` + a + `', '` + email + `', '` + domain + `', '` + domain + `', 1, 1)
+	`)
+
+	return err
+}
+
+func (s *Server) MailboxDelete(email string) error {
+	mailboxExists, err := s.mailboxExists(email)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %v doesn't exist", email)
+	}
+
+	var mailDir string
+
+	err = s.DB.QueryRow("SELECT maildir FROM mailbox WHERE username='" + email + "'").Scan(&mailDir)
+	if err != nil {
+		return err
+	}
+
+	err = os.RemoveAll(mailDir)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.DB.Exec(`DELETE FROM mailbox WHERE username='` + email + `';`)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + email + `' AND forwarding='` + email + `' AND is_forwarding=1;`)
+
+	return err
 }

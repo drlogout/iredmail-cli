@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -9,9 +10,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
-var quiet bool
-
+var (
+	cfgFile string
+	quiet   bool
+)
 var rootCmd = &cobra.Command{
 	Use:   "iredmail-cli",
 	Short: "A brief description of your application",
@@ -62,8 +64,42 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatal("No config file found (default ~/.iredmail-cli.yml")
 	}
+}
+
+func askForConfirmation() bool {
+	var response string
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		log.Fatal(err)
+	}
+	okayResponses := []string{"y", "Y", "yes", "Yes", "YES"}
+	nokayResponses := []string{"n", "N", "no", "No", "NO"}
+	if containsString(okayResponses, response) {
+		return true
+	} else if containsString(nokayResponses, response) {
+		return false
+	} else {
+		fmt.Println("Please type yes or no and then press enter:")
+		return askForConfirmation()
+	}
+}
+
+// posString returns the first index of element in slice.
+// If slice does not contain element, returns -1.
+func posString(slice []string, element string) int {
+	for index, elem := range slice {
+		if elem == element {
+			return index
+		}
+	}
+	return -1
+}
+
+// containsString returns true iff slice contains element
+func containsString(slice []string, element string) bool {
+	return !(posString(slice, element) == -1)
 }

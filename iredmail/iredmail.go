@@ -1,12 +1,9 @@
 package iredmail
 
 import (
-	"bufio"
 	"database/sql"
-	"os"
-	"os/user"
-	"path/filepath"
-	"strings"
+
+	"github.com/spf13/viper"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -19,44 +16,12 @@ type queryOptions struct {
 	where string
 }
 
-const (
-	myCnfName = ".my.cnf-vmail"
-)
-
 func New() (*Server, error) {
-	dbConfig, _ := parseMyCnf()
-	db, err := sql.Open("mysql", dbConfig["user"]+":"+dbConfig["password"]+"@tcp("+dbConfig["host"]+":"+dbConfig["port"]+")/vmail")
+	db, err := sql.Open("mysql", viper.GetString("dbuser")+":"+viper.GetString("dbpassword")+"@tcp("+viper.GetString("dbhost")+":"+viper.GetString("dbport")+")/vmail")
 
 	server := &Server{
 		DB: db,
 	}
 
 	return server, err
-}
-
-func parseMyCnf() (map[string]string, error) {
-	dbConfig := map[string]string{}
-	usr, err := user.Current()
-	if err != nil {
-		return dbConfig, err
-	}
-
-	myCnf, err := os.Open(filepath.Join(usr.HomeDir, myCnfName))
-	if err != nil {
-		return dbConfig, err
-	}
-	defer myCnf.Close()
-
-	scanner := bufio.NewScanner(myCnf)
-	scanner.Split(bufio.ScanLines)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		splitLine := strings.Split(line, "=")
-		if len(splitLine) > 1 {
-			dbConfig[splitLine[0]] = strings.Trim(splitLine[1], "\"")
-		}
-	}
-
-	return dbConfig, nil
 }

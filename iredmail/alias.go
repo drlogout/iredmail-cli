@@ -1,14 +1,16 @@
 package iredmail
 
 import (
+	"fmt"
 	"strings"
 )
 
 type Alias struct {
-	Email  string
-	Name   string
-	Domain string
-	Active bool
+	Address string
+	Domain  string
+	Active  bool
+	Type    string
+	Forwardings
 }
 
 type Aliases []Alias
@@ -17,7 +19,7 @@ func (a Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
 
 	for _, al := range a {
-		if strings.Contains(al.Email, filter) {
+		if strings.Contains(al.Address, filter) {
 			filteredAliases = append(filteredAliases, al)
 		}
 	}
@@ -25,9 +27,17 @@ func (a Aliases) FilterBy(filter string) Aliases {
 	return filteredAliases
 }
 
-func (s *Server) queryAliases(query string) (Aliases, error) {
+func (s *Server) queryAliases(options queryOptions) (Aliases, error) {
 	aliases := Aliases{}
-	rows, err := s.DB.Query(query)
+
+	whereOption := ""
+	if len(options.where) > 1 {
+		whereOption = fmt.Sprintf("WHERE %v", options.where)
+	}
+
+	rows, err := s.DB.Query(`SELECT address, domain, active FROM alias
+` + whereOption + `
+ORDER BY domain ASC, address ASC;`)
 	if err != nil {
 		return aliases, err
 	}
@@ -42,13 +52,10 @@ func (s *Server) queryAliases(query string) (Aliases, error) {
 			return aliases, err
 		}
 
-		name, _ := parseEmail(address)
-
 		aliases = append(aliases, Alias{
-			Email:  address,
-			Name:   name,
-			Domain: domain,
-			Active: active,
+			Address: address,
+			Domain:  domain,
+			Active:  active,
 		})
 	}
 	err = rows.Err()

@@ -1,40 +1,29 @@
 package iredmail
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (s *Server) AliasRemove(email string) error {
 	isAlias, err := s.isAlias(email)
 	if err != nil {
 		return err
 	}
-
-	if isAlias {
-		_, err = s.DB.Exec(`
-			DELETE FROM forwardings WHERE address='` + email + `' and is_list=1
-		`)
-		if err != nil {
-			return err
-		}
-
-		_, err = s.DB.Exec(`
-			DELETE FROM alias WHERE address='` + email + `'
-		`)
-
-		return err
+	if !isAlias {
+		return fmt.Errorf("Alias %v does not exist", email)
 	}
 
-	isMailboxAlias, err := s.isMailboxAlias(email)
+	tx, err := s.DB.Begin()
+	stmt1, err := tx.Prepare("DELETE FROM forwardings WHERE address='" + email + "' and is_list=1")
+	_, err = stmt1.Exec()
+	stmt2, err := tx.Prepare("DELETE FROM alias WHERE address='" + email + "'")
+	_, err = stmt2.Exec()
+
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
+	err = tx.Commit()
 
-	if isMailboxAlias {
-		_, err = s.DB.Exec(`
-			DELETE FROM forwardings WHERE address='` + email + `' AND is_alias=1
-			`)
-
-		return err
-	}
-
-	return fmt.Errorf("Alias %v does not exist", email)
+	return err
 }

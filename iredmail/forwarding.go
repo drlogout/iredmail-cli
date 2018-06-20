@@ -89,7 +89,7 @@ func (s *Server) ForwardingList() (Forwardings, error) {
 	})
 }
 
-func (s *Server) ForwardingAdd(address, forwarding string) error {
+func (s *Server) MailboxForwardingAdd(address, forwarding string) error {
 	_, domain := parseEmail(address)
 	_, destDomain := parseEmail(forwarding)
 

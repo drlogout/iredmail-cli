@@ -7,13 +7,13 @@
 | mailbox       | **add**      | user@mydomain.com plain_password    | --quota |                               |
 |               | remove       | user@mydomain.com                   |        | delete aliases & forwardings? |
 |               | **list**     |                                     | --filter       |  |
-|  | add-alias | alias@mydomain.com                  |||
+|  | add-alias | somealias user@mydomain.com |||
 |  | remove-alias | alias@mydomain.com                  |||
 |  | add-forwarding | erlec@bachmnaity.com |||
 |  | remove-forwarding | erlec@bachmnaity.com |||
 |  | **info**     | user@mydomain.com |||
-| alias | **add**      | alias@mydomain.com                  |        |                               |
-|               | remove       | alias@mydomain.com                  |        |                               |
+| alias | **add**      | alias@mydomain.com user@mydomain.com |        |                               |
+|               | **remove**   | alias@mydomain.com                  |        |                               |
 |               | list   |                   | —filter |                               |
 | forwarding    | add          | user@domain.com forward@example.com |        |                               |
 |               | remove       | user@domain.com forward@example.com |||

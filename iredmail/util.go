@@ -58,8 +58,8 @@ func generateMaildirHash(email string) string {
 func PrintMailboxes(mailboxes Mailboxes) {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "Email (user name)", "Quota", "Name", "Domain")
-	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "-----------------", "-----", "----", "------")
+	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "Mailbox (user name)", "Quota (KB)", "Name", "Domain")
+	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "-------------------", "----------", "----", "------")
 	for _, m := range mailboxes {
 		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", m.Email, m.Quota, m.Name, m.Domain)
 	}
@@ -67,16 +67,28 @@ func PrintMailboxes(mailboxes Mailboxes) {
 }
 
 func PrintAliases(aliases Aliases) {
+	var lastAliasDomain string
+	var lastAlias string
+
 	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "Alias", "Domain", "Active")
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "-----", "------", "------")
+	w.Init(os.Stdout, 20, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t\t%v\t%v\n", "Alias", "Forwarding", "Type")
+	fmt.Fprintf(w, "%v\t\t%v\t%v\n", "-----", "----------", "----")
 	for _, a := range aliases {
-		activeText := "active"
-		if !a.Active {
-			activeText = "inactive"
+		if lastAliasDomain != "" && lastAliasDomain != a.Domain {
+			fmt.Fprintf(w, "\t\t\t\n")
 		}
-		fmt.Fprintf(w, "%v\t%v\t%v\n", a.Name, a.Domain, activeText)
+		lastAliasDomain = a.Domain
+
+		email := a.Address
+		arrow := " ->"
+		if lastAliasDomain != "" && lastAlias == a.Address {
+			email = ""
+			arrow = "|->"
+		}
+		lastAlias = a.Address
+
+		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", email, arrow, "", a.Type)
 	}
 	w.Flush()
 }
@@ -110,36 +122,50 @@ func PrintDomains(domains Domains, quiet bool) {
 	w.Flush()
 }
 
-func PrintDomainInfo(domain Domain, mailboxes Mailboxes, aliases Aliases, aliasForwardings Forwardings) {
+func PrintDomainInfo(domainInfo DomainInfo) {
+	domain := domainInfo.Domain
+	mailboxes := domainInfo.Mailboxes
+	aliases := domainInfo.Aliases
+
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\n", "Domain", "Description")
-	fmt.Fprintf(w, "%v\t%v\n", "------", "-----------")
-	fmt.Fprintf(w, "%v\t%v\n", domain.Domain, domain.Description)
+	fmt.Fprintf(w, "%v\n", "--------------------------------------")
+	fmt.Fprintf(w, "Domain: %v\n", domain.Domain)
+	fmt.Fprintf(w, "%v\n", "--------------------------------------")
 
 	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\t%v\n", "Mailboxes ("+strconv.Itoa(len(mailboxes))+")", "Quota")
+	fmt.Fprintf(w, "%v\t%v\n", "Mailboxes ("+strconv.Itoa(len(mailboxes))+")", "Quota (KB)")
 	fmt.Fprintf(w, "%v\t%v\n", "---------", "-----")
 	for _, m := range mailboxes {
 		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
+		if len(m.MailboxAliases) > 0 {
+			for _, ma := range m.MailboxAliases {
+				fmt.Fprintf(w, " <- %v\t\n", ma.Address)
+			}
+		}
+		if len(m.Forwardings) > 0 {
+			for _, f := range m.Forwardings {
+				fmt.Fprintf(w, " -> %v\t\n", f.Forwarding)
+			}
+		}
 	}
 
 	fmt.Fprintln(w)
 	fmt.Fprintf(w, "%v\n", "Aliases ("+strconv.Itoa(len(aliases))+")")
 	fmt.Fprintf(w, "%v\n", "-------")
 	for _, a := range aliases {
-		aliasText := a.Email
+		aliasText := a.Address
 		if !a.Active {
 			aliasText = aliasText + " (inactive)"
 		}
 		fmt.Fprintf(w, "%v\n", aliasText)
-		forwardings := aliasForwardings.GetByAddress(a.Email)
-		for _, f := range forwardings {
+
+		for _, f := range a.Forwardings {
 			forwardingText := f.Forwarding
 			if !f.Active {
 				forwardingText = forwardingText + " (inactive)"
 			}
-			fmt.Fprintf(w, "%v\n", "  ->  "+forwardingText)
+			fmt.Fprintf(w, "%v\n", " -> "+forwardingText)
 		}
 	}
 
