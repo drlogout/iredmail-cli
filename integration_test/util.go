@@ -1,6 +1,14 @@
-package test
+package integrationTest
 
-import "database/sql"
+import (
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	dbConnectionString = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
+)
 
 var dbTables = []string{
 	"alias",
@@ -10,7 +18,7 @@ var dbTables = []string{
 }
 
 func setupDB() error {
-	db, err := sql.Open("mysql", "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail")
+	db, err := sql.Open("mysql", dbConnectionString)
 	if err != nil {
 		return err
 	}
