@@ -17,11 +17,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
+)
+
+var (
+	forceDelete = false
 )
 
 // mailboxDeleteCmd represents the delete command
@@ -30,7 +33,7 @@ var mailboxDeleteCmd = &cobra.Command{
 	Short: "Delete a mailbox",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires email as argument")
+			return errors.New("requires email as single argument")
 		}
 
 		err := emailx.Validate(args[0])
@@ -45,20 +48,26 @@ var mailboxDeleteCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 
-		fmt.Printf("Do you really want to delete the mailbox %v? ", args[0])
-		delete := askForConfirmation()
+		email := args[0]
 
-		if !delete {
-			fmt.Println("cancelled")
+		if !forceDelete {
+			fmt.Printf("Do you really want to delete the mailbox %v? ", email)
+			delete := askForConfirmation()
+
+			if !delete {
+				fatal("cancelled\n")
+			}
 		}
 
-		err = server.MailboxDelete(args[0])
+		err = server.MailboxDelete(email)
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
+
+		success("Successfully deleted mailbox %v\n", email)
 	},
 }
 
@@ -73,5 +82,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// mailboxDeleteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	mailboxDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 }

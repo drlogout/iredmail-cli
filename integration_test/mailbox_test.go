@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
@@ -58,6 +60,21 @@ func TestCliArgs(t *testing.T) {
 			args:    []string{"mailbox", "add", "post@example.com", mailboxPassword},
 			fixture: "add-mailbox.golden",
 		},
+		{
+			name:    "delete mailbox",
+			args:    []string{"mailbox", "delete", "--force", "post@example.com"},
+			fixture: "delete-mailbox.golden",
+		},
+		{
+			name:    "add mailbox",
+			args:    []string{"mailbox", "add", "post@example.com", mailboxPassword},
+			fixture: "add-mailbox.golden",
+		},
+	}
+
+	err := setupDB()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	for _, tt := range tests {
@@ -70,6 +87,7 @@ func TestCliArgs(t *testing.T) {
 			cmd := exec.Command(path.Join(dir, binaryName), tt.args...)
 			output, err := cmd.CombinedOutput()
 			if !tt.fail && err != nil {
+				fmt.Println(string(output))
 				t.Fatal(err)
 			}
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -102,4 +103,20 @@ func posString(slice []string, element string) int {
 // containsString returns true iff slice contains element
 func containsString(slice []string, element string) bool {
 	return !(posString(slice, element) == -1)
+}
+
+func success(format string, a ...interface{}) {
+	c := color.New(color.FgGreen, color.Bold)
+	c.Printf(format, a...)
+}
+
+func warning(format string, a ...interface{}) {
+	c := color.New(color.FgRed, color.Bold)
+	c.Printf(format, a...)
+}
+
+func fatal(format string, a ...interface{}) {
+	c := color.New(color.FgRed, color.Bold)
+	c.Printf(format, a...)
+	os.Exit(1)
 }

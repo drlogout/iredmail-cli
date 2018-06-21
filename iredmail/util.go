@@ -55,17 +55,6 @@ func generateMaildirHash(email string) string {
 	return domain + `/` + str1 + `/` + str2 + `/` + str3 + `/` + name + `-` + date + `/`
 }
 
-func PrintMailboxes(mailboxes Mailboxes) {
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "Mailbox (user name)", "Quota (KB)", "Name", "Domain")
-	fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", "-------------------", "----------", "----", "------")
-	for _, m := range mailboxes {
-		fmt.Fprintf(w, "%v\t%v\t%v\t%v\n", m.Email, m.Quota, m.Name, m.Domain)
-	}
-	w.Flush()
-}
-
 func PrintAliases(aliases Aliases) {
 	var lastAliasDomain string
 	var lastAlias string

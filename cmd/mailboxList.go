@@ -28,7 +28,7 @@ var mailboxListCmd = &cobra.Command{
 			mailboxes = mailboxes.FilterBy(domainFilter)
 		}
 
-		iredmail.PrintMailboxes(mailboxes)
+		mailboxes.Print()
 	},
 }
 

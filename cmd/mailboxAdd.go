@@ -50,7 +50,7 @@ var mailboxAddCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		iredmail.PrintMailboxes(iredmail.Mailboxes{mailbox})
+		success("Successfully created mailbox %v (quota: %v KB)\n", mailbox.Email, mailbox.Quota)
 	},
 }
 

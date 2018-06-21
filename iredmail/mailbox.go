@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 )
 
 type Mailbox struct {
@@ -20,7 +21,27 @@ type Mailbox struct {
 	Forwardings
 }
 
+func (m Mailbox) Print() {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\n", "Mailbox", "Quota (KB)")
+	fmt.Fprintf(w, "%v\t%v\n", "-------", "----------")
+	fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
+	w.Flush()
+}
+
 type Mailboxes []Mailbox
+
+func (mb Mailboxes) Print() {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
+	fmt.Fprintf(w, "%v\t%v\n", "Mailbox", "Quota (KB)")
+	fmt.Fprintf(w, "%v\t%v\n", "-------", "----------")
+	for _, m := range mb {
+		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
+	}
+	w.Flush()
+}
 
 type MailboxAlias struct {
 	Address string
