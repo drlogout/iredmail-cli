@@ -89,7 +89,7 @@ var _ = Describe("Mailbox", func() {
 		Expect(exists).To(Equal(false))
 	})
 
-	It("can add an mailbox-forwarding", func() {
+	It("can add a mailbox-forwarding", func() {
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName, mailboxPW)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
@@ -113,5 +113,27 @@ var _ = Describe("Mailbox", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(exists).To(Equal(true))
+	})
+
+	It("can delete a mailbox-forwarding", func() {
+		cli := exec.Command(cliPath, "mailbox", "delete-forwarding", mailboxName, forwardingAddress)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var exists bool
+
+		query := `SELECT exists
+		(SELECT * FROM forwardings
+		WHERE address = '` + mailboxName + `' AND forwarding = '` + forwardingAddress + `' 
+		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
+
+		err = db.QueryRow(query).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(exists).To(Equal(false))
 	})
 })

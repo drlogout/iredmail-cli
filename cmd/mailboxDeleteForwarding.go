@@ -1,3 +1,17 @@
+// Copyright © 2018 Christian Nolte
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cmd
 
 import (
@@ -12,17 +26,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	quota           int
-	storageBasePath string
-)
-
-var mailboxAddCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add a mailbox (e.g. post@domain.com)",
+// mailboxDeleteForwardingCmd represents the delete-forwarding command
+var mailboxDeleteForwardingCmd = &cobra.Command{
+	Use:   "delete-forwarding",
+	Short: "Delete a mailbox forwarding",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires mailbox and password as arguments")
+			return errors.New("requires mailbox and destination address")
 		}
 
 		err := emailx.Validate(args[0])
@@ -32,11 +42,14 @@ var mailboxAddCmd = &cobra.Command{
 
 		args[0] = emailx.Normalize(args[0])
 
-		if len(args[1]) < 10 {
-			return errors.New("Password length to short (min length 10)")
+		err = emailx.Validate(args[1])
+		if err != nil {
+			return fmt.Errorf("Invalid destination address format: \"%v\"", args[1])
 		}
 
-		return err
+		args[1] = emailx.Normalize(args[1])
+
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -45,26 +58,25 @@ var mailboxAddCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		mailbox, err := server.MailboxAdd(args[0], args[1], quota, storageBasePath)
+		mailboxAddress, destinationAddress := args[0], args[1]
+
+		err = server.MailboxDeleteForwarding(mailboxAddress, destinationAddress)
 		if err != nil {
 			color.Red(err.Error())
 			os.Exit(1)
 		}
 
-		success("Successfully added mailbox %v (quota: %v KB)\n", mailbox.Email, mailbox.Quota)
+		success("Successfully deleted mailbox-forwarding %v -> %v\n", mailboxAddress, destinationAddress)
 	},
 }
 
 func init() {
-	mailboxCmd.AddCommand(mailboxAddCmd)
+	mailboxCmd.AddCommand(mailboxDeleteForwardingCmd)
 
-	mailboxAddCmd.Flags().IntVarP(&quota, "quota", "", 2048, "Quota (default 2048 MB)")
-	mailboxAddCmd.Flags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
-
-	mailboxAddCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
-  iredmail-cli mailbox add [mailbox] [plain_password]{{end}}{{if .HasAvailableSubCommands}}
+	mailboxDeleteForwardingCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
+  iredmail-cli mailbox delete-forwarding [mailbox] [destination address]{{end}}{{if .HasAvailableSubCommands}}
 	{{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
-
+	
 Aliases:
 	{{.NameAndAliases}}{{end}}{{if .HasExample}}
 

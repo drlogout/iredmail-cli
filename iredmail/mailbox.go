@@ -272,3 +272,17 @@ func (s *Server) MailboxAddForwarding(mailboxAddress, destinationAddress string)
 
 	return err
 }
+
+func (s *Server) MailboxDeleteForwarding(mailbox, destinationAddress string) error {
+	mailboxExists, err := s.mailboxExists(mailbox)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %v doesn't exist", mailbox)
+	}
+
+	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + mailbox + `' AND forwarding='` + destinationAddress + `' AND is_forwarding=1;`)
+
+	return err
+}

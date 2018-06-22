@@ -32,7 +32,7 @@ var mailboxForwardingAddCmd = &cobra.Command{
 	Short: "Add mailbox forwarding (e.g. post@domain.com -> info@example.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires mailbox address and destination address")
+			return errors.New("requires mailbox and destination address")
 		}
 
 		err := emailx.Validate(args[0])
