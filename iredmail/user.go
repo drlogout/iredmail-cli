@@ -135,7 +135,7 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 		return m, err
 	}
 	if userExists {
-		return m, fmt.Errorf("A user %v already exists", email)
+		return m, fmt.Errorf("User %v already exists", email)
 	}
 
 	aliasExists, err := s.aliasExists(email)

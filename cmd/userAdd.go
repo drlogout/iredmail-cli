@@ -3,11 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/fatih/color"
 	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +19,7 @@ var userAddCmd = &cobra.Command{
 	Short: "Add a user (e.g. post@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires user and password as arguments")
+			return errors.New("Requires user email and password as arguments")
 		}
 
 		err := emailx.Validate(args[0])
@@ -41,14 +38,13 @@ var userAddCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
 		user, err := server.UserAdd(args[0], args[1], quota, storageBasePath)
 		if err != nil {
-			color.Red(err.Error())
-			os.Exit(1)
+			fatal("%v\n", err)
 		}
 
 		success("Successfully added user %v (quota: %v KB)\n", user.Email, user.Quota)
@@ -59,7 +55,7 @@ func init() {
 	userCmd.AddCommand(userAddCmd)
 
 	userAddCmd.Flags().IntVarP(&quota, "quota", "", 2048, "Quota (default 2048 MB)")
-	userAddCmd.Flags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
+	userAddCmd.Flags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path")
 
 	userAddCmd.SetUsageTemplate(usageTemplate("user add [user_email] [plain_password]"))
 }
