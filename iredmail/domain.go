@@ -140,9 +140,9 @@ func (s *Server) DomainUpdate(d Domain) error {
 }
 
 type DomainInfo struct {
-	Domain    Domain
-	Mailboxes Mailboxes
-	Aliases   Aliases
+	Domain  Domain
+	Users   Users
+	Aliases Aliases
 }
 
 func (s *Server) DomainInfo(domainName string) error {
@@ -151,14 +151,14 @@ func (s *Server) DomainInfo(domainName string) error {
 		return err
 	}
 
-	mailboxes, err := s.mailboxQuery(queryOptions{
+	users, err := s.userQuery(queryOptions{
 		where: `domain='` + domainName + `'`,
 	})
 	if err != nil {
 		return err
 	}
 
-	for i, m := range mailboxes {
+	for i, m := range users {
 		aliases, err := s.queryForwardings(queryOptions{
 			where: fmt.Sprintf("forwarding='%v' AND domain='%v' AND dest_domain='%v' AND is_alias=1", m.Email, m.Domain, m.Domain),
 		})
@@ -166,14 +166,14 @@ func (s *Server) DomainInfo(domainName string) error {
 			return err
 		}
 
-		mailboxAliases := MailboxAliases{}
+		userAliases := UserAliases{}
 		for _, a := range aliases {
-			mailboxAliases = append(mailboxAliases, MailboxAlias{
+			userAliases = append(userAliases, UserAlias{
 				Address: a.Address,
-				Mailbox: m.Email,
+				User:    m.Email,
 			})
 		}
-		mailboxes[i].MailboxAliases = mailboxAliases
+		users[i].UserAliases = userAliases
 
 		forwardings, err := s.queryForwardings(queryOptions{
 			where: fmt.Sprintf("address='%v' AND forwarding<>'%v' AND is_forwarding=1", m.Email, m.Email),
@@ -182,7 +182,7 @@ func (s *Server) DomainInfo(domainName string) error {
 			return err
 		}
 
-		mailboxes[i].Forwardings = forwardings
+		users[i].Forwardings = forwardings
 	}
 
 	aliases, err := s.queryAliases(queryOptions{
@@ -203,9 +203,9 @@ func (s *Server) DomainInfo(domainName string) error {
 	}
 
 	PrintDomainInfo(DomainInfo{
-		Domain:    domain,
-		Mailboxes: mailboxes,
-		Aliases:   aliases,
+		Domain:  domain,
+		Users:   users,
+		Aliases: aliases,
 	})
 
 	return nil

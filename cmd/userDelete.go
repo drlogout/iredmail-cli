@@ -1,0 +1,81 @@
+// Copyright © 2018 Christian Nolte
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package cmd
+
+import (
+	"errors"
+	"fmt"
+
+	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/goware/emailx"
+	"github.com/spf13/cobra"
+)
+
+var (
+	forceDelete = false
+)
+
+// userDeleteCmd represents the delete command
+var userDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a user",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return errors.New("requires user email as sole argument")
+		}
+
+		err := emailx.Validate(args[0])
+		if err != nil {
+			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
+		}
+
+		args[0] = emailx.Normalize(args[0])
+
+		return err
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		server, err := iredmail.New()
+		if err != nil {
+			fatal("%v\n", err)
+		}
+		defer server.Close()
+
+		userEmail := args[0]
+
+		if !forceDelete {
+			fmt.Printf("Do you really want to delete the user %v? ", userEmail)
+			delete := askForConfirmation()
+
+			if !delete {
+				fatal("cancelled\n")
+			}
+		}
+
+		err = server.UserDelete(userEmail)
+		if err != nil {
+			fatal("%v\n", err)
+		}
+
+		success("Successfully deleted user %v\n", userEmail)
+	},
+}
+
+func init() {
+	userCmd.AddCommand(userDeleteCmd)
+
+	userDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
+
+	userDeleteCmd.SetUsageTemplate(usageTemplate("user delete [user_email]"))
+}

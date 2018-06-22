@@ -113,7 +113,7 @@ func PrintDomains(domains Domains, quiet bool) {
 
 func PrintDomainInfo(domainInfo DomainInfo) {
 	domain := domainInfo.Domain
-	mailboxes := domainInfo.Mailboxes
+	users := domainInfo.Users
 	aliases := domainInfo.Aliases
 
 	w := new(tabwriter.Writer)
@@ -123,12 +123,12 @@ func PrintDomainInfo(domainInfo DomainInfo) {
 	fmt.Fprintf(w, "%v\n", "--------------------------------------")
 
 	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\t%v\n", "Mailboxes ("+strconv.Itoa(len(mailboxes))+")", "Quota (KB)")
+	fmt.Fprintf(w, "%v\t%v\n", "Useres ("+strconv.Itoa(len(users))+")", "Quota (KB)")
 	fmt.Fprintf(w, "%v\t%v\n", "---------", "-----")
-	for _, m := range mailboxes {
+	for _, m := range users {
 		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
-		if len(m.MailboxAliases) > 0 {
-			for _, ma := range m.MailboxAliases {
+		if len(m.UserAliases) > 0 {
+			for _, ma := range m.UserAliases {
 				fmt.Fprintf(w, " <- %v\t\n", ma.Address)
 			}
 		}

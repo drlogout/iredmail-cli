@@ -34,15 +34,7 @@ func TestCLI(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	db, err := sql.Open("mysql", dbConnectionString)
-	Expect(err).NotTo(HaveOccurred())
-	defer db.Close()
-
-	// reset database
-	for _, table := range dbTables {
-		_, err := db.Exec("DELETE FROM " + table)
-		Expect(err).NotTo(HaveOccurred())
-	}
+	err := resetDB()
 	Expect(err).NotTo(HaveOccurred())
 
 	cwd, err := os.Getwd()
@@ -57,3 +49,20 @@ var _ = BeforeSuite(func() {
 	err = cmd.Run()
 	Expect(err).NotTo(HaveOccurred())
 })
+
+func resetDB() error {
+	db, err := sql.Open("mysql", dbConnectionString)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	for _, table := range dbTables {
+		_, err := db.Exec("DELETE FROM " + table)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
