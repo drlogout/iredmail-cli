@@ -38,6 +38,7 @@ var domainAddCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer server.Close()
 
 		description := cmd.Flag("description").Value.String()
 		settings := cmd.Flag("settings").Value.String()

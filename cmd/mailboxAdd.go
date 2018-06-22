@@ -19,7 +19,7 @@ var (
 
 var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a mailbox",
+	Short: "Add a mailbox (e.g. post@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("requires email and password as arguments")
@@ -43,6 +43,7 @@ var mailboxAddCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer server.Close()
 
 		mailbox, err := server.MailboxAdd(args[0], args[1], quota, storageBasePath)
 		if err != nil {
@@ -50,18 +51,18 @@ var mailboxAddCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		success("Successfully created mailbox %v (quota: %v KB)\n", mailbox.Email, mailbox.Quota)
+		success("Successfully added mailbox %v (quota: %v KB)\n", mailbox.Email, mailbox.Quota)
 	},
 }
 
 func init() {
 	mailboxCmd.AddCommand(mailboxAddCmd)
 
-	mailboxCmd.PersistentFlags().IntVarP(&quota, "quota", "", 2048, "Quota (default 2048 MB)")
-	mailboxCmd.PersistentFlags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
+	mailboxAddCmd.Flags().IntVarP(&quota, "quota", "", 2048, "Quota (default 2048 MB)")
+	mailboxAddCmd.Flags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path (default /var/vmail/vmail1)")
 
 	mailboxAddCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
-	iredmail-cli mailbox add user@example.com plain_password{{end}}{{if .HasAvailableSubCommands}}
+  iredmail-cli mailbox add [mailbox address] [plain_password]{{end}}{{if .HasAvailableSubCommands}}
 	{{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
 
 Aliases:

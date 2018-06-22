@@ -1,6 +1,7 @@
 package integrationTest
 
 import (
+	"database/sql"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -8,27 +9,50 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	dbConnectionString = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
 )
 
 var (
-	cli = ""
+	cliPath    string
+	projectDir string
+	dbTables   = []string{
+		"alias",
+		"domain",
+		"forwardings",
+		"mailbox",
+	}
 )
 
-func TestTest(t *testing.T) {
+func TestCLI(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Test Suite")
 }
 
 var _ = BeforeSuite(func() {
-	err := setupDB()
+	db, err := sql.Open("mysql", dbConnectionString)
+	Expect(err).NotTo(HaveOccurred())
+	defer db.Close()
+
+	// reset database
+	for _, table := range dbTables {
+		_, err := db.Exec("DELETE FROM " + table)
+		Expect(err).NotTo(HaveOccurred())
+	}
 	Expect(err).NotTo(HaveOccurred())
 
 	cwd, err := os.Getwd()
 	Expect(err).NotTo(HaveOccurred())
 
-	cli = filepath.Join(cwd, "../", "iredmail-cli")
+	projectDir = filepath.Join(cwd, "../")
+	cliPath = filepath.Join(projectDir, "iredmail-cli")
 
-	cmd := exec.Command("go", "build", "-o", cli)
+	cmd := exec.Command("go", "build", "-o", cliPath)
+	cmd.Dir = projectDir
 
 	err = cmd.Run()
 	Expect(err).NotTo(HaveOccurred())

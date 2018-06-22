@@ -41,7 +41,7 @@ var domainListCmd = &cobra.Command{
 			domains = domains.FilterBy(filter)
 		}
 
-		iredmail.PrintDomains(domains, quiet)
+		iredmail.PrintDomains(domains, false)
 	},
 }
 

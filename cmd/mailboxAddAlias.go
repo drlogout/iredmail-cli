@@ -23,13 +23,7 @@ import (
 // mailboxAddAliasCmd represents the add-alias command
 var mailboxAddAliasCmd = &cobra.Command{
 	Use:   "add-alias",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Add mailbox alias (e.g. mail@domain.com -> post@domain.com)",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("add-alias called")
 	},

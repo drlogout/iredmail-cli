@@ -12,6 +12,10 @@ type Server struct {
 	DB *sql.DB
 }
 
+func (s *Server) Close() {
+	s.DB.Close()
+}
+
 type queryOptions struct {
 	where string
 }

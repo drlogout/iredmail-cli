@@ -54,6 +54,7 @@ var aliasAddCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer server.Close()
 
 		err = server.AliasAdd(args[0], args[1])
 		if err != nil {

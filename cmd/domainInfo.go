@@ -38,6 +38,7 @@ var domainInfoCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer server.Close()
 
 		err = server.DomainInfo(args[0])
 		if err != nil {

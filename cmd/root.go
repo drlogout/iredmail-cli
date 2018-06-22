@@ -13,7 +13,6 @@ import (
 
 var (
 	cfgFile string
-	quiet   bool
 )
 var rootCmd = &cobra.Command{
 	Use:   "iredmail-cli",
@@ -42,7 +41,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.iredmail-cli.yaml)")
-	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Quiet output")
 }
 
 // initConfig reads in config file and ENV variables if set.

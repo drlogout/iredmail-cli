@@ -6,7 +6,7 @@ import (
 
 var mailboxCmd = &cobra.Command{
 	Use:   "mailbox",
-	Short: "Add, revome, list mailboxes",
+	Short: "add, delete, list mailbox, mailbox-aliase & mailbox-forwardings",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

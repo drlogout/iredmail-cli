@@ -169,7 +169,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		return m, err
 	}
 
-	err = s.MailboxForwardingAdd(email, email)
+	err = s.MailboxAddForwarding(email, email)
 
 	return m, err
 }
@@ -193,7 +193,7 @@ func (s *Server) mailboxExists(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) MailboxAliasAdd(alias, email string) error {
+func (s *Server) MailboxAddAlias(alias, email string) error {
 	_, domain := parseEmail(email)
 	a := fmt.Sprintf("%v@%v", alias, domain)
 
@@ -248,6 +248,27 @@ func (s *Server) MailboxDelete(email string) error {
 	}
 
 	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + email + `' AND forwarding='` + email + `' AND is_forwarding=1;`)
+
+	return err
+}
+
+func (s *Server) MailboxAddForwarding(mailboxAddress, destinationAddress string) error {
+	mailboxExists, err := s.mailboxExists(mailboxAddress)
+	if err != nil {
+		return err
+	}
+
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %v doesn't exist", mailboxAddress)
+	}
+
+	_, mailboxDomain := parseEmail(mailboxAddress)
+	_, destDomain := parseEmail(destinationAddress)
+
+	_, err = s.DB.Exec(`
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
+    VALUES ('` + mailboxAddress + `', '` + destinationAddress + `','` + mailboxDomain + `', '` + destDomain + `', 1);
+	`)
 
 	return err
 }

@@ -9,14 +9,14 @@ import (
 
 var mailboxListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List domains",
-	Long:  ``,
+	Short: "List mailboxes",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer server.Close()
 
 		mailboxes, err := server.MailboxList()
 		if err != nil {

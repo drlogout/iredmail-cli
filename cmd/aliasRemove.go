@@ -47,6 +47,7 @@ var removeCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer server.Close()
 
 		err = server.AliasRemove(args[0])
 		if err != nil {

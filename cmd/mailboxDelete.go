@@ -50,6 +50,7 @@ var mailboxDeleteCmd = &cobra.Command{
 		if err != nil {
 			fatal("%v\n", err)
 		}
+		defer server.Close()
 
 		email := args[0]
 
