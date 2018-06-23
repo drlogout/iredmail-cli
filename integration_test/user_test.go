@@ -117,10 +117,8 @@ var _ = Describe("user", func() {
 		}
 
 		cli = exec.Command(cliPath, "user", "add", userName, userPW)
-		output, err = cli.CombinedOutput()
-		if err != nil {
-			Fail(string(output))
-		}
+		err = cli.Run()
+		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
 		expected := fmt.Sprintf("User %v already exists\n", userName)
