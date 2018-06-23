@@ -29,7 +29,9 @@ var _ = Describe("user", func() {
 	It("can add an user", func() {
 		cli := exec.Command(cliPath, "user", "add", userName, userPW)
 		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added user %v (quota: 2048 KB)\n", userName)
@@ -64,12 +66,17 @@ var _ = Describe("user", func() {
 
 	It("can delete an user", func() {
 		cli := exec.Command(cliPath, "user", "add", userName, userPW)
-		err := cli.Run()
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 		Expect(err).NotTo(HaveOccurred())
 
 		cli = exec.Command(cliPath, "user", "delete", "--force", userName)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted user %v\n", userName)
@@ -109,7 +116,9 @@ var _ = Describe("user", func() {
 
 		cli = exec.Command(cliPath, "user", "add", userName, userPW)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("User %v already exists\n", userName)
@@ -122,7 +131,9 @@ var _ = Describe("user", func() {
 	It("can add an user with custom quota", func() {
 		cli := exec.Command(cliPath, "user", "add", "--quota", strconv.Itoa(customQuota), userName, userPW)
 		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added user %v (quota: "+strconv.Itoa(customQuota)+" KB)\n", userName)
@@ -165,7 +176,9 @@ var _ = Describe("user", func() {
 	It("can add an user with custom storage path", func() {
 		cli := exec.Command(cliPath, "user", "add", "--storage-path", customStoragePath, userName, userPW)
 		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added user %v (quota: 2048 KB)\n", userName)

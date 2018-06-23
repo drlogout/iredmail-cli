@@ -18,12 +18,16 @@ var _ = Describe("user-forwarding", func() {
 
 	It("can add a user-forwarding", func() {
 		cli := exec.Command(cliPath, "user", "add", userName, userPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "user", "add-forwarding", userName, forwardingAddress)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added user forwarding %v -> info@example.com\n", userName)
@@ -51,16 +55,22 @@ var _ = Describe("user-forwarding", func() {
 
 	It("can delete a user-forwarding", func() {
 		cli := exec.Command(cliPath, "user", "add", userName, userPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "user", "add-forwarding", userName, forwardingAddress)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "user", "delete-forwarding", userName, forwardingAddress)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted user forwarding %v -> info@example.com\n", userName)
