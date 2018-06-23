@@ -111,11 +111,13 @@ var _ = Describe("user", func() {
 
 	It("can't add an existing user", func() {
 		cli := exec.Command(cliPath, "user", "add", userName, userPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "user", "add", userName, userPW)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
