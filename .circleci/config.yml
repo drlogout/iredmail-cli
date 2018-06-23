@@ -19,8 +19,8 @@ jobs:
     working_directory: /go/src/github.com/drlogout/iredmail-cli
     steps:
       - checkout
-      - run: cp .circleci/doveadm /usr/local/bin/doveadm
-      - run: chmod a+x /usr/local/bin/doveadm
+      - run: sudo cp .circleci/doveadm /usr/local/bin/doveadm
+      - run: sudo chmod a+x /usr/local/bin/doveadm
       - run: cp .iredmail-cli.yml $HOME/.iredmail-cli.yml
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
