@@ -17,11 +17,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/fatih/color"
 	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
@@ -54,7 +51,7 @@ var userForwardingAddCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n")
 		}
 		defer server.Close()
 
@@ -62,8 +59,7 @@ var userForwardingAddCmd = &cobra.Command{
 
 		err = server.UserAddForwarding(userEmail, destinationEmail)
 		if err != nil {
-			color.Red(err.Error())
-			os.Exit(1)
+			fatal("%v\n")
 		}
 
 		success("Successfully added user forwarding %v -> %v\n", userEmail, destinationEmail)
