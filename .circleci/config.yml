@@ -24,7 +24,7 @@ jobs:
       - run: cp .iredmail-cli.yml $HOME/.iredmail-cli.yml
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
-      — run: go get github.com/mitchellh/gox
-      — run: go get github.com/tcnksm/ghr
-      — run: gox -os="linux" -ldflags "-X main.Version $BUILD_VERSION -X main.BuildDate $BUILD_DATE" -output "output/ncd_{{.OS}}_{{.Arch}}"
+      - run: go get github.com/mitchellh/gox
+      - run: go get github.com/tcnksm/ghr
+      - run: gox -os="linux" -ldflags "-X main.Version $BUILD_VERSION -X main.BuildDate $BUILD_DATE" -output "output/ncd_{{.OS}}_{{.Arch}}"
       - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace `git describe --tags` output/
