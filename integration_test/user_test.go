@@ -117,7 +117,7 @@ var _ = Describe("user", func() {
 		}
 
 		cli = exec.Command(cliPath, "user", "add", userName, userPW)
-		err = cli.Run()
+		output, err = cli.CombinedOutput()
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
