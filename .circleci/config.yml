@@ -3,19 +3,9 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  test:
     docker:
-      # specify the version
       - image: circleci/golang:1.9
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-
-    #### TEMPLATE_NOTE: go expects specific checkout path representing url
-    #### expecting it in the form of
-    ####   /go/src/github.com/circleci/go-tool
-    ####   /go/src/bitbucket.org/circleci/go-tool
     working_directory: /go/src/github.com/drlogout/iredmail-cli
     steps:
       - checkout
@@ -24,7 +14,30 @@ jobs:
       - run: cp .iredmail-cli.yml $HOME/.iredmail-cli.yml
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
-      - run: go get github.com/mitchellh/gox
-      - run: go get github.com/tcnksm/ghr
-      - run: gox -osarch="linux/arm linux/amd64 linux/386 linux/amd64" -output "output/ncd_{{.OS}}_{{.Arch}}"
-      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace `git describe --tags` output/
+
+    release:
+      docker:
+        - image: circleci/golang:1.9
+      working_directory: /go/src/github.com/drlogout/iredmail-cli
+      steps:
+        - checkout
+        - run: git config --global user.name drlogout
+        - run: make dist
+        - run: make release
+        
+workflows:
+  version: 2
+  run_release:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+            - go-run
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
