@@ -31,7 +31,7 @@ var _ = Describe("user", func() {
 	})
 
 	It("can add an user", func() {
-		if skipUser {
+		if skipUser && !isCI {
 			Skip("can add an user")
 		}
 
@@ -73,7 +73,7 @@ var _ = Describe("user", func() {
 	})
 
 	It("can delete an user", func() {
-		if skipUser {
+		if skipUser && !isCI {
 			Skip("can delete an user")
 		}
 
@@ -122,7 +122,7 @@ var _ = Describe("user", func() {
 	})
 
 	It("can't add an existing user", func() {
-		if skipUser {
+		if skipUser && !isCI {
 			Skip("can't add an existing user")
 		}
 
@@ -145,7 +145,7 @@ var _ = Describe("user", func() {
 	})
 
 	It("can add an user with custom quota", func() {
-		if skipUser {
+		if skipUser && !isCI {
 			Skip("can add an user with custom quota")
 		}
 
@@ -194,7 +194,7 @@ var _ = Describe("user", func() {
 	})
 
 	It("can add an user with custom storage path", func() {
-		if skipUser {
+		if skipUser && !isCI {
 			Skip("can add an user with custom storage path")
 		}
 

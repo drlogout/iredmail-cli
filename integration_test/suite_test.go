@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	dbConnectionString = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
-	// dbConnectionString = "vmail:MDmPEwViyNNrMVpxrRGQivvFdtxZAp98@tcp(iredmail-test-db.noltech.net:3357)/vmail"
+	dbConnectionStringLocal = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
+	dbConnectionStringCI    = "vmail:MDmPEwViyNNrMVpxrRGQivvFdtxZAp98@tcp(iredmail-test-db.noltech.net:3357)/vmail"
 )
 
 var (
@@ -30,6 +30,8 @@ var (
 	}
 	skipUser           = true
 	skipForwardingUser = true
+	dbConnectionString = dbConnectionStringLocal
+	isCI               = false
 )
 
 func TestCLI(t *testing.T) {
@@ -38,6 +40,11 @@ func TestCLI(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	isCI = os.Getenv("CI") == "true"
+	if isCI {
+		dbConnectionString = dbConnectionStringCI
+	}
+
 	err := resetDB()
 	Expect(err).NotTo(HaveOccurred())
 

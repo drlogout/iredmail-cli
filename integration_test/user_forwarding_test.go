@@ -17,7 +17,7 @@ var _ = Describe("user forwarding", func() {
 	})
 
 	It("can add a user-forwarding", func() {
-		if skipForwardingUser {
+		if skipForwardingUser && !isCI {
 			Skip("can add a user-forwarding")
 		}
 
@@ -58,7 +58,7 @@ var _ = Describe("user forwarding", func() {
 	})
 
 	It("can delete a user-forwarding", func() {
-		if skipForwardingUser {
+		if skipForwardingUser && !isCI {
 			Skip("can delete a user-forwarding")
 		}
 
