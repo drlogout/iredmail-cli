@@ -15,15 +15,16 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
 
-    release:
-      docker:
-        - image: circleci/golang:1.9
-      working_directory: /go/src/github.com/drlogout/iredmail-cli
-      steps:
-        - checkout
-        - run: git config --global user.name drlogout
-        - run: make dist
-        - run: make release
+  release:
+    docker:
+      - image: circleci/golang:1.9
+    working_directory: /go/src/github.com/drlogout/iredmail-cli
+    steps:
+      - checkout
+      - run: go get -v -t -d ./...
+      - run: git config --global user.name drlogout
+      - run: make dist
+      - run: make release
         
 workflows:
   version: 2
