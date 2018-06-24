@@ -3,7 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  test:
+  integration-test:
     docker:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/drlogout/iredmail-cli
@@ -30,13 +30,13 @@ workflows:
   version: 2
   run_release:
     jobs:
-      - test:
+      - integration-test:
           filters:
             tags:
               only: /.*/
       - release:
           requires:
-            - go-run
+            - integration-test
           filters:
             tags:
               only: /^v.*/
