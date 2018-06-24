@@ -2,6 +2,7 @@ package integrationTest
 
 import (
 	"database/sql"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,8 +15,8 @@ import (
 )
 
 const (
-	// dbConnectionString = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
-	dbConnectionString = "vmail:MDmPEwViyNNrMVpxrRGQivvFdtxZAp98@tcp(iredmail-test-db.noltech.net:3357)/vmail"
+	dbConnectionString = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
+	// dbConnectionString = "vmail:MDmPEwViyNNrMVpxrRGQivvFdtxZAp98@tcp(iredmail-test-db.noltech.net:3357)/vmail"
 )
 
 var (
@@ -27,6 +28,8 @@ var (
 		"forwardings",
 		"mailbox",
 	}
+	skipUser           = true
+	skipForwardingUser = true
 )
 
 func TestCLI(t *testing.T) {
@@ -66,4 +69,14 @@ func resetDB() error {
 	}
 
 	return nil
+}
+
+func loadGolden(filename string) string {
+	cwd, err := os.Getwd()
+	Expect(err).NotTo(HaveOccurred())
+
+	content, err := ioutil.ReadFile(filepath.Join(cwd, "golden", filename))
+	Expect(err).NotTo(HaveOccurred())
+
+	return string(content)
 }

@@ -6,7 +6,7 @@ import (
 
 var userCmd = &cobra.Command{
 	Use:   "user",
-	Short: "add, delete, list user, user-aliase & user-forwardings",
+	Short: "add, delete, list user | user-alias | user-forwarding",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
