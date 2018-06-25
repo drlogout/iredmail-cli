@@ -31,7 +31,7 @@ var userListCmd = &cobra.Command{
 			users = users.FilterBy(domainFilter)
 		}
 
-		PrintUserList(users)
+		printUserList(users)
 	},
 }
 
@@ -41,7 +41,7 @@ func init() {
 	userListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }
 
-func PrintUserList(users iredmail.Users) {
+func printUserList(users iredmail.Users) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
