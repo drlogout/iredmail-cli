@@ -23,51 +23,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// userForwardingAddCmd represents the add command
-var userForwardingAddCmd = &cobra.Command{
-	Use:   "add-forwarding",
-	Short: "Add user forwarding (e.g. post@domain.com -> info@example.com)",
+// infoCmd represents the info command
+var infoCmd = &cobra.Command{
+	Use:   "info",
+	Short: "Show user info",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 2 {
-			return errors.New("requires user and destination email")
+		if len(args) != 1 {
+			return errors.New("requires user email as sole argument")
 		}
 
 		err := emailx.Validate(args[0])
 		if err != nil {
-			return fmt.Errorf("Invalid user email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
 		}
 
 		args[0] = emailx.Normalize(args[0])
 
-		err = emailx.Validate(args[1])
-		if err != nil {
-			return fmt.Errorf("Invalid destination email format: \"%v\"", args[1])
-		}
-
-		args[1] = emailx.Normalize(args[1])
-
-		return nil
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			fatal("%v\n")
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
-		userEmail, destinationEmail := args[0], args[1]
-
-		f, err := server.UserAddForwarding(userEmail, destinationEmail)
+		user, err := server.User(args[0])
 		if err != nil {
-			fatal("%v\n")
+			fatal("%v\n", err)
 		}
 
-		success("Successfully added user forwarding %v -> %v\n", f.Address, f.Forwarding)
+		fmt.Println(user)
 	},
 }
 
 func init() {
-	userCmd.AddCommand(userForwardingAddCmd)
-
-	userForwardingAddCmd.SetUsageTemplate(usageTemplate("user add-forwarding [user_email] [destination_email]"))
+	userCmd.AddCommand(infoCmd)
 }

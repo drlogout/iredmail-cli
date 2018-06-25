@@ -4,25 +4,37 @@ import (
 	"fmt"
 )
 
-func (s *Server) UserAddForwarding(userAddress, destinationAddress string) error {
-	userExists, err := s.userExists(userAddress)
+type UserForwarding struct {
+	UserEmail        string
+	DestinationEmail string
+}
+
+type UserForwardings []UserForwarding
+
+func (s *Server) UserAddForwarding(userEmail, destinationEmail string) (Forwarding, error) {
+	f := Forwarding{
+		Address:    userEmail,
+		Forwarding: destinationEmail,
+	}
+
+	userExists, err := s.userExists(userEmail)
 	if err != nil {
-		return err
+		return f, err
 	}
 
 	if !userExists {
-		return fmt.Errorf("User %v doesn't exist", userAddress)
+		return f, fmt.Errorf("User %v doesn't exist", userEmail)
 	}
 
-	_, userDomain := parseEmail(userAddress)
-	_, destDomain := parseEmail(destinationAddress)
+	_, userDomain := parseEmail(userEmail)
+	_, destDomain := parseEmail(destinationEmail)
 
 	_, err = s.DB.Exec(`
 	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
-    VALUES ('` + userAddress + `', '` + destinationAddress + `','` + userDomain + `', '` + destDomain + `', 1);
+    VALUES ('` + userEmail + `', '` + destinationEmail + `','` + userDomain + `', '` + destDomain + `', 1);
 	`)
 
-	return err
+	return f, err
 }
 
 func (s *Server) UserDeleteForwarding(userAddress, destinationAddress string) error {

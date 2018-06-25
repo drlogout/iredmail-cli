@@ -9,7 +9,7 @@ import (
 
 func (s *Server) UserAdd(email, password string, quota int, storageBasePath string) (User, error) {
 	name, domain := parseEmail(email)
-	m := User{
+	u := User{
 		Email:  email,
 		Name:   name,
 		Domain: domain,
@@ -18,7 +18,7 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 
 	domainExists, err := s.DomainExists(domain)
 	if err != nil {
-		return m, err
+		return u, err
 	}
 	if !domainExists {
 		err := s.DomainAdd(Domain{
@@ -26,32 +26,32 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 			Settings: DomainDefaultSettings,
 		})
 		if err != nil {
-			return m, err
+			return u, err
 		}
 	}
 
 	userExists, err := s.userExists(email)
 	if err != nil {
-		return m, err
+		return u, err
 	}
 	if userExists {
-		return m, fmt.Errorf("User %v already exists", email)
+		return u, fmt.Errorf("User %v already exists", email)
 	}
 
 	aliasExists, err := s.aliasExists(email)
 	if err != nil {
-		return m, err
+		return u, err
 	}
 	if aliasExists {
-		return m, fmt.Errorf("An alias %v already exists", email)
+		return u, fmt.Errorf("An alias %v already exists", email)
 	}
 
 	hash, err := generatePassword(password)
 	if err != nil {
-		return m, err
+		return u, err
 	}
 
-	m.PasswordHash = hash
+	u.PasswordHash = hash
 
 	mailDirHash := generateMaildirHash(email)
 	storageBase := filepath.Dir(storageBasePath)
@@ -66,12 +66,13 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
 		`)
 	if err != nil {
-		return m, err
+		return u, err
 	}
 
-	err = s.UserAddForwarding(email, email)
+	f, err := s.UserAddForwarding(email, email)
+	u.Forwardings = Forwardings{f}
 
-	return m, err
+	return u, err
 }
 
 func (s *Server) UserDelete(email string) error {

@@ -1,10 +1,8 @@
 package iredmail
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
-	"text/tabwriter"
 )
 
 // types
@@ -22,43 +20,10 @@ type User struct {
 
 type Users []User
 
-type UserAlias struct {
-	Address string
-	User    string
-}
-
-type UserAliases []UserAlias
-
-func (u User) String() string {
-	var buf bytes.Buffer
-	w := new(tabwriter.Writer)
-
-	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\n", u.Email, u.Quota)
-
-	w.Flush()
-
-	return buf.String()
-}
-
-func (users Users) String() string {
-	var buf bytes.Buffer
-	w := new(tabwriter.Writer)
-
-	w.Init(&buf, 40, 8, 0, ' ', 0)
-	for _, u := range users {
-		fmt.Fprintf(w, u.String())
-	}
-
-	w.Flush()
-
-	return buf.String()
-}
-
-func (m Users) FilterBy(filter string) Users {
+func (users Users) FilterBy(filter string) Users {
 	filteredUsers := Users{}
 
-	for _, user := range m {
+	for _, user := range users {
 		if strings.Contains(user.Email, filter) {
 			filteredUsers = append(filteredUsers, user)
 		}
@@ -66,6 +31,13 @@ func (m Users) FilterBy(filter string) Users {
 
 	return filteredUsers
 }
+
+type UserAlias struct {
+	Address string
+	User    string
+}
+
+type UserAliases []UserAlias
 
 func (s *Server) userQuery(options queryOptions) (Users, error) {
 	users := Users{}
@@ -133,6 +105,29 @@ func (s *Server) userExists(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) UserList(args ...string) (Users, error) {
+func (s *Server) Users() (Users, error) {
 	return s.userQuery(queryOptions{})
+}
+
+func (s *Server) User(email string) (User, error) {
+	exists, err := s.userExists(email)
+	if err != nil {
+		return User{}, err
+	}
+
+	if !exists {
+		return User{}, fmt.Errorf("User does not exist")
+	}
+
+	users, err := s.userQuery(queryOptions{
+		where: `username = '` + email + `'`,
+	})
+	if err != nil {
+		return User{}, err
+	}
+	if len(users) == 0 {
+		return User{}, fmt.Errorf("User not found")
+	}
+
+	return users[0], nil
 }

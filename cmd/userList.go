@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
@@ -20,7 +21,7 @@ var userListCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		users, err := server.UserList()
+		users, err := server.Users()
 		if err != nil {
 			fatal("%v", err)
 		}
@@ -30,8 +31,7 @@ var userListCmd = &cobra.Command{
 			users = users.FilterBy(domainFilter)
 		}
 
-		printUserListHeading()
-		fmt.Printf(users.String())
+		PrintUserList(users)
 	},
 }
 
@@ -41,7 +41,7 @@ func init() {
 	userListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }
 
-func printUserListHeading() {
+func PrintUserList(users iredmail.Users) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
@@ -49,4 +49,12 @@ func printUserListHeading() {
 	fmt.Fprintf(w, "%v\t%v\n", "----", "----------")
 	w.Flush()
 	info(buf.String())
+
+	w = new(tabwriter.Writer)
+	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
+	for _, u := range users {
+		fmt.Fprintf(w, "%v\t%v\n", u.Email, u.Quota)
+	}
+
+	w.Flush()
 }
