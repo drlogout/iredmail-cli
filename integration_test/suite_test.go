@@ -20,9 +20,10 @@ const (
 )
 
 var (
-	cliPath    string
-	projectDir string
-	dbTables   = []string{
+	cliPath            string
+	dbConnectionString = dbConnectionStringLocal
+	projectDir         string
+	dbTables           = []string{
 		"alias",
 		"domain",
 		"forwardings",
@@ -30,7 +31,6 @@ var (
 	}
 	skipUser           = true
 	skipForwardingUser = true
-	dbConnectionString = dbConnectionStringLocal
 	isCI               = false
 )
 

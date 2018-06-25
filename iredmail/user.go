@@ -1,14 +1,13 @@
 package iredmail
 
 import (
+	"bytes"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 )
 
+// types
 type User struct {
 	Email        string
 	Name         string
@@ -21,27 +20,7 @@ type User struct {
 	Forwardings
 }
 
-func (m User) Print() {
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\n", "User", "Quota (KB)")
-	fmt.Fprintf(w, "%v\t%v\n", "----", "----------")
-	fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
-	w.Flush()
-}
-
 type Users []User
-
-func (mb Users) Print() {
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\t%v\n", "User", "Quota (KB)")
-	fmt.Fprintf(w, "%v\t%v\n", "----", "----------")
-	for _, m := range mb {
-		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
-	}
-	w.Flush()
-}
 
 type UserAlias struct {
 	Address string
@@ -49,6 +28,32 @@ type UserAlias struct {
 }
 
 type UserAliases []UserAlias
+
+func (u User) String() string {
+	var buf bytes.Buffer
+	w := new(tabwriter.Writer)
+
+	w.Init(&buf, 40, 8, 0, ' ', 0)
+	fmt.Fprintf(w, "%v\t%v\n", u.Email, u.Quota)
+
+	w.Flush()
+
+	return buf.String()
+}
+
+func (users Users) String() string {
+	var buf bytes.Buffer
+	w := new(tabwriter.Writer)
+
+	w.Init(&buf, 40, 8, 0, ' ', 0)
+	for _, u := range users {
+		fmt.Fprintf(w, u.String())
+	}
+
+	w.Flush()
+
+	return buf.String()
+}
 
 func (m Users) FilterBy(filter string) Users {
 	filteredUsers := Users{}
@@ -63,7 +68,7 @@ func (m Users) FilterBy(filter string) Users {
 }
 
 func (s *Server) userQuery(options queryOptions) (Users, error) {
-	useres := Users{}
+	users := Users{}
 
 	whereOption := ""
 	if len(options.where) > 1 {
@@ -74,7 +79,7 @@ func (s *Server) userQuery(options queryOptions) (Users, error) {
 ` + whereOption + `
 ORDER BY domain ASC, name ASC;`)
 	if err != nil {
-		return useres, err
+		return users, err
 	}
 	defer rows.Close()
 
@@ -84,94 +89,29 @@ ORDER BY domain ASC, name ASC;`)
 
 		err := rows.Scan(&username, &password, &name, &domain, &quota, &maildir)
 		if err != nil {
-			return useres, err
+			return users, err
 		}
 
-		useres = append(useres, User{
+		forwardings, err := s.queryForwardings(queryOptions{
+			where: "address = '" + username + "'",
+		})
+		if err != nil {
+			return users, err
+		}
+
+		users = append(users, User{
 			Email:        username,
 			Name:         name,
 			Domain:       domain,
 			PasswordHash: password,
 			Quota:        quota,
 			MailDir:      maildir,
+			Forwardings:  forwardings,
 		})
 	}
 	err = rows.Err()
 
-	return useres, err
-}
-
-func (s *Server) UserList() (Users, error) {
-	useres, err := s.userQuery(queryOptions{})
-
-	return useres, err
-}
-
-func (s *Server) UserAdd(email, password string, quota int, storageBasePath string) (User, error) {
-	name, domain := parseEmail(email)
-	m := User{
-		Email:  email,
-		Name:   name,
-		Domain: domain,
-		Quota:  quota,
-	}
-
-	domainExists, err := s.DomainExists(domain)
-	if err != nil {
-		return m, err
-	}
-	if !domainExists {
-		err := s.DomainAdd(Domain{
-			Domain:   domain,
-			Settings: DomainDefaultSettings,
-		})
-		if err != nil {
-			return m, err
-		}
-	}
-
-	userExists, err := s.userExists(email)
-	if err != nil {
-		return m, err
-	}
-	if userExists {
-		return m, fmt.Errorf("User %v already exists", email)
-	}
-
-	aliasExists, err := s.aliasExists(email)
-	if err != nil {
-		return m, err
-	}
-	if aliasExists {
-		return m, fmt.Errorf("An alias %v already exists", email)
-	}
-
-	hash, err := generatePassword(password)
-	if err != nil {
-		return m, err
-	}
-
-	m.PasswordHash = hash
-
-	mailDirHash := generateMaildirHash(email)
-	storageBase := filepath.Dir(storageBasePath)
-	storageNode := filepath.Base(storageBasePath)
-
-	_, err = s.DB.Exec(`
-		INSERT INTO mailbox (username, password, name,
-			storagebasedirectory, storagenode, maildir,
-			quota, domain, active, passwordlastchange, created)
-		VALUES ('` + email + `', '` + hash + `', '` + name + `',
-			'` + storageBase + `','` + storageNode + `', '` + mailDirHash + `',
-			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
-		`)
-	if err != nil {
-		return m, err
-	}
-
-	err = s.UserAddForwarding(email, email)
-
-	return m, err
+	return users, err
 }
 
 func (s *Server) userExists(email string) (bool, error) {
@@ -179,7 +119,7 @@ func (s *Server) userExists(email string) (bool, error) {
 
 	query := `select exists
 	(select username from mailbox
-	where username = '` + email + `');`
+		where username = '` + email + `');`
 
 	err := s.DB.QueryRow(query).Scan(&exists)
 	if err != nil {
@@ -193,96 +133,6 @@ func (s *Server) userExists(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) UserAddAlias(alias, email string) error {
-	_, domain := parseEmail(email)
-	a := fmt.Sprintf("%v@%v", alias, domain)
-
-	exists, err := s.userExists(a)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf("A user with %v already exists", a)
-	}
-
-	aliasExists, err := s.aliasExists(a)
-	if err != nil {
-		return err
-	}
-	if aliasExists {
-		return fmt.Errorf("An alias with %v already exists", a)
-	}
-
-	_, err = s.DB.Exec(`
-		INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
-		VALUES ('` + a + `', '` + email + `', '` + domain + `', '` + domain + `', 1, 1)
-	`)
-
-	return err
-}
-
-func (s *Server) UserDelete(email string) error {
-	userExists, err := s.userExists(email)
-	if err != nil {
-		return err
-	}
-	if !userExists {
-		return fmt.Errorf("User %v doesn't exist", email)
-	}
-
-	var mailDir string
-
-	err = s.DB.QueryRow("SELECT maildir FROM mailbox WHERE username='" + email + "'").Scan(&mailDir)
-	if err != nil {
-		return err
-	}
-
-	err = os.RemoveAll(mailDir)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.DB.Exec(`DELETE FROM mailbox WHERE username='` + email + `';`)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + email + `' AND forwarding='` + email + `' AND is_forwarding=1;`)
-
-	return err
-}
-
-func (s *Server) UserAddForwarding(userAddress, destinationAddress string) error {
-	userExists, err := s.userExists(userAddress)
-	if err != nil {
-		return err
-	}
-
-	if !userExists {
-		return fmt.Errorf("User %v doesn't exist", userAddress)
-	}
-
-	_, userDomain := parseEmail(userAddress)
-	_, destDomain := parseEmail(destinationAddress)
-
-	_, err = s.DB.Exec(`
-	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
-    VALUES ('` + userAddress + `', '` + destinationAddress + `','` + userDomain + `', '` + destDomain + `', 1);
-	`)
-
-	return err
-}
-
-func (s *Server) UserDeleteForwarding(userAddress, destinationAddress string) error {
-	userExists, err := s.userExists(userAddress)
-	if err != nil {
-		return err
-	}
-	if !userExists {
-		return fmt.Errorf("User %v doesn't exist", userAddress)
-	}
-
-	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND forwarding='` + destinationAddress + `' AND is_forwarding=1;`)
-
-	return err
+func (s *Server) UserList(args ...string) (Users, error) {
+	return s.userQuery(queryOptions{})
 }

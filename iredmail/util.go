@@ -28,7 +28,8 @@ func generatePassword(password string) (string, error) {
 		return hash, err
 	}
 
-	return string(out), err
+	hash = strings.TrimSuffix(string(out), "\n")
+	return hash, err
 }
 
 func generateMaildirHash(email string) string {

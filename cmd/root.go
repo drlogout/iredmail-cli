@@ -107,6 +107,11 @@ func warning(format string, a ...interface{}) {
 	c.Printf(format, a...)
 }
 
+func info(format string, a ...interface{}) {
+	c := color.New(color.Bold)
+	c.Printf(format, a...)
+}
+
 func fatal(format string, a ...interface{}) {
 	c := color.New(color.FgRed, color.Bold)
 	c.Printf(format, a...)
