@@ -76,6 +76,13 @@ func printUserInfo(user iredmail.User) {
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
 	fmt.Fprintf(w, "Quota\t%v KB\n", user.Quota)
 
+	if len(user.UserAliases) > 0 {
+		fmt.Fprintf(w, "%v\n", "Aliases")
+		for _, a := range user.UserAliases {
+			fmt.Fprintf(w, "\t%v -> %v\n", a.Name(), a.Forwarding)
+		}
+	}
+
 	forwardings := iredmail.Forwardings{}
 	for _, f := range user.Forwardings {
 		if f.Forwarding != user.Email {
@@ -85,7 +92,7 @@ func printUserInfo(user iredmail.User) {
 	if len(forwardings) > 0 {
 		fmt.Fprintf(w, "%v\n", "Forwardings")
 		for _, f := range forwardings {
-			fmt.Fprintf(w, "\t-> %v\n", f.Forwarding)
+			fmt.Fprintf(w, "\t%v -> %v\n", f.Address, f.Forwarding)
 		}
 	}
 

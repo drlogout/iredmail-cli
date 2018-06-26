@@ -12,18 +12,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const (
-	userName1         = "post@web.de"
-	userName2         = "info@domain.com"
-	userName3         = "webmaster@example.com"
-	userName4         = "abuse@domain.com"
-	userName5         = "support@wurst.de"
-	userPW            = "alskdlqkdjalskd"
-	forwardingAddress = "info@example.com"
-	customQuota       = 4096
-	customStoragePath = "/var/mail/custom"
-)
-
 var _ = Describe("user", func() {
 	BeforeEach(func() {
 		err := resetDB()

@@ -29,10 +29,29 @@ var (
 		"forwardings",
 		"mailbox",
 	}
+	isCI = false
+
+	userName1 = "post@web.de"
+	userName2 = "info@domain.com"
+	userName3 = "webmaster@example.com"
+	userName4 = "abuse@domain.com"
+	userName5 = "support@wurst.de"
+
+	userPW = "alskdlqkdjalskd"
+
+	forwardingAddress = "info@example.com"
+
+	alias1 = "mail"
+	alias2 = "abuse"
+	alias3 = "webmaster"
+
+	customQuota       = 4096
+	customStoragePath = "/var/mail/custom"
+
 	skipUser           = true
 	skipUserList       = true
-	skipUserForwarding = false
-	isCI               = false
+	skipUserForwarding = true
+	skipUserAlias      = false
 )
 
 func TestCLI(t *testing.T) {

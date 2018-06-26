@@ -18,6 +18,12 @@ type Forwarding struct {
 
 type Forwardings []Forwarding
 
+func (f *Forwarding) Name() string {
+	name, _ := parseEmail(f.Address)
+
+	return name
+}
+
 func (a Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 

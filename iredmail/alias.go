@@ -71,7 +71,7 @@ func (s *Server) aliasExists(email string) (bool, error) {
 		return exists, err
 	}
 
-	isMailboxAlias, err := s.isMailboxAlias(email)
+	isMailboxAlias, err := s.isUserAlias(email)
 	if err != nil {
 		return exists, err
 	}
@@ -97,7 +97,7 @@ func (s *Server) isAlias(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) isMailboxAlias(email string) (bool, error) {
+func (s *Server) isUserAlias(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists

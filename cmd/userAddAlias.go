@@ -15,20 +15,54 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
 // userAddAliasCmd represents the add-alias command
 var userAddAliasCmd = &cobra.Command{
 	Use:   "add-alias",
-	Short: "Add user alias (e.g. mail@domain.com -> post@domain.com)",
+	Short: "Add user alias (e.g. mail -> post@domain.com)",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 2 {
+			return errors.New("requires alias and user email")
+		}
+
+		err := emailx.Validate(args[0])
+		if err == nil {
+			return fmt.Errorf("Invalid alias format: \"%v\"", args[0])
+		}
+
+		err = emailx.Validate(args[1])
+		if err != nil {
+			return fmt.Errorf("Invalid user email format: \"%v\"", args[1])
+		}
+
+		args[1] = emailx.Normalize(args[1])
+
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add-alias called")
+		server, err := iredmail.New()
+		if err != nil {
+			fatal("%v\n", err)
+		}
+		defer server.Close()
+
+		err = server.UserAddAlias(args[0], args[1])
+		if err != nil {
+			fatal("%v\n", err)
+		}
+
+		success("Successfully added user alias %v -> %v\n", args[0], args[1])
 	},
 }
 
 func init() {
 	userCmd.AddCommand(userAddAliasCmd)
+	userAddAliasCmd.SetUsageTemplate(usageTemplate("user add-alias [alias] [user_email]"))
 }

@@ -118,9 +118,19 @@ func fatal(format string, a ...interface{}) {
 	os.Exit(1)
 }
 
-func usageTemplate(useLine string) string {
+func usageTemplate(useLine string, args ...bool) string {
+	var printFlags bool
+	var flags string
+
+	if len(args) > 0 {
+		printFlags = args[0]
+	}
+	if printFlags {
+		flags = " [flags]"
+	}
+
 	return `Usage:{{if .Runnable}}
-    iredmail-cli ` + useLine + ` [flags]{{end}}{{if .HasAvailableSubCommands}}
+    iredmail-cli ` + useLine + flags + `{{end}}{{if .HasAvailableSubCommands}}
   {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
   
 Aliases:

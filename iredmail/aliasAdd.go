@@ -22,7 +22,7 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 		return fmt.Errorf("There is already a user %v", email)
 	}
 
-	isMailboxAlias, err := s.isMailboxAlias(email)
+	isMailboxAlias, err := s.isUserAlias(email)
 	if err != nil {
 		return err
 	}

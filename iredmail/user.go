@@ -14,7 +14,7 @@ type User struct {
 	Quota        int
 	Type         string
 	MailDir      string
-	UserAliases
+	UserAliases  Forwardings
 	Forwardings
 }
 
@@ -31,13 +31,6 @@ func (users Users) FilterBy(filter string) Users {
 
 	return filteredUsers
 }
-
-type UserAlias struct {
-	Address string
-	User    string
-}
-
-type UserAliases []UserAlias
 
 func (s *Server) userQuery(options queryOptions) (Users, error) {
 	users := Users{}
@@ -65,7 +58,14 @@ ORDER BY domain ASC, name ASC;`)
 		}
 
 		forwardings, err := s.queryForwardings(queryOptions{
-			where: "address = '" + username + "'",
+			where: "address = '" + username + "' AND is_forwarding = 1",
+		})
+		if err != nil {
+			return users, err
+		}
+
+		userAliases, err := s.queryForwardings(queryOptions{
+			where: "forwarding = '" + username + "' AND is_alias = 1",
 		})
 		if err != nil {
 			return users, err
@@ -79,6 +79,7 @@ ORDER BY domain ASC, name ASC;`)
 			Quota:        quota,
 			MailDir:      maildir,
 			Forwardings:  forwardings,
+			UserAliases:  userAliases,
 		})
 	}
 	err = rows.Err()

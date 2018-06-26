@@ -146,67 +146,6 @@ type DomainInfo struct {
 }
 
 func (s *Server) DomainInfo(domainName string) error {
-	domain, err := s.DomainGet(domainName)
-	if err != nil {
-		return err
-	}
-
-	users, err := s.userQuery(queryOptions{
-		where: `domain='` + domainName + `'`,
-	})
-	if err != nil {
-		return err
-	}
-
-	for i, m := range users {
-		aliases, err := s.queryForwardings(queryOptions{
-			where: fmt.Sprintf("forwarding='%v' AND domain='%v' AND dest_domain='%v' AND is_alias=1", m.Email, m.Domain, m.Domain),
-		})
-		if err != nil {
-			return err
-		}
-
-		userAliases := UserAliases{}
-		for _, a := range aliases {
-			userAliases = append(userAliases, UserAlias{
-				Address: a.Address,
-				User:    m.Email,
-			})
-		}
-		users[i].UserAliases = userAliases
-
-		forwardings, err := s.queryForwardings(queryOptions{
-			where: fmt.Sprintf("address='%v' AND forwarding<>'%v' AND is_forwarding=1", m.Email, m.Email),
-		})
-		if err != nil {
-			return err
-		}
-
-		users[i].Forwardings = forwardings
-	}
-
-	aliases, err := s.queryAliases(queryOptions{
-		where: fmt.Sprintf("domain='%v'", domainName),
-	})
-	if err != nil {
-		return err
-	}
-
-	for i, a := range aliases {
-		f, err := s.queryForwardings(queryOptions{
-			where: "address='" + a.Address + "'",
-		})
-		if err != nil {
-			return err
-		}
-		aliases[i].Forwardings = f
-	}
-
-	PrintDomainInfo(DomainInfo{
-		Domain:  domain,
-		Users:   users,
-		Aliases: aliases,
-	})
 
 	return nil
 }

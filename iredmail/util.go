@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -109,55 +108,5 @@ func PrintDomains(domains Domains, quiet bool) {
 			fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Description, d.Settings)
 		}
 	}
-	w.Flush()
-}
-
-func PrintDomainInfo(domainInfo DomainInfo) {
-	domain := domainInfo.Domain
-	users := domainInfo.Users
-	aliases := domainInfo.Aliases
-
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 16, 8, 0, '\t', 0)
-	fmt.Fprintf(w, "%v\n", "--------------------------------------")
-	fmt.Fprintf(w, "Domain: %v\n", domain.Domain)
-	fmt.Fprintf(w, "%v\n", "--------------------------------------")
-
-	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\t%v\n", "Useres ("+strconv.Itoa(len(users))+")", "Quota (KB)")
-	fmt.Fprintf(w, "%v\t%v\n", "---------", "-----")
-	for _, m := range users {
-		fmt.Fprintf(w, "%v\t%v\n", m.Email, m.Quota)
-		if len(m.UserAliases) > 0 {
-			for _, ma := range m.UserAliases {
-				fmt.Fprintf(w, " <- %v\t\n", ma.Address)
-			}
-		}
-		if len(m.Forwardings) > 0 {
-			for _, f := range m.Forwardings {
-				fmt.Fprintf(w, " -> %v\t\n", f.Forwarding)
-			}
-		}
-	}
-
-	fmt.Fprintln(w)
-	fmt.Fprintf(w, "%v\n", "Aliases ("+strconv.Itoa(len(aliases))+")")
-	fmt.Fprintf(w, "%v\n", "-------")
-	for _, a := range aliases {
-		aliasText := a.Address
-		if !a.Active {
-			aliasText = aliasText + " (inactive)"
-		}
-		fmt.Fprintf(w, "%v\n", aliasText)
-
-		for _, f := range a.Forwardings {
-			forwardingText := f.Forwarding
-			if !f.Active {
-				forwardingText = forwardingText + " (inactive)"
-			}
-			fmt.Fprintf(w, "%v\n", " -> "+forwardingText)
-		}
-	}
-
 	w.Flush()
 }
