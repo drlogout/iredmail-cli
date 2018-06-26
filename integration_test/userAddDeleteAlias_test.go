@@ -18,7 +18,7 @@ var _ = Describe("user alias", func() {
 	})
 
 	It("can add an user alias", func() {
-		if skipUser && !isCI {
+		if skipUserAlias && !isCI {
 			Skip("can add an user alias")
 		}
 
@@ -26,7 +26,7 @@ var _ = Describe("user alias", func() {
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add", alias1, userName1)
+		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
@@ -44,10 +44,11 @@ var _ = Describe("user alias", func() {
 		defer db.Close()
 
 		var exists bool
+		domain := strings.Split(userName1, "@")[1]
 
 		query := `SELECT exists
 		(SELECT * FROM forwardings
-		WHERE address = '` + userName1 + `' AND forwarding = '` + userName1 + `'
+		WHERE address = '` + fmt.Sprintf("%v@%v", alias1, domain) + `' AND forwarding = '` + userName1 + `'
 		AND is_alias = 1 AND active = 1 AND is_forwarding = 0 AND is_maillist = 0);`
 
 		err = db.QueryRow(query).Scan(&exists)
