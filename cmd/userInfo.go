@@ -68,14 +68,13 @@ func printUserInfo(user iredmail.User) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "User:\t%v\n", user.Email)
+	fmt.Fprintf(w, "User\t%v\n", user.Email)
 	w.Flush()
 	info(buf.String())
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "Quota:\t%v\n", user.Quota)
-	// fmt.Fprintf(w, "Maildir:\t%v\n", user.MailDir)
+	fmt.Fprintf(w, "Quota\t%v KB\n", user.Quota)
 
 	forwardings := iredmail.Forwardings{}
 	for _, f := range user.Forwardings {
@@ -84,9 +83,9 @@ func printUserInfo(user iredmail.User) {
 		}
 	}
 	if len(forwardings) > 0 {
-		fmt.Fprintf(w, "%v\n", "Forwardings:")
+		fmt.Fprintf(w, "%v\n", "Forwardings")
 		for _, f := range forwardings {
-			fmt.Fprintf(w, "\t%v -> %v\n", f.Address, f.Forwarding)
+			fmt.Fprintf(w, "\t-> %v\n", f.Forwarding)
 		}
 	}
 

@@ -23,10 +23,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// userForwardingAddCmd represents the add command
-var userForwardingAddCmd = &cobra.Command{
-	Use:   "add-forwarding",
-	Short: "Add user forwarding (e.g. post@domain.com -> info@example.com)",
+// forwardingAddCmd represents the add command
+var forwardingAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "Add forwarding (e.g. post@domain.com -> info@example.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("requires user and destination email")
@@ -62,12 +62,12 @@ var userForwardingAddCmd = &cobra.Command{
 			fatal("%v\n")
 		}
 
-		success("Successfully added user forwarding %v -> %v\n", f.Address, f.Forwarding)
+		success("Successfully added forwarding %v -> %v\n", f.Address, f.Forwarding)
 	},
 }
 
 func init() {
-	userCmd.AddCommand(userForwardingAddCmd)
+	forwardingCmd.AddCommand(forwardingAddCmd)
 
-	userForwardingAddCmd.SetUsageTemplate(usageTemplate("user add-forwarding [user_email] [destination_email]"))
+	forwardingAddCmd.SetUsageTemplate(usageTemplate("forwarding add [user_email] [destination_email]"))
 }

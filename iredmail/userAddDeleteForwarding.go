@@ -4,13 +4,6 @@ import (
 	"fmt"
 )
 
-type UserForwarding struct {
-	UserEmail        string
-	DestinationEmail string
-}
-
-type UserForwardings []UserForwarding
-
 func (s *Server) UserAddForwarding(userEmail, destinationEmail string) (Forwarding, error) {
 	f := Forwarding{
 		Address:    userEmail,

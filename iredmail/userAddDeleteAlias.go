@@ -8,12 +8,12 @@ func (s *Server) UserAddAlias(alias, email string) error {
 	_, domain := parseEmail(email)
 	a := fmt.Sprintf("%v@%v", alias, domain)
 
-	exists, err := s.userExists(a)
+	userExists, err := s.userExists(a)
 	if err != nil {
 		return err
 	}
-	if exists {
-		return fmt.Errorf("A user with %v already exists", a)
+	if userExists {
+		return fmt.Errorf("An user with %v already exists", a)
 	}
 
 	aliasExists, err := s.aliasExists(a)

@@ -30,7 +30,8 @@ var (
 		"mailbox",
 	}
 	skipUser           = true
-	skipForwardingUser = true
+	skipUserList       = true
+	skipUserForwarding = false
 	isCI               = false
 )
 

@@ -26,10 +26,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// userDeleteForwardingCmd represents the delete-forwarding command
-var userDeleteForwardingCmd = &cobra.Command{
-	Use:   "delete-forwarding",
-	Short: "Delete a user forwarding",
+// forwardingDeleteCmd represents the delete-forwarding command
+var forwardingDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete forwarding",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("requires user and destination email")
@@ -66,12 +66,12 @@ var userDeleteForwardingCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		success("Successfully deleted user forwarding %v -> %v\n", userEmail, destinationEmail)
+		success("Successfully deleted forwarding %v -> %v\n", userEmail, destinationEmail)
 	},
 }
 
 func init() {
-	userCmd.AddCommand(userDeleteForwardingCmd)
+	forwardingCmd.AddCommand(forwardingDeleteCmd)
 
-	userDeleteForwardingCmd.SetUsageTemplate(usageTemplate("user delete-forwarding [user_email] [destination email]"))
+	forwardingDeleteCmd.SetUsageTemplate(usageTemplate("forwarding delete [user_email] [destination_email]"))
 }

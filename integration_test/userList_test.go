@@ -16,6 +16,10 @@ var _ = Describe("user list", func() {
 	})
 
 	It("can list users", func() {
+		if skipUserList && !isCI {
+			Skip("can list users")
+		}
+
 		users := []string{
 			userName1,
 			userName2,
@@ -45,6 +49,10 @@ var _ = Describe("user list", func() {
 	})
 
 	It("can list users and filter result", func() {
+		if skipUserList && !isCI {
+			Skip("can list users and filter result")
+		}
+
 		users := []string{
 			userName1,
 			userName2,
