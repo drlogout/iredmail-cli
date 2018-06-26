@@ -27,7 +27,7 @@ var _ = Describe("forwarding", func() {
 			Fail(string(output))
 		}
 
-		cli = exec.Command(cliPath, "forwarding", "add", userName1, forwardingAddress)
+		cli = exec.Command(cliPath, "forwarding", "add", userName1, forwardingAddress1)
 		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
@@ -48,7 +48,7 @@ var _ = Describe("forwarding", func() {
 
 		query := `SELECT exists
 		(SELECT * FROM forwardings
-		WHERE address = '` + userName1 + `' AND forwarding = '` + forwardingAddress + `' 
+		WHERE address = '` + userName1 + `' AND forwarding = '` + forwardingAddress1 + `' 
 		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
 
 		err = db.QueryRow(query).Scan(&exists)
@@ -68,7 +68,7 @@ var _ = Describe("forwarding", func() {
 			Fail(string(output))
 		}
 
-		cli = exec.Command(cliPath, "forwarding", "add", userName1, forwardingAddress)
+		cli = exec.Command(cliPath, "forwarding", "add", userName1, forwardingAddress1)
 		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
@@ -82,14 +82,14 @@ var _ = Describe("forwarding", func() {
 
 		query := `SELECT exists
 		(SELECT * FROM forwardings
-		WHERE address = '` + userName1 + `' AND forwarding = '` + forwardingAddress + `' 
+		WHERE address = '` + userName1 + `' AND forwarding = '` + forwardingAddress1 + `' 
 		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
 
 		err = db.QueryRow(query).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(exists).To(Equal(true))
 
-		cli = exec.Command(cliPath, "forwarding", "delete", userName1, forwardingAddress)
+		cli = exec.Command(cliPath, "forwarding", "delete", userName1, forwardingAddress1)
 		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
@@ -104,7 +104,7 @@ var _ = Describe("forwarding", func() {
 
 		query = `SELECT exists
 		(SELECT * FROM forwardings
-		WHERE address = '` + userName1 + `' AND forwarding = '` + forwardingAddress + `' 
+		WHERE address = '` + userName1 + `' AND forwarding = '` + forwardingAddress1 + `' 
 		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
 
 		err = db.QueryRow(query).Scan(&exists)

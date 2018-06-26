@@ -39,7 +39,8 @@ var (
 
 	userPW = "alskdlqkdjalskd"
 
-	forwardingAddress = "info@example.com"
+	forwardingAddress1 = "info@example.com"
+	forwardingAddress2 = "webmaster@example.net"
 
 	alias1 = "mail"
 	alias2 = "abuse"
@@ -51,7 +52,8 @@ var (
 	skipUser           = true
 	skipUserList       = true
 	skipUserForwarding = true
-	skipUserAlias      = false
+	skipUserAlias      = true
+	skipUserInfo       = false
 )
 
 func TestCLI(t *testing.T) {
@@ -77,8 +79,10 @@ var _ = BeforeSuite(func() {
 	cmd := exec.Command("go", "build", "-o", cliPath)
 	cmd.Dir = projectDir
 
-	err = cmd.Run()
-	Expect(err).NotTo(HaveOccurred())
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		Fail(string(output))
+	}
 })
 
 func resetDB() error {

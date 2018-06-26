@@ -26,7 +26,7 @@ import (
 // userAddAliasCmd represents the add-alias command
 var userAddAliasCmd = &cobra.Command{
 	Use:   "add-alias",
-	Short: "Add user alias (e.g. mail -> post@domain.com)",
+	Short: "Add user alias (e.g. abuse -> post@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("requires alias and user email")

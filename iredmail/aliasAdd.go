@@ -6,7 +6,7 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 	_, domain := parseEmail(email)
 	_, destDomain := parseEmail(destEmail)
 
-	domainExists, err := s.DomainExists(domain)
+	domainExists, err := s.domainExists(domain)
 	if err != nil {
 		return err
 	}

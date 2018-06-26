@@ -29,7 +29,7 @@ func (d Domains) FilterBy(filter string) Domains {
 	return filteredDomains
 }
 
-func (s *Server) DomainExists(domain string) (bool, error) {
+func (s *Server) domainExists(domain string) (bool, error) {
 	var exists bool
 
 	query := `select exists
@@ -46,23 +46,6 @@ func (s *Server) DomainExists(domain string) (bool, error) {
 	}
 
 	return exists, nil
-}
-
-func (s *Server) DomainAdd(domain Domain) error {
-	exists, err := s.DomainExists(domain.Domain)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf("Domain %v already exists", domain)
-	}
-
-	_, err = s.DB.Exec(`
-		INSERT INTO domain (domain, description, settings)
-		VALUES ('` + domain.Domain + `', '` + domain.Description + `', '` + domain.Settings + `')
-	`)
-
-	return err
 }
 
 func (s *Server) DomainList() (Domains, error) {
@@ -108,44 +91,4 @@ func (s *Server) DomainGet(domainName string) (Domain, error) {
 	}
 
 	return d, err
-}
-
-func (s *Server) DomainUpdate(d Domain) error {
-	_, err := s.DomainGet(d.Domain)
-	if err != nil {
-		return err
-	}
-
-	query := "UPDATE domain\n"
-
-	if d.Description != "" && d.Settings != "" {
-		query = query + " SET description='" + d.Description + "', settings='" + d.Settings + "'\n"
-	}
-
-	if d.Description != "" {
-		query = query + " SET description='" + d.Description + "'\n"
-	}
-
-	if d.Settings != "" {
-		query = query + " SET settings='" + d.Settings + "'\n"
-	}
-
-	query = query + " WHERE domain='" + d.Domain + "';"
-
-	fmt.Println(query)
-
-	_, err = s.DB.Exec(query)
-
-	return err
-}
-
-type DomainInfo struct {
-	Domain  Domain
-	Users   Users
-	Aliases Aliases
-}
-
-func (s *Server) DomainInfo(domainName string) error {
-
-	return nil
 }

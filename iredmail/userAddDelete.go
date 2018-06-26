@@ -16,7 +16,7 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 		Quota:  quota,
 	}
 
-	domainExists, err := s.DomainExists(domain)
+	domainExists, err := s.domainExists(domain)
 	if err != nil {
 		return u, err
 	}

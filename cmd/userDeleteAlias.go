@@ -16,19 +16,25 @@ package cmd
 
 import (
 	"errors"
-	"log"
+	"fmt"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
-// domainUpdateCmd represents the update command
-var domainUpdateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update domain",
+// userDeleteAliasCmd represents the add-alias command
+var userDeleteAliasCmd = &cobra.Command{
+	Use:   "delete-alias",
+	Short: "Delete user alias (e.g. abuse@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires domain name")
+			return errors.New("Requires alias email")
+		}
+
+		err := emailx.Validate(args[0])
+		if err != nil {
+			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
 		}
 
 		return nil
@@ -36,29 +42,20 @@ var domainUpdateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
-		description := cmd.Flag("description").Value.String()
-		settings := cmd.Flag("settings").Value.String()
-
-		domain := iredmail.Domain{
-			Domain:      args[0],
-			Description: description,
-			Settings:    settings,
-		}
-
-		err = server.DomainUpdate(domain)
+		err = server.UserDeleteAlias(args[0])
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
+
+		success("Successfully deleted user alias %v\n", args[0])
 	},
 }
 
 func init() {
-	domainCmd.AddCommand(domainUpdateCmd)
-
-	domainUpdateCmd.Flags().StringP("description", "d", "", "Description")
-	domainUpdateCmd.Flags().StringP("settings", "s", "", "Settings")
+	userCmd.AddCommand(userDeleteAliasCmd)
+	userDeleteAliasCmd.SetUsageTemplate(usageTemplate("user delete-alias [alias_email]"))
 }

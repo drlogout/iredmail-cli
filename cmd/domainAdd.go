@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"errors"
-	"log"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
@@ -36,10 +35,11 @@ var domainAddCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
+		domain := args[0]
 		description := cmd.Flag("description").Value.String()
 		settings := cmd.Flag("settings").Value.String()
 		if description == "" {
@@ -49,22 +49,24 @@ var domainAddCmd = &cobra.Command{
 			settings = iredmail.DomainDefaultSettings
 		}
 
-		domain := iredmail.Domain{
-			Domain:      args[0],
+		err = server.DomainAdd(iredmail.Domain{
+			Domain:      domain,
 			Description: description,
 			Settings:    settings,
+		})
+		if err != nil {
+			fatal("%v\n", err)
 		}
 
-		err = server.DomainAdd(domain)
-		if err != nil {
-			log.Fatal(err)
-		}
+		success("Successfully added domain %v\n", domain)
 	},
 }
 
 func init() {
 	domainCmd.AddCommand(domainAddCmd)
 
-	domainAddCmd.Flags().StringP("description", "d", "", "domain description")
+	domainAddCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
 	domainAddCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
+	domainAddCmd.SetUsageTemplate(usageTemplate("domain add [domain]"))
+
 }

@@ -56,9 +56,9 @@ var _ = Describe("user alias", func() {
 		Expect(exists).To(Equal(true))
 	})
 
-	It("can't add an user alias if user email with same name already exists", func() {
+	It("can't add an user alias if email exists", func() {
 		if skipUserAlias && !isCI {
-			Skip("can't add an user alias if user email with same name already exists")
+			Skip("can't add an user alias if email exists")
 		}
 
 		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
@@ -79,7 +79,7 @@ var _ = Describe("user alias", func() {
 		}
 	})
 
-	It("can't add an user alias if alias already exists", func() {
+	It("can't add an user alias if user alias already exists", func() {
 		if skipUserAlias && !isCI {
 			Skip("can't add an user alias if user alias already exists")
 		}
@@ -105,4 +105,49 @@ var _ = Describe("user alias", func() {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
 		}
 	})
+
+	It("can delete an user alias", func() {
+		if skipUserAlias && !isCI {
+			Skip("can delete an user alias")
+		}
+
+		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		domain := strings.Split(userName1, "@")[1]
+
+		cli = exec.Command(cliPath, "user", "delete-alias", fmt.Sprintf("%v@%v", alias1, domain))
+		output, err := cli.CombinedOutput()
+		Expect(err).ToNot(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("Successfully deleted user alias %v\n", fmt.Sprintf("%v@%v", alias1, domain))
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
+
+	It("can't delete an alias which doesn't exist", func() {
+		if skipUserAlias && !isCI {
+			Skip("can't delete an alias which doesn't exist")
+		}
+
+		cli := exec.Command(cliPath, "user", "delete-alias", userName1)
+		output, err := cli.CombinedOutput()
+		Expect(err).To(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("An alias with %v doesn't exists\n", userName1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
+
 })
