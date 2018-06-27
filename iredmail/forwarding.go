@@ -36,18 +36,6 @@ func (a Forwardings) FilterBy(filter string) Forwardings {
 	return filteredForwardings
 }
 
-func (f Forwardings) GetByAddress(address string) Forwardings {
-	filteredForwardings := Forwardings{}
-
-	for _, forwarding := range f {
-		if forwarding.Address == address {
-			filteredForwardings = append(filteredForwardings, forwarding)
-		}
-	}
-
-	return filteredForwardings
-}
-
 func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
 	Forwardings := Forwardings{}
 
@@ -56,9 +44,12 @@ func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
 		whereOption = fmt.Sprintf("WHERE %v", options.where)
 	}
 
-	rows, err := s.DB.Query(`SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list FROM forwardings
-` + whereOption + `
-ORDER BY domain ASC, address ASC;`)
+	rows, err := s.DB.Query(`
+		SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
+		FROM forwardings
+		` + whereOption + `
+		ORDER BY domain ASC, address ASC;
+	`)
 	if err != nil {
 		return Forwardings, err
 	}
@@ -89,8 +80,38 @@ ORDER BY domain ASC, address ASC;`)
 	return Forwardings, err
 }
 
+func (s *Server) forwardingExists(userAddress, destinationAddress string) (bool, error) {
+	var exists bool
+
+	query := `
+		SELECT exists
+		(SELECT * FROM forwardings
+			WHERE address = '` + userAddress + `' AND forwarding = '` + destinationAddress + `' AND is_forwarding = 1
+		);`
+	err := s.DB.QueryRow(query).Scan(&exists)
+	if err != nil {
+		return exists, err
+	}
+
+	if exists {
+		return true, nil
+	}
+
+	return exists, nil
+}
+
 func (s *Server) ForwardingList() (Forwardings, error) {
-	return s.queryForwardings(queryOptions{
-		where: "domain='wirtschaft-symposium.de'",
-	})
+	forwardings, err := s.queryForwardings(queryOptions{})
+	if err != nil {
+		return forwardings, err
+	}
+
+	withoutSelfForward := Forwardings{}
+	for _, f := range forwardings {
+		if f.Address != f.Forwarding {
+			withoutSelfForward = append(withoutSelfForward, f)
+		}
+	}
+
+	return withoutSelfForward, nil
 }

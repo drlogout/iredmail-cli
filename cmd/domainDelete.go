@@ -16,19 +16,18 @@ package cmd
 
 import (
 	"errors"
-	"log"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
-// domainInfoCmd represents the info command
-var domainInfoCmd = &cobra.Command{
-	Use:   "info",
-	Short: "Get domain info, mailboxes, aliases, forwardings",
+// domainDeleteCmd represents the add command
+var domainDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires domain name")
+			return errors.New("requires a domain name")
 		}
 
 		return nil
@@ -36,27 +35,26 @@ var domainInfoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
-		err = server.DomainInfo(args[0])
+		domain := args[0]
+
+		err = server.DomainDelete(domain)
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
+
+		success("Successfully deleted domain %v\n", domain)
 	},
 }
 
 func init() {
-	domainCmd.AddCommand(domainInfoCmd)
+	domainCmd.AddCommand(domainDeleteCmd)
 
-	// Here you will define your flags and configuration settings.
+	domainDeleteCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
+	domainDeleteCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
+	domainDeleteCmd.SetUsageTemplate(usageTemplate("domain add [domain]"))
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// domainInfoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// domainInfoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

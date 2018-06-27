@@ -2,3 +2,4 @@ testDB/dump
 testDB/mysql
 built/
 iredmail-cli
+add.sh

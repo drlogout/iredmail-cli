@@ -2,9 +2,15 @@ package iredmail
 
 import (
 	"fmt"
+
+	"github.com/asaskevich/govalidator"
 )
 
 func (s *Server) DomainAdd(domain Domain) error {
+	if !govalidator.IsDNSName(domain.Domain) {
+		return fmt.Errorf("%v is no valid domain name", domain.Domain)
+	}
+
 	exists, err := s.domainExists(domain.Domain)
 	if err != nil {
 		return err
@@ -17,6 +23,22 @@ func (s *Server) DomainAdd(domain Domain) error {
 		INSERT INTO domain (domain, description, settings)
 		VALUES ('` + domain.Domain + `', '` + domain.Description + `', '` + domain.Settings + `')
 	`)
+
+	return err
+}
+
+func (s *Server) DomainDelete(domain string, args ...bool) error {
+	domainUsers, err := s.userQuery(queryOptions{
+		where: "domain = '" + domain + "'",
+	})
+	if err != nil {
+		return err
+	}
+	if len(domainUsers) > 0 {
+		return fmt.Errorf("The domain %v still has users you need to delete them before", domain)
+	}
+
+	_, err = s.DB.Exec(`DELETE FROM domain WHERE domain = '` + domain + `';`)
 
 	return err
 }

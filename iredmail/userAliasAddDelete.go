@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (s *Server) UserAddAlias(alias, email string) error {
+func (s *Server) UserAliasAdd(alias, email string) error {
 	_, domain := parseEmail(email)
 	a := fmt.Sprintf("%v@%v", alias, domain)
 
@@ -32,7 +32,7 @@ func (s *Server) UserAddAlias(alias, email string) error {
 	return err
 }
 
-func (s *Server) UserDeleteAlias(aliasEmail string) error {
+func (s *Server) UserAliasDelete(aliasEmail string) error {
 	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {
 		return err
@@ -43,6 +43,14 @@ func (s *Server) UserDeleteAlias(aliasEmail string) error {
 
 	_, err = s.DB.Exec(`
 		DELETE FROM forwardings WHERE address = '` + aliasEmail + `' AND is_alias = 1
+	`)
+
+	return err
+}
+
+func (s *Server) UserAliasDeleteAll(userEmail string) error {
+	_, err := s.DB.Exec(`
+		DELETE FROM forwardings WHERE forwarding = '` + userEmail + `' AND is_alias = 1
 	`)
 
 	return err

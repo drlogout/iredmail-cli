@@ -17,7 +17,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"text/tabwriter"
 
@@ -25,49 +24,51 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainListCmd represents the list command
-var domainListCmd = &cobra.Command{
+// forwardingListCmd represents the add command
+var forwardingListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List domains",
+	Short: "List forwardings",
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n")
 		}
+		defer server.Close()
 
-		domains, err := server.DomainList()
+		forwardings, err := server.ForwardingList()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n")
 		}
 
 		filter := cmd.Flag("filter").Value.String()
 		if filter != "" {
-			domains = domains.FilterBy(filter)
+			forwardings = forwardings.FilterBy(filter)
 		}
 
-		printDomains(domains)
+		printForwardings(forwardings)
 	},
 }
 
 func init() {
-	domainCmd.AddCommand(domainListCmd)
+	forwardingCmd.AddCommand(forwardingListCmd)
 
-	domainListCmd.Flags().StringP("filter", "f", "", "Filter result")
+	forwardingListCmd.Flags().StringP("filter", "f", "", "Filter result")
+	forwardingListCmd.SetUsageTemplate(usageTemplate("forwarding list"))
 }
 
-func printDomains(domains iredmail.Domains) {
+func printForwardings(forwardings iredmail.Forwardings) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "Domain", "Settings", "Description")
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "------", "--------", "-----------")
+	fmt.Fprintf(w, "%v\t      %v\n", "User Email", "Destination Email")
+	fmt.Fprintf(w, "%v\t      %v\n", "----------", "-----------------")
 	w.Flush()
 	info(buf.String())
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	for _, d := range domains {
-		fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Settings, d.Description)
+	for _, f := range forwardings {
+		fmt.Fprintf(w, "%v\t->    %v\n", f.Address, f.Forwarding)
 	}
 
 	w.Flush()

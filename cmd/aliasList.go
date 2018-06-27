@@ -27,7 +27,7 @@ var aliasListCmd = &cobra.Command{
 			aliases = aliases.FilterBy(filter)
 		}
 
-		iredmail.PrintAliases(aliases)
+		printAliases(aliases)
 	},
 }
 
@@ -35,4 +35,8 @@ func init() {
 	aliasCmd.AddCommand(aliasListCmd)
 
 	aliasListCmd.Flags().StringP("filter", "f", "", "Filter result")
+}
+
+func printAliases(aliases iredmail.Aliases) {
+
 }

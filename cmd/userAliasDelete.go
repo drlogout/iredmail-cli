@@ -23,8 +23,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// userDeleteAliasCmd represents the add-alias command
-var userDeleteAliasCmd = &cobra.Command{
+// userAliasDeleteCmd represents the add-alias command
+var userAliasDeleteCmd = &cobra.Command{
 	Use:   "delete-alias",
 	Short: "Delete user alias (e.g. abuse@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -46,7 +46,7 @@ var userDeleteAliasCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		err = server.UserDeleteAlias(args[0])
+		err = server.UserAliasDelete(args[0])
 		if err != nil {
 			fatal("%v\n", err)
 		}
@@ -56,6 +56,6 @@ var userDeleteAliasCmd = &cobra.Command{
 }
 
 func init() {
-	userCmd.AddCommand(userDeleteAliasCmd)
-	userDeleteAliasCmd.SetUsageTemplate(usageTemplate("user delete-alias [alias_email]"))
+	userCmd.AddCommand(userAliasDeleteCmd)
+	userAliasDeleteCmd.SetUsageTemplate(usageTemplate("user delete-alias [alias_email]"))
 }

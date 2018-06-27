@@ -69,8 +69,13 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 		return u, err
 	}
 
-	f, err := s.UserAddForwarding(email, email)
-	u.Forwardings = Forwardings{f}
+	err = s.ForwardingAdd(email, email)
+	u.Forwardings = Forwardings{
+		Forwarding{
+			Address:    email,
+			Forwarding: email,
+		},
+	}
 
 	return u, err
 }
@@ -101,7 +106,12 @@ func (s *Server) UserDelete(email string) error {
 		return err
 	}
 
-	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + email + `' AND forwarding='` + email + `' AND is_forwarding=1;`)
+	err = s.ForwardingDeleteAll(email)
+	if err != nil {
+		return err
+	}
+
+	err = s.UserAliasDeleteAll(email)
 
 	return err
 }

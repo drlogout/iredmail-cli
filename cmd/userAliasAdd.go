@@ -17,34 +17,29 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/fatih/color"
 	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
-// forwardingDeleteCmd represents the delete-forwarding command
-var forwardingDeleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete forwarding",
+// userAliasAddCmd represents the add-alias command
+var userAliasAddCmd = &cobra.Command{
+	Use:   "add-alias",
+	Short: "Add user alias (e.g. abuse -> post@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires user and destination email")
+			return errors.New("requires alias and user email")
 		}
 
 		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid user email format: \"%v\"", args[0])
+		if err == nil {
+			return fmt.Errorf("Invalid alias format: \"%v\"", args[0])
 		}
-
-		args[0] = emailx.Normalize(args[0])
 
 		err = emailx.Validate(args[1])
 		if err != nil {
-			return fmt.Errorf("Invalid destination email format: \"%v\"", args[1])
+			return fmt.Errorf("Invalid user email format: \"%v\"", args[1])
 		}
 
 		args[1] = emailx.Normalize(args[1])
@@ -54,24 +49,20 @@ var forwardingDeleteCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
-		userEmail, destinationEmail := args[0], args[1]
-
-		err = server.ForwardingDelete(userEmail, destinationEmail)
+		err = server.UserAliasAdd(args[0], args[1])
 		if err != nil {
-			color.Red(err.Error())
-			os.Exit(1)
+			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted forwarding %v -> %v\n", userEmail, destinationEmail)
+		success("Successfully added user alias %v -> %v\n", args[0], args[1])
 	},
 }
 
 func init() {
-	forwardingCmd.AddCommand(forwardingDeleteCmd)
-
-	forwardingDeleteCmd.SetUsageTemplate(usageTemplate("forwarding delete [user_email] [destination_email]"))
+	userCmd.AddCommand(userAliasAddCmd)
+	userAliasAddCmd.SetUsageTemplate(usageTemplate("user add-alias [alias] [user_email]"))
 }

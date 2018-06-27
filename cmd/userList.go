@@ -26,9 +26,9 @@ var userListCmd = &cobra.Command{
 			fatal("%v", err)
 		}
 
-		domainFilter := cmd.Flag("filter").Value.String()
-		if domainFilter != "" {
-			users = users.FilterBy(domainFilter)
+		filter := cmd.Flag("filter").Value.String()
+		if filter != "" {
+			users = users.FilterBy(filter)
 		}
 
 		printUserList(users)

@@ -4,19 +4,14 @@ import (
 	"fmt"
 )
 
-func (s *Server) UserAddForwarding(userEmail, destinationEmail string) (Forwarding, error) {
-	f := Forwarding{
-		Address:    userEmail,
-		Forwarding: destinationEmail,
-	}
-
+func (s *Server) ForwardingAdd(userEmail, destinationEmail string) error {
 	userExists, err := s.userExists(userEmail)
 	if err != nil {
-		return f, err
+		return err
 	}
 
 	if !userExists {
-		return f, fmt.Errorf("User %v doesn't exist", userEmail)
+		return fmt.Errorf("User %v doesn't exist", userEmail)
 	}
 
 	_, userDomain := parseEmail(userEmail)
@@ -27,19 +22,25 @@ func (s *Server) UserAddForwarding(userEmail, destinationEmail string) (Forwardi
     VALUES ('` + userEmail + `', '` + destinationEmail + `','` + userDomain + `', '` + destDomain + `', 1);
 	`)
 
-	return f, err
+	return err
 }
 
-func (s *Server) UserDeleteForwarding(userAddress, destinationAddress string) error {
-	userExists, err := s.userExists(userAddress)
+func (s *Server) ForwardingDelete(userAddress, destinationAddress string) error {
+	exists, err := s.forwardingExists(userAddress, destinationAddress)
 	if err != nil {
 		return err
 	}
-	if !userExists {
-		return fmt.Errorf("User %v doesn't exist", userAddress)
+	if !exists {
+		return fmt.Errorf("Forwarding %v -> %v dosn't exist", userAddress, destinationAddress)
 	}
 
 	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND forwarding='` + destinationAddress + `' AND is_forwarding=1;`)
+
+	return err
+}
+
+func (s *Server) ForwardingDeleteAll(userAddress string) error {
+	_, err := s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND is_forwarding=1;`)
 
 	return err
 }
