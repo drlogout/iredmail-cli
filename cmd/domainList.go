@@ -55,6 +55,11 @@ func init() {
 }
 
 func printDomains(domains iredmail.Domains) {
+	if len(domains) == 0 {
+		info("No domains\n")
+		return
+	}
+
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)

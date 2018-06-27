@@ -28,14 +28,14 @@ func (s *Server) DomainAdd(domain Domain) error {
 }
 
 func (s *Server) DomainDelete(domain string, args ...bool) error {
-	domainUsers, err := s.userQuery(queryOptions{
+	domainMailboxes, err := s.mailboxQuery(queryOptions{
 		where: "domain = '" + domain + "'",
 	})
 	if err != nil {
 		return err
 	}
-	if len(domainUsers) > 0 {
-		return fmt.Errorf("The domain %v still has users you need to delete them before", domain)
+	if len(domainMailboxes) > 0 {
+		return fmt.Errorf("The domain %v still has mailboxes you need to delete them before", domain)
 	}
 
 	_, err = s.DB.Exec(`DELETE FROM domain WHERE domain = '` + domain + `';`)

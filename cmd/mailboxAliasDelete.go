@@ -23,13 +23,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// userAliasDeleteCmd represents the add-alias command
-var userAliasDeleteCmd = &cobra.Command{
+// mailboxAliasDeleteCmd represents the add-alias command
+var mailboxAliasDeleteCmd = &cobra.Command{
 	Use:   "delete-alias",
-	Short: "Delete user alias (e.g. abuse@domain.com)",
+	Short: "Delete mailbox alias (e.g. abuse@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires alias email")
+			return errors.New("Requires alias (email)")
 		}
 
 		err := emailx.Validate(args[0])
@@ -46,16 +46,16 @@ var userAliasDeleteCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		err = server.UserAliasDelete(args[0])
+		err = server.MailboxAliasDelete(args[0])
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted user alias %v\n", args[0])
+		success("Successfully deleted mailbox alias %v\n", args[0])
 	},
 }
 
 func init() {
-	userCmd.AddCommand(userAliasDeleteCmd)
-	userAliasDeleteCmd.SetUsageTemplate(usageTemplate("user delete-alias [alias_email]"))
+	mailboxCmd.AddCommand(mailboxAliasDeleteCmd)
+	mailboxAliasDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete-alias [alias_email]"))
 }

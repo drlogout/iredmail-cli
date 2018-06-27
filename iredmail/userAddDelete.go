@@ -7,9 +7,9 @@ import (
 	"strconv"
 )
 
-func (s *Server) UserAdd(email, password string, quota int, storageBasePath string) (User, error) {
+func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath string) (Mailbox, error) {
 	name, domain := parseEmail(email)
-	u := User{
+	m := Mailbox{
 		Email:  email,
 		Name:   name,
 		Domain: domain,
@@ -18,7 +18,7 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 
 	domainExists, err := s.domainExists(domain)
 	if err != nil {
-		return u, err
+		return m, err
 	}
 	if !domainExists {
 		err := s.DomainAdd(Domain{
@@ -26,32 +26,32 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 			Settings: DomainDefaultSettings,
 		})
 		if err != nil {
-			return u, err
+			return m, err
 		}
 	}
 
-	userExists, err := s.userExists(email)
+	mailboxExists, err := s.mailboxExists(email)
 	if err != nil {
-		return u, err
+		return m, err
 	}
-	if userExists {
-		return u, fmt.Errorf("User %v already exists", email)
+	if mailboxExists {
+		return m, fmt.Errorf("Mailbox %v already exists", email)
 	}
 
 	aliasExists, err := s.aliasExists(email)
 	if err != nil {
-		return u, err
+		return m, err
 	}
 	if aliasExists {
-		return u, fmt.Errorf("An alias %v already exists", email)
+		return m, fmt.Errorf("An alias %v already exists", email)
 	}
 
 	hash, err := generatePassword(password)
 	if err != nil {
-		return u, err
+		return m, err
 	}
 
-	u.PasswordHash = hash
+	m.PasswordHash = hash
 
 	mailDirHash := generateMaildirHash(email)
 	storageBase := filepath.Dir(storageBasePath)
@@ -66,27 +66,27 @@ func (s *Server) UserAdd(email, password string, quota int, storageBasePath stri
 			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
 		`)
 	if err != nil {
-		return u, err
+		return m, err
 	}
 
 	err = s.ForwardingAdd(email, email)
-	u.Forwardings = Forwardings{
+	m.Forwardings = Forwardings{
 		Forwarding{
 			Address:    email,
 			Forwarding: email,
 		},
 	}
 
-	return u, err
+	return m, err
 }
 
-func (s *Server) UserDelete(email string) error {
-	userExists, err := s.userExists(email)
+func (s *Server) MailboxDelete(email string) error {
+	mailboxExists, err := s.mailboxExists(email)
 	if err != nil {
 		return err
 	}
-	if !userExists {
-		return fmt.Errorf("User %v doesn't exist", email)
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %v doesn't exist", email)
 	}
 
 	var mailDir string
@@ -111,7 +111,7 @@ func (s *Server) UserDelete(email string) error {
 		return err
 	}
 
-	err = s.UserAliasDeleteAll(email)
+	err = s.MailboxAliasDeleteAll(email)
 
 	return err
 }

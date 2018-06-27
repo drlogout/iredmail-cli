@@ -14,11 +14,11 @@ func (s *Server) AliasAdd(email, destEmail string) error {
 		return fmt.Errorf("Domain %v does not exist, please create one first", domain)
 	}
 
-	userExists, err := s.userExists(email)
+	mailboxExists, err := s.mailboxExists(email)
 	if err != nil {
 		return err
 	}
-	if userExists {
+	if mailboxExists {
 		return fmt.Errorf("There is already a user %v", email)
 	}
 

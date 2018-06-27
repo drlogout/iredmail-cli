@@ -22,18 +22,18 @@ var _ = Describe("user alias", func() {
 			Skip("can add an user alias")
 		}
 
-		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", alias1, mailboxName1)
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
 
 		actual := string(output)
-		expected := fmt.Sprintf("Successfully added user alias %v -> %v\n", alias1, userName1)
+		expected := fmt.Sprintf("Successfully added user alias %v -> %v\n", alias1, mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -44,11 +44,11 @@ var _ = Describe("user alias", func() {
 		defer db.Close()
 
 		var exists bool
-		domain := strings.Split(userName1, "@")[1]
+		domain := strings.Split(mailboxName1, "@")[1]
 
 		query := `SELECT exists
 		(SELECT * FROM forwardings
-		WHERE address = '` + fmt.Sprintf("%v@%v", alias1, domain) + `' AND forwarding = '` + userName1 + `'
+		WHERE address = '` + fmt.Sprintf("%v@%v", alias1, domain) + `' AND forwarding = '` + mailboxName1 + `'
 		AND is_alias = 1 AND active = 1 AND is_forwarding = 0 AND is_maillist = 0);`
 
 		err = db.QueryRow(query).Scan(&exists)
@@ -61,18 +61,18 @@ var _ = Describe("user alias", func() {
 			Skip("can't add an user alias if email exists")
 		}
 
-		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		name := strings.Split(userName1, "@")[0]
+		name := strings.Split(mailboxName1, "@")[0]
 
-		cli = exec.Command(cliPath, "user", "add-alias", name, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", name, mailboxName1)
 		output, err := cli.CombinedOutput()
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("An user with %v already exists\n", userName1)
+		expected := fmt.Sprintf("An user with %v already exists\n", mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -84,19 +84,19 @@ var _ = Describe("user alias", func() {
 			Skip("can't add an user alias if user alias already exists")
 		}
 
-		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", alias1, mailboxName1)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", alias1, mailboxName1)
 		output, err := cli.CombinedOutput()
 		Expect(err).To(HaveOccurred())
 
-		domain := strings.Split(userName1, "@")[1]
+		domain := strings.Split(mailboxName1, "@")[1]
 
 		actual := string(output)
 		expected := fmt.Sprintf("An alias with %v already exists\n", fmt.Sprintf("%v@%v", alias1, domain))
@@ -111,17 +111,17 @@ var _ = Describe("user alias", func() {
 			Skip("can delete an user alias")
 		}
 
-		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", alias1, mailboxName1)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		domain := strings.Split(userName1, "@")[1]
+		domain := strings.Split(mailboxName1, "@")[1]
 
-		cli = exec.Command(cliPath, "user", "delete-alias", fmt.Sprintf("%v@%v", alias1, domain))
+		cli = exec.Command(cliPath, "mailbox", "delete-alias", fmt.Sprintf("%v@%v", alias1, domain))
 		output, err := cli.CombinedOutput()
 		Expect(err).ToNot(HaveOccurred())
 
@@ -138,12 +138,12 @@ var _ = Describe("user alias", func() {
 			Skip("can't delete an alias which doesn't exist")
 		}
 
-		cli := exec.Command(cliPath, "user", "delete-alias", userName1)
+		cli := exec.Command(cliPath, "mailbox", "delete-alias", mailboxName1)
 		output, err := cli.CombinedOutput()
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("An alias with %v doesn't exists\n", userName1)
+		expected := fmt.Sprintf("An alias with %v doesn't exists\n", mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))

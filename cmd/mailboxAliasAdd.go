@@ -23,25 +23,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// forwardingAddCmd represents the add command
-var forwardingAddCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add forwarding (e.g. post@domain.com -> info@example.com)",
+// mailboxAliasAddCmd represents the add-alias command
+var mailboxAliasAddCmd = &cobra.Command{
+	Use:   "add-alias",
+	Short: "Add mailbox alias (e.g. abuse -> post@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires user and destination email")
+			return errors.New("requires alias and mailbox (email address)")
 		}
 
 		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid user email format: \"%v\"", args[0])
+		if err == nil {
+			return fmt.Errorf("Invalid alias format: \"%v\"", args[0])
 		}
-
-		args[0] = emailx.Normalize(args[0])
 
 		err = emailx.Validate(args[1])
 		if err != nil {
-			return fmt.Errorf("Invalid destination email format: \"%v\"", args[1])
+			return fmt.Errorf("Invalid mailbox format: \"%v\"", args[1])
 		}
 
 		args[1] = emailx.Normalize(args[1])
@@ -55,19 +53,16 @@ var forwardingAddCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		userEmail, destinationEmail := args[0], args[1]
-
-		err = server.ForwardingAdd(userEmail, destinationEmail)
+		err = server.MailboxAliasAdd(args[0], args[1])
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added forwarding %v -> %v\n", userEmail, destinationEmail)
+		success("Successfully added mailbox alias %v -> %v\n", args[0], args[1])
 	},
 }
 
 func init() {
-	forwardingCmd.AddCommand(forwardingAddCmd)
-
-	forwardingAddCmd.SetUsageTemplate(usageTemplate("forwarding add [user_email] [destination_email]"))
+	mailboxCmd.AddCommand(mailboxAliasAddCmd)
+	mailboxAliasAddCmd.SetUsageTemplate(usageTemplate("mailbox add-alias [alias] [mailbox_email]"))
 }

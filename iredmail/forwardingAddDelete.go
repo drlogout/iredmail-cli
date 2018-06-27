@@ -5,13 +5,20 @@ import (
 )
 
 func (s *Server) ForwardingAdd(userEmail, destinationEmail string) error {
-	userExists, err := s.userExists(userEmail)
+	mailboxExists, err := s.mailboxExists(userEmail)
 	if err != nil {
 		return err
 	}
-
-	if !userExists {
+	if !mailboxExists {
 		return fmt.Errorf("User %v doesn't exist", userEmail)
+	}
+
+	forwardingExists, err := s.forwardingExists(userEmail, destinationEmail)
+	if err != nil {
+		return err
+	}
+	if forwardingExists {
+		return fmt.Errorf("Forwarding %v -> %v already exists", userEmail, destinationEmail)
 	}
 
 	_, userDomain := parseEmail(userEmail)

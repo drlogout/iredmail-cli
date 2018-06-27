@@ -29,15 +29,15 @@ import (
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "Show user info",
+	Short: "Show mailbox info",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires user email as sole argument")
+			return errors.New("requires mailbox (email) as argument")
 		}
 
 		err := emailx.Validate(args[0])
 		if err != nil {
-			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid mailbox email format: \"%v\"", args[0])
 		}
 
 		args[0] = emailx.Normalize(args[0])
@@ -51,41 +51,41 @@ var infoCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		user, err := server.User(args[0])
+		mailbox, err := server.Mailbox(args[0])
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		printUserInfo(user)
+		printUserInfo(mailbox)
 	},
 }
 
 func init() {
-	userCmd.AddCommand(infoCmd)
+	mailboxCmd.AddCommand(infoCmd)
 }
 
-func printUserInfo(user iredmail.User) {
+func printUserInfo(mailbox iredmail.Mailbox) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "User\t%v\n", user.Email)
+	fmt.Fprintf(w, "User\t%v\n", mailbox.Email)
 	w.Flush()
 	info(buf.String())
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "Quota\t%v KB\n", user.Quota)
+	fmt.Fprintf(w, "Quota\t%v KB\n", mailbox.Quota)
 
-	if len(user.UserAliases) > 0 {
+	if len(mailbox.MailboxAliases) > 0 {
 		fmt.Fprintf(w, "%v\n", "Aliases")
-		for _, a := range user.UserAliases {
+		for _, a := range mailbox.MailboxAliases {
 			fmt.Fprintf(w, "\t%v -> %v\n", a.Name(), a.Forwarding)
 		}
 	}
 
 	forwardings := iredmail.Forwardings{}
-	for _, f := range user.Forwardings {
-		if f.Forwarding != user.Email {
+	for _, f := range mailbox.Forwardings {
+		if f.Forwarding != mailbox.Email {
 			forwardings = append(forwardings, f)
 		}
 	}

@@ -27,13 +27,13 @@ var (
 	forceDelete = false
 )
 
-// userDeleteCmd represents the delete command
-var userDeleteCmd = &cobra.Command{
+// mailboxDeleteCmd represents the delete command
+var mailboxDeleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "Delete a user",
+	Short: "Delete a mailbox",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires user email as sole argument")
+			return errors.New("requires mailbox (email) as argument")
 		}
 
 		err := emailx.Validate(args[0])
@@ -52,10 +52,10 @@ var userDeleteCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		userEmail := args[0]
+		mailboxEmail := args[0]
 
 		if !forceDelete {
-			fmt.Printf("Do you really want to delete the user %v? ", userEmail)
+			fmt.Printf("Do you really want to delete the mailbox %v? ", mailboxEmail)
 			delete := askForConfirmation()
 
 			if !delete {
@@ -63,19 +63,19 @@ var userDeleteCmd = &cobra.Command{
 			}
 		}
 
-		err = server.UserDelete(userEmail)
+		err = server.MailboxDelete(mailboxEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted user %v\n", userEmail)
+		success("Successfully deleted mailbox %v\n", mailboxEmail)
 	},
 }
 
 func init() {
-	userCmd.AddCommand(userDeleteCmd)
+	mailboxCmd.AddCommand(mailboxDeleteCmd)
 
-	userDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
+	mailboxDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 
-	userDeleteCmd.SetUsageTemplate(usageTemplate("user delete [user_email]"))
+	mailboxDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete [mailbox_email]"))
 }

@@ -57,6 +57,11 @@ func init() {
 }
 
 func printForwardings(forwardings iredmail.Forwardings) {
+	if len(forwardings) == 0 {
+		info("No forwardings\n")
+		return
+	}
+
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)

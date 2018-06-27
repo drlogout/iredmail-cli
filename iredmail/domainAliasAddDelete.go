@@ -22,12 +22,12 @@ func (s *Server) DomainAliasAdd(aliasDomain, domain string) error {
 		return fmt.Errorf("Domain %v doesn't exists", domain)
 	}
 
-	aliasExists, err := s.domainAliasExists(aliasDomain, domain)
+	aliasExists, err := s.domainAliasExists(aliasDomain)
 	if err != nil {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("Alias domain %v -> %v alreday exists", aliasDomain, domain)
+		return fmt.Errorf("Alias domain %v alreday exists", aliasDomain)
 	}
 
 	_, err = s.DB.Exec(`
@@ -38,18 +38,16 @@ func (s *Server) DomainAliasAdd(aliasDomain, domain string) error {
 	return err
 }
 
-func (s *Server) DomainAliasDelete(domain string, args ...bool) error {
-	domainUsers, err := s.userQuery(queryOptions{
-		where: "domain = '" + domain + "'",
-	})
+func (s *Server) DomainAliasDelete(aliasDomain string) error {
+	aliasExists, err := s.domainAliasExists(aliasDomain)
 	if err != nil {
 		return err
 	}
-	if len(domainUsers) > 0 {
-		return fmt.Errorf("The domain %v still has users you need to delete them before", domain)
+	if !aliasExists {
+		return fmt.Errorf("Alias domain %v doesn't exist", aliasDomain)
 	}
 
-	_, err = s.DB.Exec(`DELETE FROM domain WHERE domain = '` + domain + `';`)
+	_, err = s.DB.Exec(`DELETE FROM alias_domain WHERE alias_domain = '` + aliasDomain + `';`)
 
 	return err
 }

@@ -4,16 +4,16 @@ import (
 	"fmt"
 )
 
-func (s *Server) UserAliasAdd(alias, email string) error {
+func (s *Server) MailboxAliasAdd(alias, email string) error {
 	_, domain := parseEmail(email)
 	a := fmt.Sprintf("%v@%v", alias, domain)
 
-	userExists, err := s.userExists(a)
+	mailboxExists, err := s.mailboxExists(a)
 	if err != nil {
 		return err
 	}
-	if userExists {
-		return fmt.Errorf("An user with %v already exists", a)
+	if mailboxExists {
+		return fmt.Errorf("An mailbox with %v already exists", a)
 	}
 
 	aliasExists, err := s.aliasExists(a)
@@ -32,7 +32,7 @@ func (s *Server) UserAliasAdd(alias, email string) error {
 	return err
 }
 
-func (s *Server) UserAliasDelete(aliasEmail string) error {
+func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {
 		return err
@@ -48,9 +48,9 @@ func (s *Server) UserAliasDelete(aliasEmail string) error {
 	return err
 }
 
-func (s *Server) UserAliasDeleteAll(userEmail string) error {
+func (s *Server) MailboxAliasDeleteAll(mailboxEmail string) error {
 	_, err := s.DB.Exec(`
-		DELETE FROM forwardings WHERE forwarding = '` + userEmail + `' AND is_alias = 1
+		DELETE FROM forwardings WHERE forwarding = '` + mailboxEmail + `' AND is_alias = 1
 	`)
 
 	return err

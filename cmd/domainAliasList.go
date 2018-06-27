@@ -55,6 +55,11 @@ func init() {
 }
 
 func printAliasDomains(aliasDomains iredmail.AliasDomains) {
+	if len(aliasDomains) == 0 {
+		info("No alias domains\n")
+		return
+	}
+
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
@@ -66,7 +71,7 @@ func printAliasDomains(aliasDomains iredmail.AliasDomains) {
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
 	for _, a := range aliasDomains {
-		fmt.Fprintf(w, "%v\t%v\n", a.AliasDomain, a.Domain)
+		fmt.Fprintf(w, "%v\t-> %v\n", a.AliasDomain, a.Domain)
 	}
 
 	w.Flush()

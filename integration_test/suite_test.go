@@ -31,13 +31,13 @@ var (
 	}
 	isCI = false
 
-	userName1 = "post@web.de"
-	userName2 = "info@domain.com"
-	userName3 = "webmaster@example.com"
-	userName4 = "abuse@domain.com"
-	userName5 = "support@wurst.de"
+	mailboxName1 = "post@web.de"
+	mailboxName2 = "info@domain.com"
+	mailboxName3 = "webmaster@example.com"
+	mailboxName4 = "abuse@domain.com"
+	mailboxName5 = "support@wurst.de"
 
-	userPW = "alskdlqkdjalskd"
+	mailboxPW = "alskdlqkdjalskd"
 
 	forwardingAddress1 = "info@example.com"
 	forwardingAddress2 = "webmaster@example.net"
@@ -49,11 +49,11 @@ var (
 	customQuota       = 4096
 	customStoragePath = "/var/mail/custom"
 
-	skipUser           = true
-	skipUserList       = true
-	skipUserForwarding = true
-	skipUserAlias      = true
-	skipUserInfo       = false
+	skipMailbox      = false
+	skipMailboxList  = false
+	skipForwarding   = false
+	skipMailboxAlias = false
+	skipMailboxInfo  = false
 )
 
 func TestCLI(t *testing.T) {

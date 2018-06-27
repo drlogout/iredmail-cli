@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var userListCmd = &cobra.Command{
+var mailboxListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List users",
+	Short: "List mailboxes",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -21,27 +21,32 @@ var userListCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		users, err := server.Users()
+		mailboxes, err := server.Mailboxes()
 		if err != nil {
 			fatal("%v", err)
 		}
 
 		filter := cmd.Flag("filter").Value.String()
 		if filter != "" {
-			users = users.FilterBy(filter)
+			mailboxes = mailboxes.FilterBy(filter)
 		}
 
-		printUserList(users)
+		printUserList(mailboxes)
 	},
 }
 
 func init() {
-	userCmd.AddCommand(userListCmd)
+	mailboxCmd.AddCommand(mailboxListCmd)
 
-	userListCmd.Flags().StringP("filter", "f", "", "Filter result")
+	mailboxListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }
 
-func printUserList(users iredmail.Users) {
+func printUserList(mailboxes iredmail.Mailboxes) {
+	if len(mailboxes) == 0 {
+		info("No mailboxes\n")
+		return
+	}
+
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
@@ -52,7 +57,7 @@ func printUserList(users iredmail.Users) {
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	for _, u := range users {
+	for _, u := range mailboxes {
 		fmt.Fprintf(w, "%v\t%v\n", u.Email, u.Quota)
 	}
 

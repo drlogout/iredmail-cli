@@ -9,32 +9,32 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("user list", func() {
+var _ = Describe("mailbox list", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	It("can list users", func() {
-		if skipUserList && !isCI {
-			Skip("can list users")
+	It("can list mailbox", func() {
+		if skipMailboxrList && !isCI {
+			Skip("can list mailbox")
 		}
 
-		users := []string{
-			userName1,
-			userName2,
-			userName3,
-			userName4,
-			userName5,
+		mailboxes := []string{
+			mailboxName1,
+			mailboxName2,
+			mailboxName3,
+			mailboxName4,
+			mailboxName5,
 		}
 
-		for _, user := range users {
-			cli := exec.Command(cliPath, "user", "add", user, userPW)
+		for _, mailbox := range mailboxes {
+			cli := exec.Command(cliPath, "mailbox", "add", mailbox, mailboxPW)
 			err := cli.Run()
 			Expect(err).NotTo(HaveOccurred())
 		}
 
-		cli := exec.Command(cliPath, "user", "list")
+		cli := exec.Command(cliPath, "mailbox", "list")
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
@@ -54,20 +54,20 @@ var _ = Describe("user list", func() {
 		}
 
 		users := []string{
-			userName1,
-			userName2,
-			userName3,
-			userName4,
-			userName5,
+			mailboxName1,
+			mailboxName2,
+			mailboxName3,
+			mailboxName4,
+			mailboxName5,
 		}
 
 		for _, user := range users {
-			cli := exec.Command(cliPath, "user", "add", user, userPW)
+			cli := exec.Command(cliPath, "mailbox", "add", user, mailboxPW)
 			err := cli.Run()
 			Expect(err).NotTo(HaveOccurred())
 		}
 
-		cli := exec.Command(cliPath, "user", "list", "-f", "domain.com")
+		cli := exec.Command(cliPath, "mailbox", "list", "-f", "domain.com")
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))

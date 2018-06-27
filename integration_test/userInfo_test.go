@@ -20,27 +20,27 @@ var _ = Describe("user info", func() {
 			Skip("can show user info")
 		}
 
-		cli := exec.Command(cliPath, "user", "add", userName1, userPW)
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add-alias", alias1, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", alias1, mailboxName1)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "add-alias", alias2, userName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", alias2, mailboxName1)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "forwarding", "add", userName1, forwardingAddress1)
+		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "forwarding", "add", userName1, forwardingAddress2)
+		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress2)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "user", "info", userName1)
+		cli = exec.Command(cliPath, "mailbox", "info", mailboxName1)
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))

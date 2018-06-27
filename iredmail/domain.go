@@ -55,12 +55,12 @@ func (s *Server) domainExists(domain string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) domainAliasExists(aliasDomain, domain string) (bool, error) {
+func (s *Server) domainAliasExists(aliasDomain string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
 	(SELECT * FROM alias_domain
-	WHERE alias_domain = '` + aliasDomain + `' AND target_domain = '` + domain + `');`
+	WHERE alias_domain = '` + aliasDomain + `');`
 
 	err := s.DB.QueryRow(query).Scan(&exists)
 	if err != nil {
