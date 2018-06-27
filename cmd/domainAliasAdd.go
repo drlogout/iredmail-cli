@@ -47,7 +47,7 @@ var domainAliasAddCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added domain %v\n", domain)
+		success("Successfully added alias domain %v -> %v\n", aliasDomain, domain)
 	},
 }
 

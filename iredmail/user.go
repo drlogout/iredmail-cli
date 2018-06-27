@@ -90,9 +90,9 @@ ORDER BY domain ASC, name ASC;`)
 func (s *Server) userExists(email string) (bool, error) {
 	var exists bool
 
-	query := `select exists
-	(select username from mailbox
-		where username = '` + email + `');`
+	query := `SELECT exists
+	(SELECT username FROM mailbox
+		WHERE username = '` + email + `');`
 
 	err := s.DB.QueryRow(query).Scan(&exists)
 	if err != nil {

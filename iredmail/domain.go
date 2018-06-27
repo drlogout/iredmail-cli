@@ -17,6 +17,13 @@ type Domain struct {
 
 type Domains []Domain
 
+type AliasDomain struct {
+	Domain      string
+	AliasDomain string
+}
+
+type AliasDomains []AliasDomain
+
 func (d Domains) FilterBy(filter string) Domains {
 	filteredDomains := Domains{}
 
@@ -35,6 +42,25 @@ func (s *Server) domainExists(domain string) (bool, error) {
 	query := `select exists
 	(select domain from domain
 	where domain = '` + domain + `');`
+
+	err := s.DB.QueryRow(query).Scan(&exists)
+	if err != nil {
+		return exists, err
+	}
+
+	if exists {
+		return true, nil
+	}
+
+	return exists, nil
+}
+
+func (s *Server) domainAliasExists(aliasDomain, domain string) (bool, error) {
+	var exists bool
+
+	query := `SELECT exists
+	(SELECT * FROM alias_domain
+	WHERE alias_domain = '` + aliasDomain + `' AND target_domain = '` + domain + `');`
 
 	err := s.DB.QueryRow(query).Scan(&exists)
 	if err != nil {
@@ -74,6 +100,33 @@ func (s *Server) DomainList() (Domains, error) {
 	err = rows.Err()
 
 	return domains, err
+}
+
+func (s *Server) DomainAliasList() (AliasDomains, error) {
+	aliasDomains := AliasDomains{}
+
+	rows, err := s.DB.Query(`SELECT alias_domain, target_domain FROM alias_domain ORDER BY target_domain ASC;`)
+	if err != nil {
+		return aliasDomains, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var aliasDomain, targetDomain string
+
+		err := rows.Scan(&aliasDomain, &targetDomain)
+		if err != nil {
+			return aliasDomains, err
+		}
+
+		aliasDomains = append(aliasDomains, AliasDomain{
+			Domain:      targetDomain,
+			AliasDomain: aliasDomain,
+		})
+	}
+	err = rows.Err()
+
+	return aliasDomains, err
 }
 
 func (s *Server) DomainGet(domainName string) (Domain, error) {

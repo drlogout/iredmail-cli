@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
@@ -14,12 +12,12 @@ var aliasListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 
 		aliases, err := server.AliasList()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 
 		filter := cmd.Flag("filter").Value.String()

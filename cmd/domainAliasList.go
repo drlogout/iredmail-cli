@@ -24,49 +24,49 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainListCmd represents the list command
-var domainListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List domains",
+// domainAliasListCmd represents the list command
+var domainAliasListCmd = &cobra.Command{
+	Use:   "list-alias",
+	Short: "List alias domains",
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		domains, err := server.DomainList()
+		aliasDomains, err := server.DomainAliasList()
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		filter := cmd.Flag("filter").Value.String()
-		if filter != "" {
-			domains = domains.FilterBy(filter)
-		}
+		// filter := cmd.Flag("filter").Value.String()
+		// if filter != "" {
+		// 	domains = domains.FilterBy(filter)
+		// }
 
-		printDomains(domains)
+		printAliasDomains(aliasDomains)
 	},
 }
 
 func init() {
-	domainCmd.AddCommand(domainListCmd)
+	domainCmd.AddCommand(domainAliasListCmd)
 
-	domainListCmd.Flags().StringP("filter", "f", "", "Filter result")
+	domainAliasListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }
 
-func printDomains(domains iredmail.Domains) {
+func printAliasDomains(aliasDomains iredmail.AliasDomains) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "Domain", "Settings", "Description")
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "------", "--------", "-----------")
+	fmt.Fprintf(w, "%v\t%v\n", "Alias domain", "Domain")
+	fmt.Fprintf(w, "%v\t%v\n", "------------", "------")
 	w.Flush()
 	info(buf.String())
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	for _, d := range domains {
-		fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Settings, d.Description)
+	for _, a := range aliasDomains {
+		fmt.Fprintf(w, "%v\t%v\n", a.AliasDomain, a.Domain)
 	}
 
 	w.Flush()

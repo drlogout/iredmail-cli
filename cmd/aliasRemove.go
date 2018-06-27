@@ -17,7 +17,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/goware/emailx"
@@ -45,13 +44,13 @@ var removeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
 		err = server.AliasRemove(args[0])
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 	},
 }

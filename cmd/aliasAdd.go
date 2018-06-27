@@ -17,7 +17,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/goware/emailx"
@@ -52,13 +51,13 @@ var aliasAddCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
 		err = server.AliasAdd(args[0], args[1])
 		if err != nil {
-			log.Fatal(err)
+			fatal("%v\n", err)
 		}
 	},
 }
