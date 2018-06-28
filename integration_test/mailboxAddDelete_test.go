@@ -19,7 +19,7 @@ var _ = Describe("mailbox", func() {
 	})
 
 	It("can add an mailbox", func() {
-		if skipUser && !isCI {
+		if skipMailbox && !isCI {
 			Skip("can add an mailbox")
 		}
 
@@ -61,7 +61,7 @@ var _ = Describe("mailbox", func() {
 	})
 
 	It("can delete an mailbox", func() {
-		if skipUser && !isCI {
+		if skipMailbox && !isCI {
 			Skip("can delete an mailbox")
 		}
 
@@ -110,7 +110,7 @@ var _ = Describe("mailbox", func() {
 	})
 
 	It("can't add an existing mailbox", func() {
-		if skipUser && !isCI {
+		if skipMailbox && !isCI {
 			Skip("can't add an existing mailbox")
 		}
 
@@ -125,7 +125,7 @@ var _ = Describe("mailbox", func() {
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("User %v already exists\n", mailboxName1)
+		expected := fmt.Sprintf("Mailbox %v already exists\n", mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -133,7 +133,7 @@ var _ = Describe("mailbox", func() {
 	})
 
 	It("can add an mailbox with custom quota", func() {
-		if skipUser && !isCI {
+		if skipMailbox && !isCI {
 			Skip("can add an mailbox with custom quota")
 		}
 
@@ -182,7 +182,7 @@ var _ = Describe("mailbox", func() {
 	})
 
 	It("can add an mailbox with custom storage path", func() {
-		if skipUser && !isCI {
+		if skipMailbox && !isCI {
 			Skip("can add an mailbox with custom storage path")
 		}
 

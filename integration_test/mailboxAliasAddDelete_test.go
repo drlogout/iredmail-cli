@@ -18,7 +18,7 @@ var _ = Describe("user alias", func() {
 	})
 
 	It("can add an user alias", func() {
-		if skipUserAlias && !isCI {
+		if skipMailboxAlias && !isCI {
 			Skip("can add an user alias")
 		}
 
@@ -33,7 +33,7 @@ var _ = Describe("user alias", func() {
 		}
 
 		actual := string(output)
-		expected := fmt.Sprintf("Successfully added user alias %v -> %v\n", alias1, mailboxName1)
+		expected := fmt.Sprintf("Successfully added mailbox alias %v -> %v\n", alias1, mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -57,7 +57,7 @@ var _ = Describe("user alias", func() {
 	})
 
 	It("can't add an user alias if email exists", func() {
-		if skipUserAlias && !isCI {
+		if skipMailboxAlias && !isCI {
 			Skip("can't add an user alias if email exists")
 		}
 
@@ -72,7 +72,7 @@ var _ = Describe("user alias", func() {
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("An user with %v already exists\n", mailboxName1)
+		expected := fmt.Sprintf("An mailbox with %v already exists\n", mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -80,7 +80,7 @@ var _ = Describe("user alias", func() {
 	})
 
 	It("can't add an user alias if user alias already exists", func() {
-		if skipUserAlias && !isCI {
+		if skipMailboxAlias && !isCI {
 			Skip("can't add an user alias if user alias already exists")
 		}
 
@@ -107,7 +107,7 @@ var _ = Describe("user alias", func() {
 	})
 
 	It("can delete an user alias", func() {
-		if skipUserAlias && !isCI {
+		if skipMailboxAlias && !isCI {
 			Skip("can delete an user alias")
 		}
 
@@ -126,7 +126,7 @@ var _ = Describe("user alias", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("Successfully deleted user alias %v\n", fmt.Sprintf("%v@%v", alias1, domain))
+		expected := fmt.Sprintf("Successfully deleted mailbox alias %v\n", fmt.Sprintf("%v@%v", alias1, domain))
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -134,7 +134,7 @@ var _ = Describe("user alias", func() {
 	})
 
 	It("can't delete an alias which doesn't exist", func() {
-		if skipUserAlias && !isCI {
+		if skipMailboxAlias && !isCI {
 			Skip("can't delete an alias which doesn't exist")
 		}
 

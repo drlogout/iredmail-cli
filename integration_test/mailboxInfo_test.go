@@ -9,15 +9,15 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("user info", func() {
+var _ = Describe("mailbox info", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	It("can show user info", func() {
-		if skipUserInfo && !isCI {
-			Skip("can show user info")
+	It("can show mailbox info", func() {
+		if skipMailboxInfo && !isCI {
+			Skip("can show mailbox info")
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
@@ -47,7 +47,7 @@ var _ = Describe("user info", func() {
 		}
 
 		actual := string(output)
-		expected := loadGolden("can_show_user_info")
+		expected := loadGolden("can_show_mailbox_info")
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))

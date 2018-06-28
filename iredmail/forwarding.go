@@ -101,17 +101,12 @@ func (s *Server) forwardingExists(userAddress, destinationAddress string) (bool,
 }
 
 func (s *Server) ForwardingList() (Forwardings, error) {
-	forwardings, err := s.queryForwardings(queryOptions{})
+	forwardings, err := s.queryForwardings(queryOptions{
+		where: "is_forwarding = 1",
+	})
 	if err != nil {
 		return forwardings, err
 	}
 
-	withoutSelfForward := Forwardings{}
-	for _, f := range forwardings {
-		if f.Address != f.Forwarding {
-			withoutSelfForward = append(withoutSelfForward, f)
-		}
-	}
-
-	return withoutSelfForward, nil
+	return forwardings, nil
 }

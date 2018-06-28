@@ -50,7 +50,7 @@ func printUserList(mailboxes iredmail.Mailboxes) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\n", "User", "Quota (KB)")
+	fmt.Fprintf(w, "%v\t%v\n", "Mailbox", "Quota (KB)")
 	fmt.Fprintf(w, "%v\t%v\n", "----", "----------")
 	w.Flush()
 	info(buf.String())

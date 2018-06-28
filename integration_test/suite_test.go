@@ -50,10 +50,10 @@ var (
 	customStoragePath = "/var/mail/custom"
 
 	skipMailbox      = false
-	skipMailboxList  = false
-	skipForwarding   = false
-	skipMailboxAlias = false
 	skipMailboxInfo  = false
+	skipMailboxList  = false
+	skipMailboxAlias = false
+	skipForwarding   = false
 )
 
 func TestCLI(t *testing.T) {

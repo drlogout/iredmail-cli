@@ -15,13 +15,13 @@
 package cmd
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
 	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/fatih/color"
 	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
@@ -65,34 +65,34 @@ func init() {
 }
 
 func printUserInfo(mailbox iredmail.Mailbox) {
-	var buf bytes.Buffer
+	bold := color.New(color.Bold).SprintfFunc()
 	w := new(tabwriter.Writer)
-	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "User\t%v\n", mailbox.Email)
-	w.Flush()
-	info(buf.String())
-
-	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "Quota\t%v KB\n", mailbox.Quota)
+
+	fmt.Fprintf(w, "%v\t%v\n", bold("Mailbox"), mailbox.Email)
+	fmt.Fprintf(w, "%v\t%v KB\n", bold("Quota"), mailbox.Quota)
 
 	if len(mailbox.MailboxAliases) > 0 {
-		fmt.Fprintf(w, "%v\n", "Aliases")
+		fmt.Fprintf(w, "%v\t\n", bold("Aliases"))
 		for _, a := range mailbox.MailboxAliases {
-			fmt.Fprintf(w, "\t%v -> %v\n", a.Name(), a.Forwarding)
+			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), a.Name(), a.Forwarding)
 		}
 	}
 
 	forwardings := iredmail.Forwardings{}
+	keepCopy := "no"
 	for _, f := range mailbox.Forwardings {
 		if f.Forwarding != mailbox.Email {
 			forwardings = append(forwardings, f)
+		} else if f.Forwarding == mailbox.Email {
+			keepCopy = "yes"
 		}
 	}
 	if len(forwardings) > 0 {
-		fmt.Fprintf(w, "%v\n", "Forwardings")
+		fmt.Fprintf(w, "%v\n", bold("Forwardings"))
+		fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "keep copy in mailbox", keepCopy)
 		for _, f := range forwardings {
-			fmt.Fprintf(w, "\t%v -> %v\n", f.Address, f.Forwarding)
+			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), f.Address, f.Forwarding)
 		}
 	}
 

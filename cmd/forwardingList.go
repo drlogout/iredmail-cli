@@ -56,6 +56,22 @@ func init() {
 	forwardingListCmd.SetUsageTemplate(usageTemplate("forwarding list"))
 }
 
+type fwMap map[string][]string
+
+func (fwMap fwMap) Contains(f iredmail.Forwarding) bool {
+	fwEntry, ok := fwMap[f.Address]
+	if ok {
+		for _, forfwarding := range fwEntry {
+			if forfwarding == f.Forwarding {
+				return true
+			}
+		}
+
+		return false
+	}
+	return false
+}
+
 func printForwardings(forwardings iredmail.Forwardings) {
 	if len(forwardings) == 0 {
 		info("No forwardings\n")
@@ -72,7 +88,19 @@ func printForwardings(forwardings iredmail.Forwardings) {
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
+
+	fw := fwMap{}
+
 	for _, f := range forwardings {
+		if _, ok := fw[f.Address]; !ok {
+			fw[f.Address] = []string{
+				f.Forwarding,
+			}
+		} else {
+			if !fw.Contains(f) {
+				fw[f.Address] = append(fw[f.Address], f.Forwarding)
+			}
+		}
 		fmt.Fprintf(w, "%v\t->    %v\n", f.Address, f.Forwarding)
 	}
 

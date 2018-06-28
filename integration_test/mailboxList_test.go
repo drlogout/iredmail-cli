@@ -15,9 +15,9 @@ var _ = Describe("mailbox list", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	It("can list mailbox", func() {
-		if skipMailboxrList && !isCI {
-			Skip("can list mailbox")
+	It("can list mailboxes", func() {
+		if skipMailboxList && !isCI {
+			Skip("can list mailboxes")
 		}
 
 		mailboxes := []string{
@@ -41,19 +41,19 @@ var _ = Describe("mailbox list", func() {
 		}
 
 		actual := string(output)
-		expected := loadGolden("can_list_users")
+		expected := loadGolden("can_list_mailboxes")
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
 		}
 	})
 
-	It("can list users and filter result", func() {
-		if skipUserList && !isCI {
-			Skip("can list users and filter result")
+	It("can list mailboxes and filter result", func() {
+		if skipMailboxList && !isCI {
+			Skip("can list mailboxes and filter result")
 		}
 
-		users := []string{
+		mailboxes := []string{
 			mailboxName1,
 			mailboxName2,
 			mailboxName3,
@@ -61,8 +61,8 @@ var _ = Describe("mailbox list", func() {
 			mailboxName5,
 		}
 
-		for _, user := range users {
-			cli := exec.Command(cliPath, "mailbox", "add", user, mailboxPW)
+		for _, mailbox := range mailboxes {
+			cli := exec.Command(cliPath, "mailbox", "add", mailbox, mailboxPW)
 			err := cli.Run()
 			Expect(err).NotTo(HaveOccurred())
 		}
@@ -74,7 +74,7 @@ var _ = Describe("mailbox list", func() {
 		}
 
 		actual := string(output)
-		expected := loadGolden("can_list_users_and_filter_result")
+		expected := loadGolden("can_list_mailboxes_and_filter_result")
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
