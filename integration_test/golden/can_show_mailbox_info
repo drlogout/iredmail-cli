@@ -1,8 +1,9 @@
 Mailbox                                 post@web.de
 Quota                                   2048 KB
-Aliases
+Aliases                                 
                                         abuse -> post@web.de
                                         mail -> post@web.de
 Forwardings
+  keep copy in mailbox                  yes
                                         post@web.de -> info@example.com
                                         post@web.de -> webmaster@example.net

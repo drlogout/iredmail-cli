@@ -24,6 +24,25 @@ func (f *Forwarding) Name() string {
 	return name
 }
 
+func (forwardings Forwardings) IsCopyLeftInMailbox() bool {
+	for _, f := range forwardings {
+		if f.Address == f.Forwarding {
+			return true
+		}
+	}
+	return false
+}
+
+func (forwardings Forwardings) External() Forwardings {
+	external := Forwardings{}
+	for _, f := range forwardings {
+		if f.Address != f.Forwarding {
+			external = append(external, f)
+		}
+	}
+	return external
+}
+
 func (a Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 

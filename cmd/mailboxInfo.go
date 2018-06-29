@@ -79,15 +79,12 @@ func printUserInfo(mailbox iredmail.Mailbox) {
 		}
 	}
 
-	forwardings := iredmail.Forwardings{}
 	keepCopy := "no"
-	for _, f := range mailbox.Forwardings {
-		if f.Forwarding != mailbox.Email {
-			forwardings = append(forwardings, f)
-		} else if f.Forwarding == mailbox.Email {
-			keepCopy = "yes"
-		}
+	if mailbox.Forwardings.IsCopyLeftInMailbox() {
+		keepCopy = "yes"
 	}
+
+	forwardings := mailbox.Forwardings.External()
 	if len(forwardings) > 0 {
 		fmt.Fprintf(w, "%v\n", bold("Forwardings"))
 		fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "keep copy in mailbox", keepCopy)
