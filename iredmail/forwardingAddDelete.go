@@ -4,29 +4,29 @@ import (
 	"fmt"
 )
 
-func (s *Server) ForwardingAdd(userEmail, destinationEmail string) error {
-	mailboxExists, err := s.mailboxExists(userEmail)
+func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
 	if err != nil {
 		return err
 	}
 	if !mailboxExists {
-		return fmt.Errorf("User %v doesn't exist", userEmail)
+		return fmt.Errorf("User %v doesn't exist", mailboxEmail)
 	}
 
-	forwardingExists, err := s.forwardingExists(userEmail, destinationEmail)
+	forwardingExists, err := s.forwardingExists(mailboxEmail, destinationEmail)
 	if err != nil {
 		return err
 	}
 	if forwardingExists {
-		return fmt.Errorf("Forwarding %v -> %v already exists", userEmail, destinationEmail)
+		return fmt.Errorf("Forwarding %v -> %v already exists", mailboxEmail, destinationEmail)
 	}
 
-	_, userDomain := parseEmail(userEmail)
+	_, userDomain := parseEmail(mailboxEmail)
 	_, destDomain := parseEmail(destinationEmail)
 
 	_, err = s.DB.Exec(`
 	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
-    VALUES ('` + userEmail + `', '` + destinationEmail + `','` + userDomain + `', '` + destDomain + `', 1);
+    VALUES ('` + mailboxEmail + `', '` + destinationEmail + `','` + userDomain + `', '` + destDomain + `', 1);
 	`)
 
 	return err

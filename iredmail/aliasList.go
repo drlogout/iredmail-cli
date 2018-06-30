@@ -8,13 +8,13 @@ func (s *Server) AliasList() (Aliases, error) {
 	}
 
 	for _, f := range forwardings {
-		isRegularAlias, err := s.isAlias(f.Address)
+		isRegularAlias, err := s.isAlias(f.Mailbox)
 		if err != nil {
 			return aliases, err
 		}
 		if isRegularAlias {
 			aliases = append(aliases, Alias{
-				Address: f.Address,
+				Address: f.Mailbox,
 				Domain:  f.Domain,
 			})
 		}

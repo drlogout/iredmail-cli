@@ -6,49 +6,66 @@ import (
 )
 
 type Forwarding struct {
-	Address      string
-	Domain       string
-	Forwarding   string
-	DestDomain   string
-	Active       bool
-	IsList       bool
-	IsAlias      bool
-	IsForwarding bool
+	Mailbox             string
+	Domain              string
+	Forwarding          string
+	DestDomain          string
+	Active              bool
+	IsList              bool
+	IsAlias             bool
+	IsForwarding        bool
+	IsCopyLeftInMailbox bool
 }
 
 type Forwardings []Forwarding
 
+type ForwardingsInfo struct {
+	IsCopyLeftInMailbox bool
+}
+
+type ForwardingsInfoMap map[string]*ForwardingsInfo
+
 func (f *Forwarding) Name() string {
-	name, _ := parseEmail(f.Address)
+	name, _ := parseEmail(f.Mailbox)
 
 	return name
 }
 
-func (forwardings Forwardings) IsCopyLeftInMailbox() bool {
+func (forwardings Forwardings) Info() ForwardingsInfoMap {
+	infoMap := ForwardingsInfoMap{}
+
 	for _, f := range forwardings {
-		if f.Address == f.Forwarding {
-			return true
+		_, ok := infoMap[f.Mailbox]
+		if !ok {
+			infoMap[f.Mailbox] = &ForwardingsInfo{
+				IsCopyLeftInMailbox: false,
+			}
+		}
+
+		if f.Mailbox == f.Forwarding {
+			infoMap[f.Mailbox].IsCopyLeftInMailbox = true
 		}
 	}
-	return false
+
+	return infoMap
 }
 
 func (forwardings Forwardings) External() Forwardings {
 	external := Forwardings{}
 	for _, f := range forwardings {
-		if f.Address != f.Forwarding {
+		if f.Mailbox != f.Forwarding {
 			external = append(external, f)
 		}
 	}
 	return external
 }
 
-func (a Forwardings) FilterBy(filter string) Forwardings {
+func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 
-	for _, al := range a {
-		if strings.Contains(al.Address, filter) {
-			filteredForwardings = append(filteredForwardings, al)
+	for _, f := range forwardings {
+		if strings.Contains(f.Mailbox, filter) {
+			filteredForwardings = append(filteredForwardings, f)
 		}
 	}
 
@@ -75,16 +92,16 @@ func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var address, domain, forwarding, destDomain string
+		var mailboxEmail, domain, forwarding, destDomain string
 		var active, isAlias, isForwarding, isList bool
 
-		err := rows.Scan(&address, &domain, &forwarding, &destDomain, &active, &isAlias, &isForwarding, &isList)
+		err := rows.Scan(&mailboxEmail, &domain, &forwarding, &destDomain, &active, &isAlias, &isForwarding, &isList)
 		if err != nil {
 			return Forwardings, err
 		}
 
 		Forwardings = append(Forwardings, Forwarding{
-			Address:      address,
+			Mailbox:      mailboxEmail,
 			Domain:       domain,
 			Forwarding:   forwarding,
 			DestDomain:   destDomain,

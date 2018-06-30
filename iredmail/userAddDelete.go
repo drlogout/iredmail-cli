@@ -72,7 +72,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 	err = s.ForwardingAdd(email, email)
 	m.Forwardings = Forwardings{
 		Forwarding{
-			Address:    email,
+			Mailbox:    email,
 			Forwarding: email,
 		},
 	}

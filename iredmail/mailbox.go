@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+type MailboxEmail string
+
 // types
 type Mailbox struct {
 	Email          string
@@ -19,6 +21,15 @@ type Mailbox struct {
 }
 
 type Mailboxes []Mailbox
+
+func (m *Mailbox) IsCopyLeft() bool {
+	for _, f := range m.Forwardings {
+		if m.Email == f.Forwarding {
+			return true
+		}
+	}
+	return false
+}
 
 func (mailboxes Mailboxes) FilterBy(filter string) Mailboxes {
 	filteredMailboxes := Mailboxes{}

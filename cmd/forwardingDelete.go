@@ -57,15 +57,15 @@ var forwardingDeleteCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		userEmail, destinationEmail := args[0], args[1]
+		mailboxEmail, destinationEmail := args[0], args[1]
 
-		err = server.ForwardingDelete(userEmail, destinationEmail)
+		err = server.ForwardingDelete(mailboxEmail, destinationEmail)
 		if err != nil {
 			color.Red(err.Error())
 			os.Exit(1)
 		}
 
-		success("Successfully deleted forwarding %v -> %v\n", userEmail, destinationEmail)
+		success("Successfully deleted forwarding %v -> %v\n", mailboxEmail, destinationEmail)
 	},
 }
 

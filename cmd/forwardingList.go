@@ -65,22 +65,31 @@ func printForwardings(forwardings iredmail.Forwardings) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t      %v\n", "User Email", "Destination Email")
-	fmt.Fprintf(w, "%v\t      %v\n", "----------", "-----------------")
+	fmt.Fprintf(w, "%v\t      %v\t%v\n", "Mailbox Email", "Destination Email", "Copy left in mailbox")
+	fmt.Fprintf(w, "%v\t      %v\t%v\n", "-------------", "-----------------", "--------------------")
 	w.Flush()
 	info(buf.String())
 
 	w = new(tabwriter.Writer)
 	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
 
+	info := forwardings.Info()
+
 	lastAddress := ""
 	for _, f := range forwardings.External() {
-		newAddress := f.Address
-		if lastAddress == f.Address {
-			newAddress = ""
+		newAddress := f.Mailbox
+		newCopyLeft := "no"
+		arrow := "➞"
+
+		if info[f.Mailbox].IsCopyLeftInMailbox {
+			newCopyLeft = "yes"
 		}
-		fmt.Fprintf(w, "%v\t->    %v\n", newAddress, f.Forwarding)
-		lastAddress = f.Address
+
+		if lastAddress == f.Mailbox {
+			newAddress, newCopyLeft, arrow = "", "", "↳"
+		}
+		fmt.Fprintf(w, "%v\t%v     %v\t%v\n", newAddress, arrow, f.Forwarding, newCopyLeft)
+		lastAddress = f.Mailbox
 	}
 
 	w.Flush()

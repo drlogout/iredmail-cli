@@ -55,14 +55,14 @@ var forwardingAddCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		userEmail, destinationEmail := args[0], args[1]
+		mailboxEmail, destinationEmail := args[0], args[1]
 
-		err = server.ForwardingAdd(userEmail, destinationEmail)
+		err = server.ForwardingAdd(mailboxEmail, destinationEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added forwarding %v -> %v\n", userEmail, destinationEmail)
+		success("Successfully added forwarding %v -> %v\n", mailboxEmail, destinationEmail)
 	},
 }
 
