@@ -116,3 +116,23 @@ func (s *Server) mailboxAliasExists(email string) (bool, error) {
 
 	return exists, nil
 }
+
+func (s *Server) aliasForwardingExists(aliasAddress, forwardingAddress string) (bool, error) {
+	var exists bool
+
+	query := `
+		SELECT exists
+		(SELECT * FROM forwardings
+			WHERE address = '` + aliasAddress + `' AND forwarding = '` + forwardingAddress + `' AND is_list = 1
+		);`
+	err := s.DB.QueryRow(query).Scan(&exists)
+	if err != nil {
+		return exists, err
+	}
+
+	if exists {
+		return true, nil
+	}
+
+	return exists, nil
+}

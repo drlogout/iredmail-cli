@@ -11,6 +11,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	arrowRight = "➞"
+)
+
 var (
 	cfgFile string
 )

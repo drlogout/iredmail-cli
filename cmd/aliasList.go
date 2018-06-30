@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/fatih/color"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -46,21 +44,21 @@ func printAliases(aliases iredmail.Aliases) {
 		return
 	}
 
-	bold := color.New(color.Bold).SprintfFunc()
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Alias", "Forwardings"})
+	table.SetAutoMergeCells(true)
 
-	// fmt.Fprintf(w, "%v\t%v\n", bold("Mailbox"), mailbox.Email)
-	// fmt.Fprintf(w, "%v\t%v KB\n", bold("Quota"), mailbox.Quota)
-
-	fmt.Fprintf(w, "%v\t%v\n", bold("Aliases"), bold("Forwardings"))
 	for _, a := range aliases {
-
-		fmt.Fprintf(w, "%v\n", a.Address)
-		for _, f := range a.Forwardings {
-			fmt.Fprintf(w, "\t➞ %v\n", f.Forwarding)
+		firstForwarding := ""
+		if len(a.Forwardings) > 0 {
+			firstForwarding = a.Forwardings[0].Forwarding
+		}
+		table.Append([]string{a.Address, firstForwarding})
+		for i := range a.Forwardings {
+			if (i + 1) < len(a.Forwardings) {
+				table.Append([]string{a.Address, a.Forwardings[i+1].Forwarding})
+			}
 		}
 	}
-
-	w.Flush()
+	table.Render()
 }

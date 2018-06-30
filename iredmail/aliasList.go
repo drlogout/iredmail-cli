@@ -1,7 +1,5 @@
 package iredmail
 
-import "github.com/davecgh/go-spew/spew"
-
 func (s *Server) Aliases() (Aliases, error) {
 	aliases, err := s.queryAliases(queryOptions{})
 	if err != nil {
@@ -15,12 +13,10 @@ func (s *Server) Aliases() (Aliases, error) {
 		return aliases, err
 	}
 
-	spew.Dump(forwardings)
-
 	for i, a := range aliases {
 		for _, f := range forwardings {
 			if f.Address == a.Address {
-				aliases[i].Forwardings = append(a.Forwardings, f)
+				aliases[i].Forwardings = append(aliases[i].Forwardings, f)
 			}
 		}
 	}

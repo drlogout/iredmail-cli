@@ -50,3 +50,31 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 
 	return err
 }
+
+func (s *Server) AliasAddForwarding(aliasEmail, forwardingEmail string) error {
+	regularAliasExists, err := s.regularAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if !regularAliasExists {
+		return fmt.Errorf("Alias %v doesn't exist", aliasEmail)
+	}
+
+	forwardingExists, err := s.aliasForwardingExists(aliasEmail, forwardingEmail)
+	if err != nil {
+		return err
+	}
+	if forwardingExists {
+		return fmt.Errorf("Alias forwarding %v %v %v already exists", aliasEmail, arrowRight, forwardingEmail)
+	}
+
+	_, aliasDomain := parseEmail(aliasEmail)
+	_, forwardingDomain := parseEmail(forwardingEmail)
+
+	sqlQuery := `
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_list, active)
+	VALUES (?, ?, ?, ?, 1, 1);`
+	_, err = s.DB.Exec(sqlQuery, aliasEmail, forwardingEmail, aliasDomain, forwardingDomain)
+
+	return err
+}

@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+const (
+	arrowRight = "➞"
+)
+
 func parseEmail(email string) (string, string) {
 	split := strings.Split(email, "@")
 
