@@ -59,7 +59,7 @@ var aliasAddForwardingCmd = &cobra.Command{
 		aliasEmail := args[0]
 		forwardingEmail := args[1]
 
-		err = server.AliasAddForwarding(aliasEmail, forwardingEmail)
+		err = server.AliasForwardingAdd(aliasEmail, forwardingEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}

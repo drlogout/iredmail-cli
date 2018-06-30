@@ -51,7 +51,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 	return err
 }
 
-func (s *Server) AliasAddForwarding(aliasEmail, forwardingEmail string) error {
+func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 	regularAliasExists, err := s.regularAliasExists(aliasEmail)
 	if err != nil {
 		return err
@@ -75,6 +75,22 @@ func (s *Server) AliasAddForwarding(aliasEmail, forwardingEmail string) error {
 	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_list, active)
 	VALUES (?, ?, ?, ?, 1, 1);`
 	_, err = s.DB.Exec(sqlQuery, aliasEmail, forwardingEmail, aliasDomain, forwardingDomain)
+
+	return err
+}
+
+func (s *Server) AliasForwardingDelete(aliasEmail, forwardingEmail string) error {
+	aliasExists, err := s.regularAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if !aliasExists {
+		return fmt.Errorf("An alias with %v doesn't exists", aliasEmail)
+	}
+
+	sqlQuery := `
+	DELETE FROM forwardings WHERE address = ? AND forwarding = ? AND is_list = 1;`
+	_, err = s.DB.Exec(sqlQuery, aliasEmail, forwardingEmail)
 
 	return err
 }

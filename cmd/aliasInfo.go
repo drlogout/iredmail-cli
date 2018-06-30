@@ -15,8 +15,11 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
+	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
@@ -24,21 +27,40 @@ import (
 var aliasInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Show alias info",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return errors.New("requires alias email as argument")
+		}
+
+		var err error
+
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
+		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
+
+		return err
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
+		server, err := iredmail.New()
+		if err != nil {
+			fatal("%v\n", err)
+		}
+
+		aliases, err := server.Alias(args[0])
+		if err != nil {
+			fatal("%v\n", err)
+		}
+
+		filter := cmd.Flag("filter").Value.String()
+		if filter != "" {
+			aliases = aliases.FilterBy(filter)
+		}
+
+		printAliase(aliases)
 	},
 }
 
 func init() {
 	aliasCmd.AddCommand(aliasInfoCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// aliasInfoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// aliasInfoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
