@@ -108,7 +108,7 @@ func warning(format string, a ...interface{}) {
 }
 
 func info(format string, a ...interface{}) {
-	c := color.New(color.Bold)
+	c := color.New()
 	c.Printf(format, a...)
 }
 

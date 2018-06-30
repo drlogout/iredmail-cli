@@ -24,13 +24,13 @@ import (
 )
 
 var (
-	keepCopyInMailbox = true
+	keepCopyInMailbox = "yes"
 )
 
-// mailboxSetCmd represents the set command
-var mailboxSetCmd = &cobra.Command{
-	Use:   "set",
-	Short: "Set quota and \"keep copy in mailbox\"",
+// mailboxUpdateCmd represents the set command
+var mailboxUpdateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update quota and \"keep copy in mailbox\"",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("requires mailbox email as argument")
@@ -52,34 +52,50 @@ var mailboxSetCmd = &cobra.Command{
 		}
 		defer server.Close()
 
+		updated := false
+		keepCopy := keepCopyInMailbox == "yes"
 		mailboxEmail := args[0]
 		mailbox, err := server.Mailbox(mailboxEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		if cmd.Flag("quota").Changed {
-			if quota != mailbox.Quota {
-				fmt.Println(quota, mailbox.Quota)
-				mailbox.Quota = quota
+		if cmd.Flag("quota").Changed && quota != mailbox.Quota {
+			info("Udating quota...\n")
+			mailbox.Quota = quota
+			err = server.MailboxUpdate(mailbox)
+			if err != nil {
+				fatal("%v\n", err)
 			}
+			updated = true
 		}
 
-		if cmd.Flag("keep-copy").Changed {
-
+		if cmd.Flag("keep-copy").Changed && mailbox.IsCopyKept() != keepCopy {
+			info("Udating keep-copy...\n")
+			err := server.MailboxKeepCopy(mailbox, keepCopy)
+			if err != nil {
+				fatal("%v\n", err)
+			}
+			updated = true
 		}
 
-		err = server.MailboxSet(mailbox)
-		if err != nil {
-			fatal("%v\n", err)
+		if updated {
+			success("Successfully updated mailbox\n")
+			mailbox, err = server.Mailbox(mailboxEmail)
+			if err != nil {
+				fatal("%v\n", err)
+			}
+			fmt.Println()
+			printUserInfo(mailbox)
+		} else {
+			info("No changes, nothing updated\n")
 		}
-
 	},
 }
 
 func init() {
-	mailboxCmd.AddCommand(mailboxSetCmd)
+	mailboxCmd.AddCommand(mailboxUpdateCmd)
 
-	mailboxSetCmd.Flags().IntVarP(&quota, "quota", "q", 0, "Quota")
-	mailboxSetCmd.Flags().BoolVarP(&keepCopyInMailbox, "keep-copy", "-k", true, "Keep copy in mailbox")
+	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 0, "Quota")
+	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Keep copy in mailbox")
 }

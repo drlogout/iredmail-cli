@@ -15,58 +15,30 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
-// aliasAddCmd represents the add command
-var aliasAddCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add an alias",
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return errors.New("requires alias email")
-		}
-
-		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
-		}
-
-		args[0] = emailx.Normalize(args[0])
-
-		return nil
-	},
+// aliasAddForwardingCmd represents the addForwarding command
+var aliasAddForwardingCmd = &cobra.Command{
+	Use:   "add-forwarding",
+	Short: "Add forwarding to alias",
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := iredmail.New()
-		if err != nil {
-			fatal("%v\n", err)
-		}
-		defer server.Close()
-
-		err = server.AliasAdd(args[0])
-		if err != nil {
-			fatal("%v\n", err)
-		}
-
-		success("Successfully added alias %v", args[0])
+		fmt.Println("addForwarding called")
 	},
 }
 
 func init() {
-	aliasCmd.AddCommand(aliasAddCmd)
+	aliasCmd.AddCommand(aliasAddForwardingCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// aliasAddCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// aliasAddForwardingCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// aliasAddCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// aliasAddForwardingCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

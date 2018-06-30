@@ -77,19 +77,19 @@ func printForwardings(forwardings iredmail.Forwardings) {
 
 	lastAddress := ""
 	for _, f := range forwardings.External() {
-		newAddress := f.Mailbox
+		newAddress := f.Address
 		newCopyLeft := "no"
 		arrow := "➞"
 
-		if info[f.Mailbox].IsCopyLeftInMailbox {
+		if info[f.Address].IsCopyLeftInMailbox {
 			newCopyLeft = "yes"
 		}
 
-		if lastAddress == f.Mailbox {
+		if lastAddress == f.Address {
 			newAddress, newCopyLeft, arrow = "", "", "↳"
 		}
 		fmt.Fprintf(w, "%v\t%v     %v\t%v\n", newAddress, arrow, f.Forwarding, newCopyLeft)
-		lastAddress = f.Mailbox
+		lastAddress = f.Address
 	}
 
 	w.Flush()

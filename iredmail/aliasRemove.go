@@ -5,7 +5,7 @@ import (
 )
 
 func (s *Server) AliasRemove(email string) error {
-	isAlias, err := s.isAlias(email)
+	isAlias, err := s.regularAliasExists(email)
 	if err != nil {
 		return err
 	}

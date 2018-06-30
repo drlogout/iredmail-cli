@@ -14,15 +14,14 @@ type Mailbox struct {
 	Domain         string
 	PasswordHash   string
 	Quota          int
-	Type           string
 	MailDir        string
 	MailboxAliases Forwardings
-	Forwardings
+	Forwardings    Forwardings
 }
 
 type Mailboxes []Mailbox
 
-func (m *Mailbox) IsCopyLeft() bool {
+func (m *Mailbox) IsCopyKept() bool {
 	for _, f := range m.Forwardings {
 		if m.Email == f.Forwarding {
 			return true

@@ -1,22 +1,27 @@
 package iredmail
 
-func (s *Server) AliasList() (Aliases, error) {
-	aliases := Aliases{}
-	forwardings, err := s.queryForwardings(queryOptions{})
+import "github.com/davecgh/go-spew/spew"
+
+func (s *Server) Aliases() (Aliases, error) {
+	aliases, err := s.queryAliases(queryOptions{})
 	if err != nil {
 		return aliases, err
 	}
 
-	for _, f := range forwardings {
-		isRegularAlias, err := s.isAlias(f.Mailbox)
-		if err != nil {
-			return aliases, err
-		}
-		if isRegularAlias {
-			aliases = append(aliases, Alias{
-				Address: f.Mailbox,
-				Domain:  f.Domain,
-			})
+	forwardings, err := s.queryForwardings(queryOptions{
+		where: "is_list = 1",
+	})
+	if err != nil {
+		return aliases, err
+	}
+
+	spew.Dump(forwardings)
+
+	for i, a := range aliases {
+		for _, f := range forwardings {
+			if f.Address == a.Address {
+				aliases[i].Forwardings = append(a.Forwardings, f)
+			}
 		}
 	}
 

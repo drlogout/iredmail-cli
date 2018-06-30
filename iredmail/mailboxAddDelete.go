@@ -72,7 +72,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 	err = s.ForwardingAdd(email, email)
 	m.Forwardings = Forwardings{
 		Forwarding{
-			Mailbox:    email,
+			Address:    email,
 			Forwarding: email,
 		},
 	}
@@ -116,15 +116,39 @@ func (s *Server) MailboxDelete(email string) error {
 	return err
 }
 
-func (s *Server) MailboxSet(mailbox Mailbox) error {
+func (s *Server) MailboxUpdate(mailbox Mailbox) error {
 	query := `
 	UPDATE mailbox
-	SET quota = ?
+	SET quota = ?, password = ?
 	WHERE username = ?;`
-	_, err := s.DB.Exec(query, mailbox.Quota, mailbox.Email)
+	_, err := s.DB.Exec(query, mailbox.Quota, mailbox.PasswordHash, mailbox.Email)
 	if err != nil {
 		return err
 	}
 
 	return err
+}
+
+func (s *Server) MailboxKeepCopy(mailbox Mailbox, keepCopyInMailbox bool) error {
+	if len(mailbox.Forwardings.External()) == 0 {
+		return fmt.Errorf("No existing forwardings")
+	}
+
+	isCopyKept := mailbox.IsCopyKept()
+
+	if isCopyKept && !keepCopyInMailbox {
+		err := s.ForwardingDelete(mailbox.Email, mailbox.Email)
+		if err != nil {
+			return err
+		}
+	}
+
+	if !isCopyKept && keepCopyInMailbox {
+		err := s.ForwardingAdd(mailbox.Email, mailbox.Email)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

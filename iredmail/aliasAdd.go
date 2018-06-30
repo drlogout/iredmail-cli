@@ -2,51 +2,50 @@ package iredmail
 
 import "fmt"
 
-func (s *Server) AliasAdd(email, destEmail string) error {
-	_, domain := parseEmail(email)
-	_, destDomain := parseEmail(destEmail)
+func (s *Server) AliasAdd(aliasEmail string) error {
+	_, domain := parseEmail(aliasEmail)
 
 	domainExists, err := s.domainExists(domain)
 	if err != nil {
 		return err
 	}
 	if !domainExists {
-		return fmt.Errorf("Domain %v does not exist, please create one first", domain)
-	}
-
-	mailboxExists, err := s.mailboxExists(email)
-	if err != nil {
-		return err
-	}
-	if mailboxExists {
-		return fmt.Errorf("There is already a user %v", email)
-	}
-
-	isMailboxAlias, err := s.isUserAlias(email)
-	if err != nil {
-		return err
-	}
-	if isMailboxAlias {
-		return fmt.Errorf("%v is an alias user", email)
-	}
-
-	isAlias, err := s.isAlias(email)
-	if err != nil {
-		return err
-	}
-	if !isAlias {
-		_, err = s.DB.Exec(`
-			INSERT INTO alias (address, domain, active)
-			VALUES ('` + email + `', '` + domain + `', 1)
-		`)
+		err := s.DomainAdd(Domain{
+			Domain:   domain,
+			Settings: DomainDefaultSettings,
+		})
 		if err != nil {
 			return err
 		}
 	}
 
+	mailboxExists, err := s.mailboxExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if mailboxExists {
+		return fmt.Errorf("There is already a mailbox %v", aliasEmail)
+	}
+
+	isMailboxAlias, err := s.mailboxAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if isMailboxAlias {
+		return fmt.Errorf("There is already a mailbox alias %v ", aliasEmail)
+	}
+
+	isAlias, err := s.regularAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if isAlias {
+		return fmt.Errorf("There is already an alias %v", aliasEmail)
+	}
+
 	_, err = s.DB.Exec(`
-		INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_list, active)
-		VALUES ('` + email + `', '` + destEmail + `', '` + domain + `', '` + destDomain + `', 1, 1)
+		INSERT INTO alias (address, domain, active)
+		VALUES ('` + aliasEmail + `', '` + domain + `', 1)
 	`)
 
 	return err

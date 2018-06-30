@@ -66,20 +66,20 @@ ORDER BY domain ASC, address ASC;`)
 func (s *Server) aliasExists(email string) (bool, error) {
 	var exists bool
 
-	isAlias, err := s.isAlias(email)
+	regularAliasExists, err := s.regularAliasExists(email)
 	if err != nil {
 		return exists, err
 	}
 
-	isMailboxAlias, err := s.isUserAlias(email)
+	mailboxAliasExists, err := s.mailboxAliasExists(email)
 	if err != nil {
 		return exists, err
 	}
 
-	return (isAlias || isMailboxAlias), nil
+	return (regularAliasExists || mailboxAliasExists), nil
 }
 
-func (s *Server) isAlias(email string) (bool, error) {
+func (s *Server) regularAliasExists(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
@@ -97,7 +97,7 @@ func (s *Server) isAlias(email string) (bool, error) {
 	return exists, nil
 }
 
-func (s *Server) isUserAlias(email string) (bool, error) {
+func (s *Server) mailboxAliasExists(email string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists

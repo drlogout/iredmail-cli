@@ -6,7 +6,7 @@ import (
 )
 
 type Forwarding struct {
-	Mailbox             string
+	Address             string
 	Domain              string
 	Forwarding          string
 	DestDomain          string
@@ -26,7 +26,7 @@ type ForwardingsInfo struct {
 type ForwardingsInfoMap map[string]*ForwardingsInfo
 
 func (f *Forwarding) Name() string {
-	name, _ := parseEmail(f.Mailbox)
+	name, _ := parseEmail(f.Address)
 
 	return name
 }
@@ -35,15 +35,15 @@ func (forwardings Forwardings) Info() ForwardingsInfoMap {
 	infoMap := ForwardingsInfoMap{}
 
 	for _, f := range forwardings {
-		_, ok := infoMap[f.Mailbox]
+		_, ok := infoMap[f.Address]
 		if !ok {
-			infoMap[f.Mailbox] = &ForwardingsInfo{
+			infoMap[f.Address] = &ForwardingsInfo{
 				IsCopyLeftInMailbox: false,
 			}
 		}
 
-		if f.Mailbox == f.Forwarding {
-			infoMap[f.Mailbox].IsCopyLeftInMailbox = true
+		if f.Address == f.Forwarding {
+			infoMap[f.Address].IsCopyLeftInMailbox = true
 		}
 	}
 
@@ -53,7 +53,7 @@ func (forwardings Forwardings) Info() ForwardingsInfoMap {
 func (forwardings Forwardings) External() Forwardings {
 	external := Forwardings{}
 	for _, f := range forwardings {
-		if f.Mailbox != f.Forwarding {
+		if f.Address != f.Forwarding {
 			external = append(external, f)
 		}
 	}
@@ -64,7 +64,7 @@ func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 
 	for _, f := range forwardings {
-		if strings.Contains(f.Mailbox, filter) {
+		if strings.Contains(f.Address, filter) {
 			filteredForwardings = append(filteredForwardings, f)
 		}
 	}
@@ -101,7 +101,7 @@ func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
 		}
 
 		Forwardings = append(Forwardings, Forwarding{
-			Mailbox:      mailboxEmail,
+			Address:      mailboxEmail,
 			Domain:       domain,
 			Forwarding:   forwarding,
 			DestDomain:   destDomain,
