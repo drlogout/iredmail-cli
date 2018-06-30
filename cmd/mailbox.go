@@ -4,6 +4,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	quota           int
+	storageBasePath string
+)
+
 var mailboxCmd = &cobra.Command{
 	Use:   "mailbox",
 	Short: "add, delete, list mailbox | mailbox-alias | mailbox-forwarding",

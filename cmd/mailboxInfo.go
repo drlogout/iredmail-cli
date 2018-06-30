@@ -87,7 +87,7 @@ func printUserInfo(mailbox iredmail.Mailbox) {
 	forwardings := mailbox.Forwardings.External()
 	if len(forwardings) > 0 {
 		fmt.Fprintf(w, "%v\n", bold("Forwardings"))
-		fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "keep copy in mailbox", keepCopy)
+		fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "Keep copy in mailbox", keepCopy)
 		for _, f := range forwardings {
 			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), f.Mailbox, f.Forwarding)
 		}

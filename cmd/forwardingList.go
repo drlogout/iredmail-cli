@@ -65,7 +65,7 @@ func printForwardings(forwardings iredmail.Forwardings) {
 	var buf bytes.Buffer
 	w := new(tabwriter.Writer)
 	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t      %v\t%v\n", "Mailbox Email", "Destination Email", "Copy left in mailbox")
+	fmt.Fprintf(w, "%v\t      %v\t%v\n", "Mailbox Email", "Destination Email", "Keep copy in mailbox")
 	fmt.Fprintf(w, "%v\t      %v\t%v\n", "-------------", "-----------------", "--------------------")
 	w.Flush()
 	info(buf.String())

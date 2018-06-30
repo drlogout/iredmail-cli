@@ -9,11 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	quota           int
-	storageBasePath string
-)
-
 var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a mailbox (e.g. post@domain.com)",
@@ -54,7 +49,7 @@ var mailboxAddCmd = &cobra.Command{
 func init() {
 	mailboxCmd.AddCommand(mailboxAddCmd)
 
-	mailboxAddCmd.Flags().IntVarP(&quota, "quota", "", 2048, "Quota (default 2048 MB)")
+	mailboxAddCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Quota (default 2048 MB)")
 	mailboxAddCmd.Flags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path")
 
 	mailboxAddCmd.SetUsageTemplate(usageTemplate("mailbox add [mailbox_email] [plain_password]"))

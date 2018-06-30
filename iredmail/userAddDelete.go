@@ -115,3 +115,16 @@ func (s *Server) MailboxDelete(email string) error {
 
 	return err
 }
+
+func (s *Server) MailboxSet(mailbox Mailbox) error {
+	query := `
+	UPDATE mailbox
+	SET quota = ?
+	WHERE username = ?;`
+	_, err := s.DB.Exec(query, mailbox.Quota, mailbox.Email)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
