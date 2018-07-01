@@ -121,23 +121,25 @@ func (s *Server) Mailboxes() (Mailboxes, error) {
 }
 
 func (s *Server) Mailbox(email string) (Mailbox, error) {
+	mailbox := Mailbox{}
+
 	exists, err := s.mailboxExists(email)
 	if err != nil {
-		return Mailbox{}, err
+		return mailbox, err
 	}
 
 	if !exists {
-		return Mailbox{}, fmt.Errorf("Mailbox does not exist")
+		return mailbox, fmt.Errorf("Mailbox does not exist")
 	}
 
 	mailboxes, err := s.mailboxQuery(queryOptions{
 		where: `username = '` + email + `'`,
 	})
 	if err != nil {
-		return Mailbox{}, err
+		return mailbox, err
 	}
 	if len(mailboxes) == 0 {
-		return Mailbox{}, fmt.Errorf("Mailbox not found")
+		return mailbox, fmt.Errorf("Mailbox not found")
 	}
 
 	return mailboxes[0], nil

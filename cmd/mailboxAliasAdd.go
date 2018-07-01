@@ -29,7 +29,7 @@ var mailboxAliasAddCmd = &cobra.Command{
 	Short: "Add mailbox alias (e.g. abuse -> post@domain.com)",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires alias and mailbox (email address)")
+			return errors.New("Requires alias and mailbox (email address)")
 		}
 
 		err := emailx.Validate(args[0])

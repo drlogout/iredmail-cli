@@ -16,19 +16,27 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
-// domainAddCmd represents the add command
+// domainAddCmd represents the 'domain add' command
 var domainAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires a domain name")
+			return errors.New("Requires domain name")
 		}
+
+		if !govalidator.IsDNSName(args[0]) {
+			return fmt.Errorf("Invalid domain name format: \"%v\"", args[0])
+		}
+		args[0] = strings.ToLower(args[0])
 
 		return nil
 	},
@@ -68,5 +76,4 @@ func init() {
 	domainAddCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
 	domainAddCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
 	domainAddCmd.SetUsageTemplate(usageTemplate("domain add [domain]"))
-
 }

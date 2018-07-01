@@ -18,10 +18,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainCmd represents the domain command
+// domainCmd represents the 'domain' command
 var domainCmd = &cobra.Command{
 	Use:   "domain",
-	Short: "Add, remove, list domains",
+	Short: "Add, delete, list domains and domain aliases",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

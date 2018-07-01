@@ -23,13 +23,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// aliasAddForwardingCmd represents the addForwarding command
+// aliasAddForwardingCmd represents the 'alias add-forwarding' command
 var aliasAddForwardingCmd = &cobra.Command{
 	Use:   "add-forwarding",
 	Short: "Add forwarding to alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires alias email and forwarding email")
+			return errors.New("Requires alias email and forwarding email")
 		}
 
 		var err error

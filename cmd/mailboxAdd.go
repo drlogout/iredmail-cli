@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// mailboxAddCmd represents the add command
 var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a mailbox (e.g. post@domain.com)",

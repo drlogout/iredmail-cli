@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// mailboxListCmd represents the 'mailbox list' command
 var mailboxListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List mailboxes",

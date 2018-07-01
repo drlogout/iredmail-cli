@@ -2,24 +2,15 @@ package iredmail
 
 import (
 	"fmt"
-
-	"github.com/asaskevich/govalidator"
 )
 
-func (s *Server) DomainAliasAdd(aliasDomain, domain string) error {
-	if !govalidator.IsDNSName(aliasDomain) {
-		return fmt.Errorf("%v is no valid domain name", aliasDomain)
-	}
-	if !govalidator.IsDNSName(domain) {
-		return fmt.Errorf("%v is no valid domain name", domain)
-	}
-
-	exists, err := s.domainExists(domain)
+func (s *Server) DomainAliasAdd(aliasDomain, targetDomain string) error {
+	exists, err := s.domainExists(targetDomain)
 	if err != nil {
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("Domain %v doesn't exists", domain)
+		return fmt.Errorf("Domain %v doesn't exists", targetDomain)
 	}
 
 	aliasExists, err := s.domainAliasExists(aliasDomain)
@@ -32,7 +23,7 @@ func (s *Server) DomainAliasAdd(aliasDomain, domain string) error {
 
 	_, err = s.DB.Exec(`
 		INSERT INTO alias_domain (alias_domain, target_domain)
-		VALUES ('` + aliasDomain + `', '` + domain + `')
+		VALUES ('` + aliasDomain + `', '` + targetDomain + `')
 	`)
 
 	return err

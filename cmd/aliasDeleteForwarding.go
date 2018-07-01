@@ -23,13 +23,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// deleteForwardingCmd represents the deleteForwarding command
+// deleteForwardingCmd represents the 'alias delete-forwarding' command
 var deleteForwardingCmd = &cobra.Command{
 	Use:   "delete-forwarding",
 	Short: "Delete forwarding from alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires alias email and forwarding email")
+			return errors.New("Requires alias email and forwarding email")
 		}
 
 		var err error

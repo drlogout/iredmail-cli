@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainAliasListCmd represents the list command
+// domainAliasListCmd represents the list-alias command
 var domainAliasListCmd = &cobra.Command{
 	Use:   "list-alias",
 	Short: "List alias domains",

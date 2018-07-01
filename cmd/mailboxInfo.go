@@ -32,7 +32,7 @@ var infoCmd = &cobra.Command{
 	Short: "Show mailbox info",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires mailbox (email) as argument")
+			return errors.New("Requires mailbox (email) as argument")
 		}
 
 		err := emailx.Validate(args[0])

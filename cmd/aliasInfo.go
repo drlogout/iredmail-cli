@@ -17,19 +17,21 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
-// aliasInfoCmd represents the info command
+// aliasInfoCmd represents the 'alias info' command
 var aliasInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Show alias info",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires alias email as argument")
+			return errors.New("Requires alias email as argument")
 		}
 
 		var err error
@@ -47,20 +49,33 @@ var aliasInfoCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		aliases, err := server.Alias(args[0])
+		alias, err := server.Alias(args[0])
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		filter := cmd.Flag("filter").Value.String()
-		if filter != "" {
-			aliases = aliases.FilterBy(filter)
-		}
-
-		printAliase(aliases)
+		printAlias(alias)
 	},
 }
 
 func init() {
 	aliasCmd.AddCommand(aliasInfoCmd)
+}
+
+func printAlias(alias iredmail.Alias) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Alias", "Forwardings"})
+	table.SetAutoMergeCells(true)
+
+	firstForwarding := ""
+	if len(alias.Forwardings) > 0 {
+		firstForwarding = alias.Forwardings[0].Forwarding
+	}
+	table.Append([]string{alias.Address, firstForwarding})
+	for i := range alias.Forwardings {
+		if (i + 1) < len(alias.Forwardings) {
+			table.Append([]string{alias.Address, alias.Forwardings[i+1].Forwarding})
+		}
+	}
+	table.Render()
 }

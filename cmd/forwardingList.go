@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// forwardingListCmd represents the add command
+// forwardingListCmd represents the list command
 var forwardingListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List forwardings",

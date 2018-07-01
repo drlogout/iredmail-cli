@@ -18,28 +18,28 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
-// removeCmd represents the remove command
-var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "Remove an alias",
+// aliasDeleteCmd represents the 'alias delete' command
+var aliasDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete an alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires alias email")
+			return errors.New("Requires alias email as argument")
 		}
 
-		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
+		var err error
+
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
 		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
 
-		args[0] = emailx.Normalize(args[0])
-
-		return nil
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -48,13 +48,28 @@ var removeCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		err = server.AliasRemove(args[0])
+		aliasEmail := args[0]
+
+		if !forceDelete {
+			fmt.Printf("Do you really want to delete the alias %v (with all its forwardings)? ", aliasEmail)
+			delete := askForConfirmation()
+
+			if !delete {
+				fatal("cancelled\n")
+			}
+		}
+
+		err = server.AliasDelete(aliasEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
+
+		success("Successfully deleted alias %s\n", aliasEmail)
 	},
 }
 
 func init() {
-	aliasCmd.AddCommand(removeCmd)
+	aliasCmd.AddCommand(aliasDeleteCmd)
+
+	aliasDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 }

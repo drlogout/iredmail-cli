@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// mailboxAliasDeleteCmd represents the add-alias command
+// mailboxAliasDeleteCmd represents the delete-alias command
 var mailboxAliasDeleteCmd = &cobra.Command{
 	Use:   "delete-alias",
 	Short: "Delete mailbox alias (e.g. abuse@domain.com)",

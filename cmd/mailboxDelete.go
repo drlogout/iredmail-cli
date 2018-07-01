@@ -33,7 +33,7 @@ var mailboxDeleteCmd = &cobra.Command{
 	Short: "Delete a mailbox",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires mailbox (email) as argument")
+			return errors.New("Requires mailbox (email) as argument")
 		}
 
 		err := emailx.Validate(args[0])

@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// aliasListCmd represents the list command
+// aliasListCmd represents the 'alias list' command
 var aliasListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List aliases",

@@ -27,23 +27,37 @@ func (s *Server) Aliases() (Aliases, error) {
 }
 
 func (s *Server) Alias(aliasEmail string) (Alias, error) {
+	alias := Alias{}
+
 	aliasExists, err := s.regularAliasExists(aliasEmail)
 	if err != nil {
-		return Alias{}, err
+		return alias, err
 	}
 	if !aliasExists {
-		return Alias{}, fmt.Errorf("Alias %v doesn't exist", aliasEmail)
+		return alias, fmt.Errorf("Alias %v doesn't exist", aliasEmail)
 	}
 
 	aliases, err := s.queryAliases(queryOptions{
 		where: "address = '" + aliasEmail + "'",
 	})
 	if err != nil {
-		return Alias{}, err
+		return alias, err
 	}
 
 	if len(aliases) == 0 {
-		return fmt.Errorf("")
+		return alias, fmt.Errorf("Alias not found")
 	}
-	return aliases, nil
+
+	alias = aliases[0]
+
+	forwardings, err := s.queryForwardings(queryOptions{
+		where: "address = '" + aliasEmail + "' AND is_list = 1",
+	})
+	if err != nil {
+		return alias, err
+	}
+
+	alias.Forwardings = forwardings
+
+	return alias, nil
 }

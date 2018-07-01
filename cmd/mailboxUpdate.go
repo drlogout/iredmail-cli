@@ -27,13 +27,13 @@ var (
 	keepCopyInMailbox = "yes"
 )
 
-// mailboxUpdateCmd represents the set command
+// mailboxUpdateCmd represents the 'mailbox update' command
 var mailboxUpdateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Update quota and \"keep copy in mailbox\"",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires mailbox email as argument")
+			return errors.New("Requires mailbox email")
 		}
 
 		err := emailx.Validate(args[0])
@@ -43,7 +43,7 @@ var mailboxUpdateCmd = &cobra.Command{
 
 		args[0] = emailx.Normalize(args[0])
 
-		return err
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()

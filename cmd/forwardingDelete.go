@@ -25,13 +25,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// forwardingDeleteCmd represents the delete-forwarding command
+// forwardingDeleteCmd represents the delete command
 var forwardingDeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete forwarding",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("requires user and destination email")
+			return errors.New("Requires user and destination email")
 		}
 
 		err := emailx.Validate(args[0])

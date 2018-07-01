@@ -21,13 +21,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainDeleteCmd represents the add command
+// domainDeleteCmd represents the delete command
 var domainDeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("requires a domain name")
+			return errors.New("Requires a domain name")
 		}
 
 		return nil
@@ -56,5 +56,4 @@ func init() {
 	domainDeleteCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
 	domainDeleteCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
 	domainDeleteCmd.SetUsageTemplate(usageTemplate("domain add [domain]"))
-
 }
