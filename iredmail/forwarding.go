@@ -72,7 +72,8 @@ func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 
 	for _, f := range forwardings {
-		if strings.Contains(f.Address, filter) {
+		if strings.Contains(f.Address, filter) ||
+			strings.Contains(f.Forwarding, filter) {
 			filteredForwardings = append(filteredForwardings, f)
 		}
 	}
@@ -88,7 +89,7 @@ func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwar
 	` + whereQuery + `
 	ORDER BY domain ASC, address ASC;`
 
-	rows, err := s.DB.Query(sqlQuery, args)
+	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return Forwardings, err
 	}

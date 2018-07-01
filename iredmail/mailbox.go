@@ -58,7 +58,7 @@ func (s *Server) mailboxQuery(whereQuery string, args ...interface{}) (Mailboxes
 	` + whereQuery + `
 	ORDER BY domain ASC, name ASC;`
 
-	rows, err := s.DB.Query(sqlQuery, args)
+	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return mailboxes, err
 	}

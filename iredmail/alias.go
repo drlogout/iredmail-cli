@@ -26,7 +26,8 @@ func (aliases Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
 
 	for _, a := range aliases {
-		if strings.Contains(a.Address, filter) {
+		if strings.Contains(a.Address, filter) ||
+			len(a.Forwardings.FilterBy(filter)) > 0 {
 			filteredAliases = append(filteredAliases, a)
 		}
 	}
@@ -42,7 +43,7 @@ func (s *Server) aliasQuery(whereQuery string, args ...interface{}) (Aliases, er
 	` + whereQuery + `
 	ORDER BY domain ASC, address ASC;`
 
-	rows, err := s.DB.Query(sqlQuery, args)
+	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return aliases, err
 	}
@@ -92,84 +93,6 @@ func (s *Server) aliasForwardingExists(aliasEmail, forwardingEmail string) (bool
 	err := s.DB.QueryRow(sqlQuery, aliasEmail, forwardingEmail).Scan(&exists)
 
 	return exists, err
-}
-
-// AliasDelete deletes an alias an its forwardings
-func (s *Server) AliasDelete(aliasEmail string) error {
-	aliasExists, err := s.aliasExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if !aliasExists {
-		return fmt.Errorf("Alias %v does not exist", aliasEmail)
-	}
-
-	tx, err := s.DB.Begin()
-	stmt1, err := tx.Prepare("DELETE FROM forwardings WHERE address='" + aliasEmail + "' and is_list=1")
-	_, err = stmt1.Exec()
-
-	stmt2, err := tx.Prepare("DELETE FROM alias WHERE address='" + aliasEmail + "'")
-	_, err = stmt2.Exec()
-
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	err = tx.Commit()
-
-	return err
-}
-
-// AliasAdd adds a new alias
-func (s *Server) AliasAdd(aliasEmail string) error {
-	mailboxExists, err := s.mailboxExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if mailboxExists {
-		return fmt.Errorf("There is already a mailbox %v", aliasEmail)
-	}
-
-	mailboxAliasExists, err := s.mailboxAliasExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if mailboxAliasExists {
-		return fmt.Errorf("There is already a mailbox alias %v ", aliasEmail)
-	}
-
-	aliasExists, err := s.aliasExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if aliasExists {
-		return fmt.Errorf("There is already an alias %v", aliasEmail)
-	}
-
-	_, domain := parseEmail(aliasEmail)
-
-	domainExists, err := s.domainExists(domain)
-	if err != nil {
-		return err
-	}
-	if !domainExists {
-		err := s.DomainAdd(Domain{
-			Domain:   domain,
-			Settings: DomainDefaultSettings,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	sqlQuery := `
-	INSERT INTO alias (address, domain, active)
-	VALUES (?, ?, 1)`
-
-	_, err = s.DB.Exec(sqlQuery, aliasEmail, domain)
-
-	return err
 }
 
 // Aliases returns all Aliases with its forwardings
@@ -226,4 +149,82 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 	alias.Forwardings = forwardings
 
 	return alias, nil
+}
+
+// AliasAdd adds a new alias
+func (s *Server) AliasAdd(aliasEmail string) error {
+	mailboxExists, err := s.mailboxExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if mailboxExists {
+		return fmt.Errorf("There is already a mailbox %v", aliasEmail)
+	}
+
+	mailboxAliasExists, err := s.mailboxAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if mailboxAliasExists {
+		return fmt.Errorf("There is already a mailbox alias %v ", aliasEmail)
+	}
+
+	aliasExists, err := s.aliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if aliasExists {
+		return fmt.Errorf("There is already an alias %v", aliasEmail)
+	}
+
+	_, domain := parseEmail(aliasEmail)
+
+	domainExists, err := s.domainExists(domain)
+	if err != nil {
+		return err
+	}
+	if !domainExists {
+		err := s.DomainAdd(Domain{
+			Domain:   domain,
+			Settings: DomainDefaultSettings,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	sqlQuery := `
+	INSERT INTO alias (address, domain, active)
+	VALUES (?, ?, 1)`
+
+	_, err = s.DB.Exec(sqlQuery, aliasEmail, domain)
+
+	return err
+}
+
+// AliasDelete deletes an alias an its forwardings
+func (s *Server) AliasDelete(aliasEmail string) error {
+	aliasExists, err := s.aliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if !aliasExists {
+		return fmt.Errorf("Alias %v does not exist", aliasEmail)
+	}
+
+	tx, err := s.DB.Begin()
+	stmt1, err := tx.Prepare("DELETE FROM forwardings WHERE address='" + aliasEmail + "' and is_list=1")
+	_, err = stmt1.Exec()
+
+	stmt2, err := tx.Prepare("DELETE FROM alias WHERE address='" + aliasEmail + "'")
+	_, err = stmt2.Exec()
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+
+	return err
 }

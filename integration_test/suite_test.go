@@ -31,29 +31,39 @@ var (
 	}
 	isCI = false
 
-	mailboxName1 = "post@web.de"
+	mailboxName1 = "mail@example.net"
 	mailboxName2 = "info@domain.com"
 	mailboxName3 = "webmaster@example.com"
 	mailboxName4 = "abuse@domain.com"
-	mailboxName5 = "support@wurst.de"
+	mailboxName5 = "support@example.org"
 
 	mailboxPW = "alskdlqkdjalskd"
 
-	forwardingAddress1 = "info@example.com"
-	forwardingAddress2 = "webmaster@example.net"
+	forwardingAddress1 = "info@otherdomain.com"
+	forwardingAddress2 = "webmaster@otherexample.net"
 
-	alias1 = "mail"
-	alias2 = "abuse"
-	alias3 = "webmaster"
+	mailboxAlias1 = "postmaster"
+	mailboxAlias2 = "abuse"
+	mailboxAlias3 = "webmaster"
+
+	alias1 = "developer@example.com"
+	alias2 = "support@domain.com"
+	alias3 = "help@example.net"
+
+	aliasForwarding1 = "mail@example.com"
+	aliasForwarding2 = "info@domain.com"
+	aliasForwarding3 = "whatever@otherexample.com"
+	aliasForwarding4 = "whatever@example.net"
 
 	customQuota       = 4096
 	customStoragePath = "/var/mail/custom"
 
-	skipMailbox      = false
-	skipMailboxInfo  = false
-	skipMailboxList  = false
-	skipMailboxAlias = false
-	skipForwarding   = false
+	skipAliasList    = false
+	skipMailbox      = true
+	skipMailboxInfo  = true
+	skipMailboxList  = true
+	skipMailboxAlias = true
+	skipForwarding   = true
 )
 
 func TestCLI(t *testing.T) {
