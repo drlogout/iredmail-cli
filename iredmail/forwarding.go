@@ -25,6 +25,14 @@ type ForwardingsInfo struct {
 
 type ForwardingsInfoMap map[string]*ForwardingsInfo
 
+const (
+	forwardingQueryForwardingsAll                   = "WHERE is_forwarding = 1"
+	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1"
+	forwardingQueryAliasForwardingsAll              = "WHERE is_list = 1"
+	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_list = 1"
+	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE address = ? AND is_alias = 1"
+)
+
 func (f *Forwarding) Name() string {
 	name, _ := parseEmail(f.Address)
 
@@ -72,8 +80,13 @@ func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	return filteredForwardings
 }
 
-func (s *Server) forwardingsQuery(sqlQuery string, args ...interface{}) (Forwardings, error) {
+func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwardings, error) {
 	Forwardings := Forwardings{}
+
+	sqlQuery := `SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
+	FROM forwardings
+	` + whereQuery + `
+	ORDER BY domain ASC, address ASC;`
 
 	rows, err := s.DB.Query(sqlQuery, args)
 	if err != nil {
@@ -120,23 +133,11 @@ func (s *Server) forwardingExists(mailboxEmail, destinationEmail string) (bool, 
 }
 
 func (s *Server) ForwardingList() (Forwardings, error) {
-	sqlQuery := `
-	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
-	FROM forwardings
-	WHERE is_forwarding = 1
-	ORDER BY domain ASC, address ASC;`
-
-	return s.forwardingsQuery(sqlQuery)
+	return s.forwardingQuery(forwardingQueryForwardingsAll)
 }
 
 func (s *Server) forwardingsByMailbox(mailboxEmail string) (Forwardings, error) {
-	sqlQuery := `
-	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
-	FROM forwardings
-	WHERE address = ? ADN is_forwarding = 1
-	ORDER BY domain ASC, address ASC;`
-
-	return s.forwardingsQuery(sqlQuery, mailboxEmail)
+	return s.forwardingQuery(forwardingQueryForwardingsByAddress, mailboxEmail)
 }
 
 func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {

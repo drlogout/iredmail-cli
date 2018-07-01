@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+const (
+	mailboxQueryByDomain   = "WHERE domain = ?"
+	mailboxQueryAll        = ""
+	mailboxQueryByUserName = "WHERE username = ?"
+)
+
 type MailboxEmail string
 
 // types
@@ -45,8 +51,12 @@ func (mailboxes Mailboxes) FilterBy(filter string) Mailboxes {
 	return filteredMailboxes
 }
 
-func (s *Server) mailboxQuery(sqlQuery string, args ...interface{}) (Mailboxes, error) {
+func (s *Server) mailboxQuery(whereQuery string, args ...interface{}) (Mailboxes, error) {
 	mailboxes := Mailboxes{}
+
+	sqlQuery := `SELECT username, password, name, domain, quota, maildir FROM mailbox
+	` + whereQuery + `
+	ORDER BY domain ASC, name ASC;`
 
 	rows, err := s.DB.Query(sqlQuery, args)
 	if err != nil {
@@ -109,11 +119,7 @@ func (s *Server) mailboxExists(email string) (bool, error) {
 }
 
 func (s *Server) Mailboxes() (Mailboxes, error) {
-	sqlQuery := `
-	SELECT username, password, name, domain, quota, maildir FROM mailbox
-	ORDER BY domain ASC, name ASC;`
-
-	return s.mailboxQuery(sqlQuery)
+	return s.mailboxQuery(mailboxQueryAll)
 }
 
 func (s *Server) Mailbox(email string) (Mailbox, error) {
@@ -128,11 +134,7 @@ func (s *Server) Mailbox(email string) (Mailbox, error) {
 		return mailbox, fmt.Errorf("Mailbox does not exist")
 	}
 
-	sqlQuery := `SELECT username, password, name, domain, quota, maildir FROM mailbox
-	WHERE username = ?
-	ORDER BY domain ASC, name ASC;`
-
-	mailboxes, err := s.mailboxQuery(sqlQuery, email)
+	mailboxes, err := s.mailboxQuery(mailboxQueryByUserName, email)
 	if err != nil {
 		return mailbox, err
 	}

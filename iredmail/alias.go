@@ -5,6 +5,12 @@ import (
 	"strings"
 )
 
+const (
+	aliasQueryAll       = ""
+	aliasQueryByAddress = "WHERE address = ?"
+)
+
+// Alias struct
 type Alias struct {
 	Address string
 	Domain  string
@@ -12,22 +18,29 @@ type Alias struct {
 	Forwardings
 }
 
+// Aliases ...
 type Aliases []Alias
 
-func (a Aliases) FilterBy(filter string) Aliases {
+// FilterBy is an Aliases method that filters Aliases by a given string
+func (aliases Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
 
-	for _, al := range a {
-		if strings.Contains(al.Address, filter) {
-			filteredAliases = append(filteredAliases, al)
+	for _, a := range aliases {
+		if strings.Contains(a.Address, filter) {
+			filteredAliases = append(filteredAliases, a)
 		}
 	}
 
 	return filteredAliases
 }
 
-func (s *Server) aliasesQuery(sqlQuery string, args ...interface{}) (Aliases, error) {
+func (s *Server) aliasQuery(whereQuery string, args ...interface{}) (Aliases, error) {
 	aliases := Aliases{}
+
+	sqlQuery := `
+	SELECT address, domain, active FROM alias
+	` + whereQuery + `
+	ORDER BY domain ASC, address ASC;`
 
 	rows, err := s.DB.Query(sqlQuery, args)
 	if err != nil {
@@ -55,26 +68,13 @@ func (s *Server) aliasesQuery(sqlQuery string, args ...interface{}) (Aliases, er
 	return aliases, err
 }
 
-func (s *Server) aliasExists(email string) (bool, error) {
+func (s *Server) aliasExists(aliasEmail string) (bool, error) {
 	var exists bool
 
 	sqlQuery := `
 	SELECT exists
 	(SELECT address FROM alias
 	WHERE address = ?);`
-
-	err := s.DB.QueryRow(sqlQuery, email).Scan(&exists)
-
-	return exists, err
-}
-
-func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {
-	var exists bool
-
-	sqlQuery := `
-	SELECT exists
-	(SELECT address FROM forwardings
-	WHERE address = ? AND is_alias = 1);`
 
 	err := s.DB.QueryRow(sqlQuery, aliasEmail).Scan(&exists)
 
@@ -94,6 +94,7 @@ func (s *Server) aliasForwardingExists(aliasEmail, forwardingEmail string) (bool
 	return exists, err
 }
 
+// AliasDelete deletes an alias an its forwardings
 func (s *Server) AliasDelete(aliasEmail string) error {
 	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {
@@ -106,6 +107,7 @@ func (s *Server) AliasDelete(aliasEmail string) error {
 	tx, err := s.DB.Begin()
 	stmt1, err := tx.Prepare("DELETE FROM forwardings WHERE address='" + aliasEmail + "' and is_list=1")
 	_, err = stmt1.Exec()
+
 	stmt2, err := tx.Prepare("DELETE FROM alias WHERE address='" + aliasEmail + "'")
 	_, err = stmt2.Exec()
 
@@ -113,12 +115,38 @@ func (s *Server) AliasDelete(aliasEmail string) error {
 		tx.Rollback()
 		return err
 	}
+
 	err = tx.Commit()
 
 	return err
 }
 
+// AliasAdd adds a new alias
 func (s *Server) AliasAdd(aliasEmail string) error {
+	mailboxExists, err := s.mailboxExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if mailboxExists {
+		return fmt.Errorf("There is already a mailbox %v", aliasEmail)
+	}
+
+	mailboxAliasExists, err := s.mailboxAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if mailboxAliasExists {
+		return fmt.Errorf("There is already a mailbox alias %v ", aliasEmail)
+	}
+
+	aliasExists, err := s.aliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if aliasExists {
+		return fmt.Errorf("There is already an alias %v", aliasEmail)
+	}
+
 	_, domain := parseEmail(aliasEmail)
 
 	domainExists, err := s.domainExists(domain)
@@ -135,61 +163,29 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 		}
 	}
 
-	mailboxExists, err := s.mailboxExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if mailboxExists {
-		return fmt.Errorf("There is already a mailbox %v", aliasEmail)
-	}
+	sqlQuery := `
+	INSERT INTO alias (address, domain, active)
+	VALUES (?, ?, 1)`
 
-	isMailboxAlias, err := s.mailboxAliasExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if isMailboxAlias {
-		return fmt.Errorf("There is already a mailbox alias %v ", aliasEmail)
-	}
-
-	aliasExists, err := s.aliasExists(aliasEmail)
-	if err != nil {
-		return err
-	}
-	if aliasExists {
-		return fmt.Errorf("There is already an alias %v", aliasEmail)
-	}
-
-	_, err = s.DB.Exec(`
-		INSERT INTO alias (address, domain, active)
-		VALUES ('` + aliasEmail + `', '` + domain + `', 1)
-	`)
+	_, err = s.DB.Exec(sqlQuery, aliasEmail, domain)
 
 	return err
 }
 
+// Aliases returns all Aliases with its forwardings
 func (s *Server) Aliases() (Aliases, error) {
-	sqlQuery := `
-	SELECT address, domain, active FROM alias
-	ORDER BY domain ASC, address ASC;`
-
-	aliases, err := s.aliasesQuery(sqlQuery)
+	aliases, err := s.aliasQuery(aliasQueryAll)
 	if err != nil {
 		return aliases, err
 	}
 
-	sqlQuery = `
-	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
-	FROM forwardings
-	WHERE is_list = 1
-	ORDER BY domain ASC, address ASC;`
-
-	aliasForwardings, err := s.forwardingsQuery(sqlQuery)
+	allAliasForwardings, err := s.forwardingQuery(forwardingQueryAliasForwardingsAll)
 	if err != nil {
 		return aliases, err
 	}
 
 	for i, a := range aliases {
-		for _, f := range aliasForwardings {
+		for _, f := range allAliasForwardings {
 			if f.Address == a.Address {
 				aliases[i].Forwardings = append(aliases[i].Forwardings, f)
 			}
@@ -199,6 +195,7 @@ func (s *Server) Aliases() (Aliases, error) {
 	return aliases, nil
 }
 
+// Alias returns an Alias with its forwardings by its alias email
 func (s *Server) Alias(aliasEmail string) (Alias, error) {
 	alias := Alias{}
 
@@ -210,12 +207,7 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 		return alias, fmt.Errorf("Alias %v doesn't exist", aliasEmail)
 	}
 
-	sqlQuery := `
-	SELECT address, domain, active FROM alias
-	WHERE address = ?
-	ORDER BY domain ASC, address ASC;`
-
-	aliases, err := s.aliasesQuery(sqlQuery, aliasEmail)
+	aliases, err := s.aliasQuery(aliasQueryByAddress, aliasEmail)
 	if err != nil {
 		return alias, err
 	}
@@ -226,13 +218,7 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 
 	alias = aliases[0]
 
-	sqlQuery = `
-	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
-	FROM forwardings
-	WHERE address = ? AND is_alias = 1
-	ORDER BY domain ASC, address ASC;`
-
-	forwardings, err := s.forwardingsQuery(sqlQuery, aliasEmail)
+	forwardings, err := s.forwardingQuery(forwardingQueryAliasForwardingsByAddress, aliasEmail)
 	if err != nil {
 		return alias, err
 	}

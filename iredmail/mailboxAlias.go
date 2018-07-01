@@ -5,13 +5,7 @@ import (
 )
 
 func (s *Server) queryMailboxAliases(mailboxEmail string) (Forwardings, error) {
-	sqlQuery := `
-	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
-	FROM forwardings
-	WHERE forwarding = ? AND is_alias = 1
-	ORDER BY domain ASC, address ASC;`
-
-	return s.forwardingsQuery(sqlQuery, mailboxEmail)
+	return s.forwardingQuery(forwardingQueryMailboxAliasForwardingsByAddress, mailboxEmail)
 }
 
 func (s *Server) MailboxAliasAdd(alias, email string) error {
@@ -64,4 +58,17 @@ func (s *Server) MailboxAliasDeleteAll(mailboxEmail string) error {
 	`)
 
 	return err
+}
+
+func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {
+	var exists bool
+
+	sqlQuery := `
+	SELECT exists
+	(SELECT address FROM forwardings
+	WHERE address = ? AND is_alias = 1);`
+
+	err := s.DB.QueryRow(sqlQuery, aliasEmail).Scan(&exists)
+
+	return exists, err
 }
