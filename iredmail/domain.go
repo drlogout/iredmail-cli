@@ -105,9 +105,11 @@ func (s *Server) DomainAdd(domain Domain) error {
 }
 
 func (s *Server) DomainDelete(domain string, args ...bool) error {
-	domainMailboxes, err := s.mailboxQuery(queryOptions{
-		where: "domain = '" + domain + "'",
-	})
+	sqlQuery := `SELECT username, password, name, domain, quota, maildir FROM mailbox
+	WHERE domain = ?
+	ORDER BY domain ASC, name ASC;`
+
+	domainMailboxes, err := s.mailboxQuery(sqlQuery, domain)
 	if err != nil {
 		return err
 	}

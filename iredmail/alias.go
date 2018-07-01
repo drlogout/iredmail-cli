@@ -26,18 +26,10 @@ func (a Aliases) FilterBy(filter string) Aliases {
 	return filteredAliases
 }
 
-func (s *Server) queryAliases(options queryOptions) (Aliases, error) {
+func (s *Server) aliasesQuery(sqlQuery string, args ...interface{}) (Aliases, error) {
 	aliases := Aliases{}
 
-	whereOption := ""
-	if len(options.where) > 1 {
-		whereOption = fmt.Sprintf("WHERE %v", options.where)
-	}
-
-	rows, err := s.DB.Query(`
-	SELECT address, domain, active FROM alias
-	` + whereOption + `
-	ORDER BY domain ASC, address ASC;`)
+	rows, err := s.DB.Query(sqlQuery, args)
 	if err != nil {
 		return aliases, err
 	}
@@ -176,18 +168,22 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 }
 
 func (s *Server) Aliases() (Aliases, error) {
-	aliases, err := s.queryAliases(queryOptions{})
+	sqlQuery := `
+	SELECT address, domain, active FROM alias
+	ORDER BY domain ASC, address ASC;`
+
+	aliases, err := s.aliasesQuery(sqlQuery)
 	if err != nil {
 		return aliases, err
 	}
 
-	sqlQuery := `
+	sqlQuery = `
 	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
 	FROM forwardings
 	WHERE is_list = 1
 	ORDER BY domain ASC, address ASC;`
 
-	aliasForwardings, err := s.queryForwardings(sqlQuery)
+	aliasForwardings, err := s.forwardingsQuery(sqlQuery)
 	if err != nil {
 		return aliases, err
 	}
@@ -214,9 +210,12 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 		return alias, fmt.Errorf("Alias %v doesn't exist", aliasEmail)
 	}
 
-	aliases, err := s.queryAliases(queryOptions{
-		where: "address = '" + aliasEmail + "'",
-	})
+	sqlQuery := `
+	SELECT address, domain, active FROM alias
+	WHERE address = ?
+	ORDER BY domain ASC, address ASC;`
+
+	aliases, err := s.aliasesQuery(sqlQuery, aliasEmail)
 	if err != nil {
 		return alias, err
 	}
@@ -227,13 +226,13 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 
 	alias = aliases[0]
 
-	sqlQuery := `
+	sqlQuery = `
 	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
 	FROM forwardings
-	WHERE forwarding = ? AND is_alias = 1
+	WHERE address = ? AND is_alias = 1
 	ORDER BY domain ASC, address ASC;`
 
-	forwardings, err := s.queryForwardings(sqlQuery, mailboxEmail)
+	forwardings, err := s.forwardingsQuery(sqlQuery, aliasEmail)
 	if err != nil {
 		return alias, err
 	}

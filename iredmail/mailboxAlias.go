@@ -11,7 +11,7 @@ func (s *Server) queryMailboxAliases(mailboxEmail string) (Forwardings, error) {
 	WHERE forwarding = ? AND is_alias = 1
 	ORDER BY domain ASC, address ASC;`
 
-	return s.queryForwardings(sqlQuery, mailboxEmail)
+	return s.forwardingsQuery(sqlQuery, mailboxEmail)
 }
 
 func (s *Server) MailboxAliasAdd(alias, email string) error {

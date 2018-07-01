@@ -1,6 +1,7 @@
 package iredmail
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -71,7 +72,7 @@ func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	return filteredForwardings
 }
 
-func (s *Server) queryForwardings(sqlQuery string, args ...interface{}) (Forwardings, error) {
+func (s *Server) forwardingsQuery(sqlQuery string, args ...interface{}) (Forwardings, error) {
 	Forwardings := Forwardings{}
 
 	rows, err := s.DB.Query(sqlQuery, args)
@@ -125,5 +126,63 @@ func (s *Server) ForwardingList() (Forwardings, error) {
 	WHERE is_forwarding = 1
 	ORDER BY domain ASC, address ASC;`
 
-	return s.queryForwardings(sqlQuery)
+	return s.forwardingsQuery(sqlQuery)
+}
+
+func (s *Server) forwardingsByMailbox(mailboxEmail string) (Forwardings, error) {
+	sqlQuery := `
+	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
+	FROM forwardings
+	WHERE address = ? ADN is_forwarding = 1
+	ORDER BY domain ASC, address ASC;`
+
+	return s.forwardingsQuery(sqlQuery, mailboxEmail)
+}
+
+func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("User %v doesn't exist", mailboxEmail)
+	}
+
+	forwardingExists, err := s.forwardingExists(mailboxEmail, destinationEmail)
+	if err != nil {
+		return err
+	}
+	if forwardingExists {
+		return fmt.Errorf("Forwarding %v -> %v already exists", mailboxEmail, destinationEmail)
+	}
+
+	_, userDomain := parseEmail(mailboxEmail)
+	_, destDomain := parseEmail(destinationEmail)
+
+	_, err = s.DB.Exec(`
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
+    VALUES ('` + mailboxEmail + `', '` + destinationEmail + `','` + userDomain + `', '` + destDomain + `', 1);
+	`)
+
+	return err
+}
+
+func (s *Server) ForwardingDelete(userAddress, destinationAddress string) error {
+	exists, err := s.forwardingExists(userAddress, destinationAddress)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("Forwarding %v -> %v dosn't exist", userAddress, destinationAddress)
+	}
+
+	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND forwarding='` + destinationAddress + `' AND is_forwarding=1;`)
+
+	return err
+}
+
+func (s *Server) ForwardingDeleteAll(userAddress string) error {
+	_, err := s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND is_forwarding=1;`)
+
+	return err
 }
