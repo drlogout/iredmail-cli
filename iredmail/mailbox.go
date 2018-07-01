@@ -74,9 +74,7 @@ ORDER BY domain ASC, name ASC;`)
 			return mailboxes, err
 		}
 
-		mailboxAliases, err := s.queryForwardings(queryOptions{
-			where: "forwarding = '" + username + "' AND is_alias = 1",
-		})
+		mailboxAliases, err := s.queryMailboxAliases(username)
 		if err != nil {
 			return mailboxes, err
 		}

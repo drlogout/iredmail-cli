@@ -4,6 +4,16 @@ import (
 	"fmt"
 )
 
+func (s *Server) queryMailboxAliases(mailboxEmail string) (Forwardings, error) {
+	sqlQuery := `
+	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
+	FROM forwardings
+	WHERE forwarding = ? AND is_alias = 1
+	ORDER BY domain ASC, address ASC;`
+
+	return s.queryForwardings(sqlQuery, mailboxEmail)
+}
+
 func (s *Server) MailboxAliasAdd(alias, email string) error {
 	_, domain := parseEmail(email)
 	a := fmt.Sprintf("%v@%v", alias, domain)
@@ -33,7 +43,7 @@ func (s *Server) MailboxAliasAdd(alias, email string) error {
 }
 
 func (s *Server) MailboxAliasDelete(aliasEmail string) error {
-	aliasExists, err := s.aliasExists(aliasEmail)
+	aliasExists, err := s.mailboxAliasExists(aliasEmail)
 	if err != nil {
 		return err
 	}

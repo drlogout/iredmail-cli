@@ -24,10 +24,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainAliasListCmd represents the list-alias command
+// domainAliasListCmd represents the 'domain list-alias' command
 var domainAliasListCmd = &cobra.Command{
 	Use:   "list-alias",
-	Short: "List alias domains",
+	Short: "List [ALIAS_DOMAIN]s",
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
@@ -56,7 +56,7 @@ func init() {
 
 func printAliasDomains(aliasDomains iredmail.AliasDomains) {
 	if len(aliasDomains) == 0 {
-		info("No alias domains\n")
+		info("No [ALIAS_DOMAIN]s\n")
 		return
 	}
 

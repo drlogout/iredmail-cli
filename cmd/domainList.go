@@ -33,8 +33,9 @@ var domainListCmd = &cobra.Command{
 		if err != nil {
 			fatal("%v\n", err)
 		}
+		defer server.Close()
 
-		domains, err := server.DomainList()
+		domains, err := server.Domains()
 		if err != nil {
 			fatal("%v\n", err)
 		}

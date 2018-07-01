@@ -1,7 +1,6 @@
 package iredmail
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -72,20 +71,10 @@ func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	return filteredForwardings
 }
 
-func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
+func (s *Server) queryForwardings(sqlQuery string, args ...interface{}) (Forwardings, error) {
 	Forwardings := Forwardings{}
 
-	whereOption := ""
-	if len(options.where) > 1 {
-		whereOption = fmt.Sprintf("WHERE %v", options.where)
-	}
-
-	rows, err := s.DB.Query(`
-		SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
-		FROM forwardings
-		` + whereOption + `
-		ORDER BY domain ASC, address ASC;
-	`)
+	rows, err := s.DB.Query(sqlQuery, args)
 	if err != nil {
 		return Forwardings, err
 	}
@@ -116,33 +105,25 @@ func (s *Server) queryForwardings(options queryOptions) (Forwardings, error) {
 	return Forwardings, err
 }
 
-func (s *Server) forwardingExists(userAddress, destinationAddress string) (bool, error) {
+func (s *Server) forwardingExists(mailboxEmail, destinationEmail string) (bool, error) {
 	var exists bool
 
-	query := `
-		SELECT exists
-		(SELECT * FROM forwardings
-			WHERE address = '` + userAddress + `' AND forwarding = '` + destinationAddress + `' AND is_forwarding = 1
-		);`
-	err := s.DB.QueryRow(query).Scan(&exists)
-	if err != nil {
-		return exists, err
-	}
+	sqlQuery := `
+	SELECT exists
+	(SELECT address FROM forwardings
+	WHERE address = ? AND forwarding = ? AND is_forwarding = 1
+	);`
+	err := s.DB.QueryRow(sqlQuery, mailboxEmail, destinationEmail).Scan(&exists)
 
-	if exists {
-		return true, nil
-	}
-
-	return exists, nil
+	return exists, err
 }
 
 func (s *Server) ForwardingList() (Forwardings, error) {
-	forwardings, err := s.queryForwardings(queryOptions{
-		where: "is_forwarding = 1",
-	})
-	if err != nil {
-		return forwardings, err
-	}
+	sqlQuery := `
+	SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
+	FROM forwardings
+	WHERE is_forwarding = 1
+	ORDER BY domain ASC, address ASC;`
 
-	return forwardings, nil
+	return s.queryForwardings(sqlQuery)
 }

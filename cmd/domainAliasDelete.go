@@ -21,13 +21,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainAliasDeleteCmd represents the delete-alias command
+// domainAliasDeleteCmd represents the 'domain delete-alias' command
 var domainAliasDeleteCmd = &cobra.Command{
 	Use:   "delete-alias",
 	Short: "Delete an alias domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires an alias domain as argument")
+			return errors.New("Requires an [ALIAS_DOMAIN] as argument")
 		}
 
 		return nil
@@ -55,5 +55,5 @@ func init() {
 
 	domainAliasDeleteCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
 	domainAliasDeleteCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
-	domainAliasDeleteCmd.SetUsageTemplate(usageTemplate("domain add [domain]"))
+	domainAliasDeleteCmd.SetUsageTemplate(usageTemplate("domain delete-alias [ALIAS_DOMAIN]"))
 }

@@ -46,6 +46,14 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		return m, fmt.Errorf("An alias %v already exists", email)
 	}
 
+	mailboxAliasExists, err := s.mailboxAliasExists(email)
+	if err != nil {
+		return m, err
+	}
+	if mailboxAliasExists {
+		return m, fmt.Errorf("A mailbox alias %v already exists", email)
+	}
+
 	hash, err := generatePassword(password)
 	if err != nil {
 		return m, err
