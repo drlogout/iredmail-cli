@@ -64,10 +64,12 @@ var deleteForwardingCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully delete alias forwarding %v %v %v\n", aliasEmail, arrowRight, forwardingEmail)
+		success("Successfully deleted alias forwarding %v %v %v\n", aliasEmail, arrowRight, forwardingEmail)
 	},
 }
 
 func init() {
 	aliasCmd.AddCommand(deleteForwardingCmd)
+
+	deleteForwardingCmd.SetUsageTemplate(usageTemplate("alias delete-forwarding [ALIAS_EMAIL] [FORWARDING_EMAIL]"))
 }

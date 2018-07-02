@@ -60,6 +60,8 @@ var aliasInfoCmd = &cobra.Command{
 
 func init() {
 	aliasCmd.AddCommand(aliasInfoCmd)
+
+	aliasInfoCmd.SetUsageTemplate(usageTemplate("alias info [ALIAS_EMAIL]"))
 }
 
 func printAlias(alias iredmail.Alias) {

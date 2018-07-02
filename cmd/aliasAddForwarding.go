@@ -26,7 +26,7 @@ import (
 // aliasAddForwardingCmd represents the 'alias add-forwarding' command
 var aliasAddForwardingCmd = &cobra.Command{
 	Use:   "add-forwarding",
-	Short: "Add forwarding to alias",
+	Short: "Add forwarding to an alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires alias email and forwarding email")
@@ -70,4 +70,6 @@ var aliasAddForwardingCmd = &cobra.Command{
 
 func init() {
 	aliasCmd.AddCommand(aliasAddForwardingCmd)
+
+	aliasAddForwardingCmd.SetUsageTemplate(usageTemplate("alias add-forwarding [ALIAS_EMAIL] [FORWARDING_EMAIL]"))
 }

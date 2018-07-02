@@ -39,6 +39,14 @@ func (s *Server) AliasForwardingDelete(aliasEmail, forwardingEmail string) error
 		return fmt.Errorf("An alias with %v doesn't exists", aliasEmail)
 	}
 
+	forwardingExists, err := s.aliasForwardingExists(aliasEmail, forwardingEmail)
+	if err != nil {
+		return err
+	}
+	if !forwardingExists {
+		return fmt.Errorf("An alias forwarding %s %s %s doesn't exists", aliasEmail, arrowRight, forwardingEmail)
+	}
+
 	sqlQuery := `
 	DELETE FROM forwardings WHERE address = ? AND forwarding = ? AND is_list = 1;`
 	_, err = s.DB.Exec(sqlQuery, aliasEmail, forwardingEmail)
