@@ -72,4 +72,6 @@ func init() {
 	aliasCmd.AddCommand(aliasDeleteCmd)
 
 	aliasDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
+
+	aliasAddCmd.SetUsageTemplate(usageTemplate("alias delete [ALIAS_EMAIL]", true))
 }

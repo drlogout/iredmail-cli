@@ -60,5 +60,5 @@ var aliasAddCmd = &cobra.Command{
 func init() {
 	aliasCmd.AddCommand(aliasAddCmd)
 
-	aliasAddCmd.SetUsageTemplate(usageTemplate("alias add [alias_email]"))
+	aliasAddCmd.SetUsageTemplate(usageTemplate("alias add [ALIAS_EMAIL]"))
 }
