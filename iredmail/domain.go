@@ -6,22 +6,30 @@ import (
 )
 
 const (
+	// DomainDefaultSettings keep the defaut settings
 	DomainDefaultSettings = "default_user_quota:2048"
+	domainQueryAll        = ""
+	domainQueryByDomain   = "WHERE domain = ?"
 )
 
+// Domain struct
 type Domain struct {
 	Domain      string
 	Description string
 	Settings    string
 }
 
+// Domains ...
 type Domains []Domain
 
+// FilterBy is method that filters Domains by a given string
 func (d Domains) FilterBy(filter string) Domains {
 	filteredDomains := Domains{}
 
 	for _, domain := range d {
-		if strings.Contains(domain.Domain, filter) {
+		if strings.Contains(domain.Domain, filter) ||
+			strings.Contains(domain.Description, filter) ||
+			strings.Contains(domain.Settings, filter) {
 			filteredDomains = append(filteredDomains, domain)
 		}
 	}
@@ -42,10 +50,15 @@ func (s *Server) domainExists(domain string) (bool, error) {
 	return exists, err
 }
 
-func (s *Server) Domains() (Domains, error) {
+func (s *Server) domainQuery(whereQuery string, args ...interface{}) (Domains, error) {
 	domains := Domains{}
 
-	rows, err := s.DB.Query(`SELECT domain, description, settings FROM domain ORDER BY domain ASC;`)
+	sqlQuery := `
+	SELECT domain, description, settings FROM domain 
+	` + whereQuery + `
+	ORDER BY domain ASC;`
+
+	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return domains, err
 	}
@@ -70,23 +83,36 @@ func (s *Server) Domains() (Domains, error) {
 	return domains, err
 }
 
-func (s *Server) Domain(domainName string) (Domain, error) {
-	var domain, description, settings string
-
-	err := s.DB.QueryRow("SELECT domain, description, settings FROM domain WHERE domain =?", domainName).Scan(&domain, &description, &settings)
-	if domain == "" {
-		return Domain{}, fmt.Errorf("Domain %s doesn't exist", domainName)
-	}
-
-	d := Domain{
-		Domain:      domain,
-		Description: description,
-		Settings:    settings,
-	}
-
-	return d, err
+// Domains returns all Domains
+func (s *Server) Domains() (Domains, error) {
+	return s.domainQuery(domainQueryAll)
 }
 
+// Domain returns a Domain by its domain name
+func (s *Server) Domain(domainName string) (Domain, error) {
+	domain := Domain{}
+
+	domainExists, err := s.domainExists(domainName)
+	if err != nil {
+		return domain, err
+	}
+	if !domainExists {
+		return domain, fmt.Errorf("Domain %s doesn't exist", domainName)
+	}
+
+	domaines, err := s.domainQuery(domainQueryByDomain, domainName)
+	if err != nil {
+		return domain, err
+	}
+
+	if len(domaines) == 0 {
+		return domain, fmt.Errorf("Domain not found")
+	}
+
+	return domaines[0], nil
+}
+
+// DomainAdd adds a new domain
 func (s *Server) DomainAdd(domain Domain) error {
 	exists, err := s.domainExists(domain.Domain)
 	if err != nil {
@@ -105,6 +131,7 @@ func (s *Server) DomainAdd(domain Domain) error {
 	return err
 }
 
+// Domain deletes a domain
 func (s *Server) DomainDelete(domain string) error {
 	exists, err := s.domainExists(domain)
 	if err != nil {

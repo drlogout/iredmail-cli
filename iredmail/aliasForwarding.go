@@ -2,6 +2,19 @@ package iredmail
 
 import "fmt"
 
+func (s *Server) aliasForwardingExists(aliasEmail, forwardingEmail string) (bool, error) {
+	var exists bool
+
+	sqlQuery := `
+	SELECT exists
+	(SELECT address FROM forwardings
+	WHERE address = ? AND forwarding = ? AND is_list = 1
+	);`
+	err := s.DB.QueryRow(sqlQuery, aliasEmail, forwardingEmail).Scan(&exists)
+
+	return exists, err
+}
+
 func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {

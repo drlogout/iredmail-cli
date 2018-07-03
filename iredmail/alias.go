@@ -21,7 +21,7 @@ type Alias struct {
 // Aliases ...
 type Aliases []Alias
 
-// FilterBy is an Aliases method that filters Aliases by a given string
+// FilterBy is method that filters Aliases by a given string
 func (aliases Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
 
@@ -82,19 +82,6 @@ func (s *Server) aliasExists(aliasEmail string) (bool, error) {
 	return exists, err
 }
 
-func (s *Server) aliasForwardingExists(aliasEmail, forwardingEmail string) (bool, error) {
-	var exists bool
-
-	sqlQuery := `
-	SELECT exists
-	(SELECT address FROM forwardings
-	WHERE address = ? AND forwarding = ? AND is_list = 1
-	);`
-	err := s.DB.QueryRow(sqlQuery, aliasEmail, forwardingEmail).Scan(&exists)
-
-	return exists, err
-}
-
 // Aliases returns all Aliases with its forwardings
 func (s *Server) Aliases() (Aliases, error) {
 	aliases, err := s.aliasQuery(aliasQueryAll)
@@ -118,7 +105,7 @@ func (s *Server) Aliases() (Aliases, error) {
 	return aliases, nil
 }
 
-// Alias returns an Alias with its forwardings by its alias email
+// Alias returns an Alias with its forwardings
 func (s *Server) Alias(aliasEmail string) (Alias, error) {
 	alias := Alias{}
 
