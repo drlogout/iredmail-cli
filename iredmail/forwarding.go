@@ -147,7 +147,7 @@ func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
 		return err
 	}
 	if !mailboxExists {
-		return fmt.Errorf("User %v doesn't exist", mailboxEmail)
+		return fmt.Errorf("User %s doesn't exist", mailboxEmail)
 	}
 
 	forwardingExists, err := s.forwardingExists(mailboxEmail, destinationEmail)
@@ -155,7 +155,7 @@ func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
 		return err
 	}
 	if forwardingExists {
-		return fmt.Errorf("Forwarding %v -> %v already exists", mailboxEmail, destinationEmail)
+		return fmt.Errorf("Forwarding %s -> %s already exists", mailboxEmail, destinationEmail)
 	}
 
 	_, userDomain := parseEmail(mailboxEmail)
@@ -175,7 +175,7 @@ func (s *Server) ForwardingDelete(userAddress, destinationAddress string) error 
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("Forwarding %v -> %v dosn't exist", userAddress, destinationAddress)
+		return fmt.Errorf("Forwarding %s -> %s dosn't exist", userAddress, destinationAddress)
 	}
 
 	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND forwarding='` + destinationAddress + `' AND is_forwarding=1;`)

@@ -10,14 +10,14 @@ func (s *Server) queryMailboxAliases(mailboxEmail string) (Forwardings, error) {
 
 func (s *Server) MailboxAliasAdd(alias, email string) error {
 	_, domain := parseEmail(email)
-	a := fmt.Sprintf("%v@%v", alias, domain)
+	a := fmt.Sprintf("%s@%s", alias, domain)
 
 	mailboxExists, err := s.mailboxExists(a)
 	if err != nil {
 		return err
 	}
 	if mailboxExists {
-		return fmt.Errorf("An mailbox with %v already exists", a)
+		return fmt.Errorf("An mailbox with %s already exists", a)
 	}
 
 	aliasExists, err := s.aliasExists(a)
@@ -25,7 +25,7 @@ func (s *Server) MailboxAliasAdd(alias, email string) error {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("An alias with %v already exists", a)
+		return fmt.Errorf("An alias with %s already exists", a)
 	}
 
 	_, err = s.DB.Exec(`
@@ -42,7 +42,7 @@ func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 		return err
 	}
 	if !aliasExists {
-		return fmt.Errorf("An alias with %v doesn't exists", aliasEmail)
+		return fmt.Errorf("An alias with %s doesn't exists", aliasEmail)
 	}
 
 	_, err = s.DB.Exec(`

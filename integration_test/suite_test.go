@@ -55,13 +55,17 @@ var (
 	aliasForwarding3 = "whatever@otherexample.com"
 	aliasForwarding4 = "whatever@example.net"
 
+	domain1 = "example.com"
+	domain2 = "example.net"
+
 	customQuota       = 4096
 	customStoragePath = "/var/mail/custom"
 
-	skipAliasList                = false
-	skipAliasAddDelete           = false
-	skipAliasForwardingAddDelete = false
-	skipAliasInfo                = false
+	skipAliasList                = true
+	skipAliasAddDelete           = true
+	skipAliasForwardingAddDelete = true
+	skipAliasInfo                = true
+	skipDomainAddDelete          = false
 	skipMailbox                  = true
 	skipMailboxInfo              = true
 	skipMailboxList              = true

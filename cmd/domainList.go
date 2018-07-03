@@ -15,12 +15,10 @@
 package cmd
 
 import (
-	"bytes"
-	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -61,19 +59,12 @@ func printDomains(domains iredmail.Domains) {
 		return
 	}
 
-	var buf bytes.Buffer
-	w := new(tabwriter.Writer)
-	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "Domain", "Settings", "Description")
-	fmt.Fprintf(w, "%v\t%v\t%v\n", "------", "--------", "-----------")
-	w.Flush()
-	info(buf.String())
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Domain", "Settings", "Description"})
+	table.SetAutoMergeCells(true)
 
-	w = new(tabwriter.Writer)
-	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
 	for _, d := range domains {
-		fmt.Fprintf(w, "%v\t%v\t%v\n", d.Domain, d.Settings, d.Description)
+		table.Append([]string{d.Domain, d.Settings, d.Description})
 	}
-
-	w.Flush()
+	table.Render()
 }

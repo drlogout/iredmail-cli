@@ -63,7 +63,7 @@ var _ = Describe("alias add", func() {
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("There is already an alias %s\n", alias1)
+		expected := fmt.Sprintf("Alias %s already exists\n", alias1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))

@@ -34,7 +34,7 @@ var domainDeleteCmd = &cobra.Command{
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
-			return fmt.Errorf("Invalid domain name format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid domain name format: %s", args[0])
 		}
 		args[0] = strings.ToLower(args[0])
 
@@ -54,14 +54,12 @@ var domainDeleteCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted domain %v\n", domain)
+		success("Successfully deleted domain %s\n", domain)
 	},
 }
 
 func init() {
 	domainCmd.AddCommand(domainDeleteCmd)
 
-	domainDeleteCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
-	domainDeleteCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
 	domainDeleteCmd.SetUsageTemplate(usageTemplate("domain delete [DOMAIN]"))
 }

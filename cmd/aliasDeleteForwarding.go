@@ -26,7 +26,7 @@ import (
 // deleteForwardingCmd represents the 'alias delete-forwarding' command
 var deleteForwardingCmd = &cobra.Command{
 	Use:   "delete-forwarding",
-	Short: "Delete forwarding from alias",
+	Short: "Delete forwarding from an alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires alias email and forwarding email")

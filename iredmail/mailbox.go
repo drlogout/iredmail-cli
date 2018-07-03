@@ -173,7 +173,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		return m, err
 	}
 	if mailboxExists {
-		return m, fmt.Errorf("Mailbox %v already exists", email)
+		return m, fmt.Errorf("Mailbox %s already exists", email)
 	}
 
 	aliasExists, err := s.aliasExists(email)
@@ -181,7 +181,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		return m, err
 	}
 	if aliasExists {
-		return m, fmt.Errorf("An alias %v already exists", email)
+		return m, fmt.Errorf("An alias %s already exists", email)
 	}
 
 	mailboxAliasExists, err := s.mailboxAliasExists(email)
@@ -189,7 +189,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		return m, err
 	}
 	if mailboxAliasExists {
-		return m, fmt.Errorf("A mailbox alias %v already exists", email)
+		return m, fmt.Errorf("A mailbox alias %s already exists", email)
 	}
 
 	hash, err := generatePassword(password)
@@ -232,7 +232,7 @@ func (s *Server) MailboxDelete(email string) error {
 		return err
 	}
 	if !mailboxExists {
-		return fmt.Errorf("Mailbox %v doesn't exist", email)
+		return fmt.Errorf("Mailbox %s doesn't exist", email)
 	}
 
 	var mailDir string

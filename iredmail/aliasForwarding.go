@@ -8,7 +8,7 @@ func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 		return err
 	}
 	if !aliasExists {
-		return fmt.Errorf("Alias %v doesn't exist", aliasEmail)
+		return fmt.Errorf("Alias %s doesn't exist", aliasEmail)
 	}
 
 	forwardingExists, err := s.aliasForwardingExists(aliasEmail, forwardingEmail)
@@ -16,7 +16,7 @@ func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 		return err
 	}
 	if forwardingExists {
-		return fmt.Errorf("Alias forwarding %v %v %v already exists", aliasEmail, arrowRight, forwardingEmail)
+		return fmt.Errorf("Alias forwarding %s %s %s already exists", aliasEmail, arrowRight, forwardingEmail)
 	}
 
 	_, aliasDomain := parseEmail(aliasEmail)
@@ -36,7 +36,7 @@ func (s *Server) AliasForwardingDelete(aliasEmail, forwardingEmail string) error
 		return err
 	}
 	if !aliasExists {
-		return fmt.Errorf("An alias with %v doesn't exists", aliasEmail)
+		return fmt.Errorf("An alias with %s doesn't exists", aliasEmail)
 	}
 
 	forwardingExists, err := s.aliasForwardingExists(aliasEmail, forwardingEmail)

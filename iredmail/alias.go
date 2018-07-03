@@ -127,7 +127,7 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 		return alias, err
 	}
 	if !aliasExists {
-		return alias, fmt.Errorf("Alias %v doesn't exist", aliasEmail)
+		return alias, fmt.Errorf("Alias %s doesn't exist", aliasEmail)
 	}
 
 	aliases, err := s.aliasQuery(aliasQueryByAddress, aliasEmail)
@@ -158,7 +158,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 		return err
 	}
 	if mailboxExists {
-		return fmt.Errorf("There is already a mailbox %v", aliasEmail)
+		return fmt.Errorf("There is already a mailbox %s", aliasEmail)
 	}
 
 	mailboxAliasExists, err := s.mailboxAliasExists(aliasEmail)
@@ -166,7 +166,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 		return err
 	}
 	if mailboxAliasExists {
-		return fmt.Errorf("There is already a mailbox alias %v ", aliasEmail)
+		return fmt.Errorf("There is already a mailbox alias %s ", aliasEmail)
 	}
 
 	aliasExists, err := s.aliasExists(aliasEmail)
@@ -174,7 +174,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("There is already an alias %v", aliasEmail)
+		return fmt.Errorf("Alias %s alreday exists", aliasEmail)
 	}
 
 	_, domain := parseEmail(aliasEmail)
@@ -209,7 +209,7 @@ func (s *Server) AliasDelete(aliasEmail string) error {
 		return err
 	}
 	if !aliasExists {
-		return fmt.Errorf("Alias %v does not exist", aliasEmail)
+		return fmt.Errorf("Alias %s does not exist", aliasEmail)
 	}
 
 	tx, err := s.DB.Begin()

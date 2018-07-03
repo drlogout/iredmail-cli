@@ -75,7 +75,7 @@ func (s *Server) Domain(domainName string) (Domain, error) {
 
 	err := s.DB.QueryRow("SELECT domain, description, settings FROM domain WHERE domain =?", domainName).Scan(&domain, &description, &settings)
 	if domain == "" {
-		return Domain{}, fmt.Errorf("Domain %v doesn't exist", domainName)
+		return Domain{}, fmt.Errorf("Domain %s doesn't exist", domainName)
 	}
 
 	d := Domain{
@@ -93,27 +93,37 @@ func (s *Server) DomainAdd(domain Domain) error {
 		return err
 	}
 	if exists {
-		return fmt.Errorf("Domain %v already exists", domain)
+		return fmt.Errorf("Domain %s already exists", domain.Domain)
 	}
 
-	_, err = s.DB.Exec(`
-		INSERT INTO domain (domain, description, settings)
-		VALUES ('` + domain.Domain + `', '` + domain.Description + `', '` + domain.Settings + `')
-	`)
+	sqlQuery := `
+	INSERT INTO domain (domain, description, settings)
+	VALUES (?, ?, ?);`
+
+	_, err = s.DB.Exec(sqlQuery, domain.Domain, domain.Description, domain.Settings)
 
 	return err
 }
 
-func (s *Server) DomainDelete(domain string, args ...bool) error {
+func (s *Server) DomainDelete(domain string) error {
+	exists, err := s.domainExists(domain)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("Domain %s doesn't exist", domain)
+	}
+
 	domainMailboxes, err := s.mailboxQuery(mailboxQueryByDomain, domain)
 	if err != nil {
 		return err
 	}
 	if len(domainMailboxes) > 0 {
-		return fmt.Errorf("The domain %v still has mailboxes you need to delete them before", domain)
+		return fmt.Errorf("The domain %s still has mailboxes you need to delete them before", domain)
 	}
 
-	_, err = s.DB.Exec(`DELETE FROM domain WHERE domain = '` + domain + `';`)
+	sqlQuery := `DELETE FROM domain WHERE domain = ?;`
+	_, err = s.DB.Exec(sqlQuery, domain)
 
 	return err
 }

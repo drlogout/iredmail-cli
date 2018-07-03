@@ -36,7 +36,7 @@ func (s *Server) DomainAliasAdd(aliasDomain, targetDomain string) error {
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("Domain %v doesn't exists", targetDomain)
+		return fmt.Errorf("Domain %s doesn't exists", targetDomain)
 	}
 
 	aliasExists, err := s.domainAliasExists(aliasDomain)
@@ -44,7 +44,7 @@ func (s *Server) DomainAliasAdd(aliasDomain, targetDomain string) error {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("Alias domain %v alreday exists", aliasDomain)
+		return fmt.Errorf("Alias domain %s alreday exists", aliasDomain)
 	}
 
 	_, err = s.DB.Exec(`
@@ -61,7 +61,7 @@ func (s *Server) DomainAliasDelete(aliasDomain string) error {
 		return err
 	}
 	if !aliasExists {
-		return fmt.Errorf("Alias domain %v doesn't exist", aliasDomain)
+		return fmt.Errorf("Alias domain %s doesn't exist", aliasDomain)
 	}
 
 	_, err = s.DB.Exec(`DELETE FROM alias_domain WHERE alias_domain = '` + aliasDomain + `';`)
