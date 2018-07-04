@@ -26,6 +26,7 @@ var (
 	dbTables           = []string{
 		"alias",
 		"domain",
+		"alias_domain",
 		"forwardings",
 		"mailbox",
 	}
@@ -57,6 +58,10 @@ var (
 
 	domain1 = "example.com"
 	domain2 = "example.net"
+	domain3 = "domain.com"
+
+	aliasDomain1 = "alias.com"
+	aliasDomain2 = "alias.de"
 
 	customQuota       = 4096
 	customStoragePath = "/var/mail/custom"
@@ -65,7 +70,8 @@ var (
 	skipAliasAddDelete           = true
 	skipAliasForwardingAddDelete = true
 	skipAliasInfo                = true
-	skipDomainAddDelete          = false
+	skipDomainAddDelete          = true
+	skipDomainList               = false
 	skipMailbox                  = true
 	skipMailboxInfo              = true
 	skipMailboxList              = true

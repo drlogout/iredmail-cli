@@ -172,8 +172,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 	}
 	if !domainExists {
 		err := s.DomainAdd(Domain{
-			Domain:   domain,
-			Settings: DomainDefaultSettings,
+			Domain: domain,
 		})
 		if err != nil {
 			return err

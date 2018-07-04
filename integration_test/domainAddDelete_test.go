@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("domain add", func() {
+var _ = Describe("domain add/delete", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())

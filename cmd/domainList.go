@@ -60,11 +60,20 @@ func printDomains(domains iredmail.Domains) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Domain", "Settings", "Description"})
-	table.SetAutoMergeCells(true)
+	table.SetHeader([]string{"Domain", "Alias", "Settings", "Description"})
 
 	for _, d := range domains {
-		table.Append([]string{d.Domain, d.Settings, d.Description})
+		firstAlias := ""
+
+		if len(d.Aliases) > 0 {
+			firstAlias = d.Aliases[0].AliasDomain
+		}
+		table.Append([]string{d.Domain, firstAlias, d.Settings, d.Description})
+		for i := range d.Aliases {
+			if (i + 1) < len(d.Aliases) {
+				table.Append([]string{"", d.Aliases[i+1].AliasDomain, "", d.Description})
+			}
+		}
 	}
 	table.Render()
 }

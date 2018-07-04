@@ -17,6 +17,7 @@ type Domain struct {
 	Domain      string
 	Description string
 	Settings    string
+	Aliases     DomainAliases
 }
 
 // Domains ...
@@ -72,11 +73,18 @@ func (s *Server) domainQuery(whereQuery string, args ...interface{}) (Domains, e
 			return domains, err
 		}
 
+		domainAliases, err := s.domainAliasQuery(domainAliasQueryByDomain, domain)
+		if err != nil {
+			return domains, err
+		}
+
 		domains = append(domains, Domain{
 			Domain:      domain,
 			Description: description,
 			Settings:    settings,
+			Aliases:     domainAliases,
 		})
+
 	}
 	err = rows.Err()
 
@@ -120,6 +128,10 @@ func (s *Server) DomainAdd(domain Domain) error {
 	}
 	if exists {
 		return fmt.Errorf("Domain %s already exists", domain.Domain)
+	}
+
+	if domain.Settings == "" {
+		domain.Settings = DomainDefaultSettings
 	}
 
 	sqlQuery := `

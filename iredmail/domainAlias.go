@@ -4,12 +4,49 @@ import (
 	"fmt"
 )
 
-type AliasDomain struct {
+const (
+	domainAliasQueryAll      = ""
+	domainAliasQueryByDomain = "WHERE target_domain = ?"
+)
+
+type DomainAlias struct {
 	Domain      string
 	AliasDomain string
 }
 
-type AliasDomains []AliasDomain
+type DomainAliases []DomainAlias
+
+func (s *Server) domainAliasQuery(whereQuery string, args ...interface{}) (DomainAliases, error) {
+	aliasDomains := DomainAliases{}
+
+	sqlQuery := `
+	SELECT alias_domain, target_domain FROM alias_domain 
+	` + whereQuery + `
+	ORDER BY target_domain ASC;`
+
+	rows, err := s.DB.Query(sqlQuery, args...)
+	if err != nil {
+		return aliasDomains, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var aliasDomain, targetDomain string
+
+		err := rows.Scan(&aliasDomain, &targetDomain)
+		if err != nil {
+			return aliasDomains, err
+		}
+
+		aliasDomains = append(aliasDomains, DomainAlias{
+			AliasDomain: aliasDomain,
+			Domain:      targetDomain,
+		})
+	}
+	err = rows.Err()
+
+	return aliasDomains, err
+}
 
 func (s *Server) domainAliasExists(aliasDomain string) (bool, error) {
 	var exists bool
@@ -69,8 +106,8 @@ func (s *Server) DomainAliasDelete(aliasDomain string) error {
 	return err
 }
 
-func (s *Server) DomainAliasList() (AliasDomains, error) {
-	aliasDomains := AliasDomains{}
+func (s *Server) DomainAliasList() (DomainAliases, error) {
+	aliasDomains := DomainAliases{}
 
 	rows, err := s.DB.Query(`SELECT alias_domain, target_domain FROM alias_domain ORDER BY target_domain ASC;`)
 	if err != nil {
@@ -86,7 +123,7 @@ func (s *Server) DomainAliasList() (AliasDomains, error) {
 			return aliasDomains, err
 		}
 
-		aliasDomains = append(aliasDomains, AliasDomain{
+		aliasDomains = append(aliasDomains, DomainAlias{
 			Domain:      targetDomain,
 			AliasDomain: aliasDomain,
 		})

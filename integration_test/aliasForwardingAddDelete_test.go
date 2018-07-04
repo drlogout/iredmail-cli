@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("alias add-forwarding", func() {
+var _ = Describe("alias add/delete-forwarding", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())

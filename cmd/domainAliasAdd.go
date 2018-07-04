@@ -68,8 +68,5 @@ var domainAliasAddCmd = &cobra.Command{
 func init() {
 	domainCmd.AddCommand(domainAliasAddCmd)
 
-	domainAliasAddCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
-	domainAliasAddCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
 	domainAliasAddCmd.SetUsageTemplate(usageTemplate("domain add-alias [ALIAS_DOMAIN] [TARGET_DOMAIN]"))
-
 }

@@ -50,9 +50,7 @@ var domainAddCmd = &cobra.Command{
 		domain := args[0]
 		description := cmd.Flag("description").Value.String()
 		settings := cmd.Flag("settings").Value.String()
-		if description == "" {
-			description = args[0]
-		}
+
 		if settings == "" {
 			settings = iredmail.DomainDefaultSettings
 		}

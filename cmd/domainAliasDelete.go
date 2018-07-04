@@ -53,7 +53,5 @@ var domainAliasDeleteCmd = &cobra.Command{
 func init() {
 	domainCmd.AddCommand(domainAliasDeleteCmd)
 
-	domainAliasDeleteCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
-	domainAliasDeleteCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
 	domainAliasDeleteCmd.SetUsageTemplate(usageTemplate("domain delete-alias [ALIAS_DOMAIN]"))
 }

@@ -160,8 +160,7 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 	}
 	if !domainExists {
 		err := s.DomainAdd(Domain{
-			Domain:   domain,
-			Settings: DomainDefaultSettings,
+			Domain: domain,
 		})
 		if err != nil {
 			return m, err

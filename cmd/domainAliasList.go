@@ -54,7 +54,7 @@ func init() {
 	domainAliasListCmd.Flags().StringP("filter", "f", "", "Filter result")
 }
 
-func printAliasDomains(aliasDomains iredmail.AliasDomains) {
+func printAliasDomains(aliasDomains iredmail.DomainAliases) {
 	if len(aliasDomains) == 0 {
 		info("No [ALIAS_DOMAIN]s\n")
 		return
