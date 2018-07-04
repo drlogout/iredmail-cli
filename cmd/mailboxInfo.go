@@ -18,11 +18,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"text/tabwriter"
+	"strconv"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/fatih/color"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -65,33 +65,56 @@ func init() {
 }
 
 func printUserInfo(mailbox iredmail.Mailbox) {
-	bold := color.New(color.Bold).SprintfFunc()
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"MAILBOX", mailbox.Email})
+	table.SetAutoFormatHeaders(false)
+	table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{tablewriter.Bold, tablewriter.FgGreenColor})
+	table.SetColumnColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{})
 
-	fmt.Fprintf(w, "%v\t%v\n", bold("Mailbox"), mailbox.Email)
-	fmt.Fprintf(w, "%v\t%v KB\n", bold("Quota"), mailbox.Quota)
+	table.Append([]string{"Quota", strconv.Itoa(mailbox.Quota)})
 
 	if len(mailbox.MailboxAliases) > 0 {
-		fmt.Fprintf(w, "%v\t\n", bold("Aliases"))
+		table.Append([]string{"Aliases", ""})
 		for _, a := range mailbox.MailboxAliases {
-			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), a.Address, a.Forwarding)
+			rightColumn := fmt.Sprintf("%s %s", a.Forwarding, arrowRight)
+			table.Append([]string{"", rightColumn})
 		}
 	}
 
-	keepCopy := "no"
-	if mailbox.IsCopyKept() {
-		keepCopy = "yes"
-	}
-
-	forwardings := mailbox.Forwardings
-	if len(forwardings) > 0 {
-		fmt.Fprintf(w, "%v\n", bold("Forwardings"))
-		fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "Keep copy in mailbox", keepCopy)
-		for _, f := range forwardings {
-			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), f.Address, f.Forwarding)
+	if len(mailbox.Forwardings) > 0 {
+		table.Append([]string{"Forwardings", ""})
+		for _, f := range mailbox.Forwardings {
+			rightColumn := fmt.Sprintf("%s %s", arrowRight, f.Forwarding)
+			table.Append([]string{"", rightColumn})
 		}
+		keepCopy := "no"
+		if mailbox.IsCopyKept() {
+			keepCopy = "yes"
+		}
+		table.Append([]string{"Keep copy in mailbox", keepCopy})
 	}
+	table.Render()
 
-	w.Flush()
+	// bold := color.New(color.Bold).SprintfFunc()
+	// w := new(tabwriter.Writer)
+	// w.Init(os.Stdout, 40, 8, 0, ' ', 0)
+
+	// fmt.Fprintf(w, "%v\t%v\n", bold("Mailbox"), mailbox.Email)
+	// fmt.Fprintf(w, "%v\t%v KB\n", bold("Quota"), mailbox.Quota)
+
+	// keepCopy := "no"
+	// if mailbox.IsCopyKept() {
+	// 	keepCopy = "yes"
+	// }
+
+	// forwardings := mailbox.Forwardings
+	// if len(forwardings) > 0 {
+	// 	fmt.Fprintf(w, "%v\n", bold("Forwardings"))
+	// 	fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "Keep copy in mailbox", keepCopy)
+	// 	for _, f := range forwardings {
+	// 		fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), f.Address, f.Forwarding)
+	// 	}
+	// }
+
+	// w.Flush()
 }

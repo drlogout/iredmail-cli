@@ -8,6 +8,20 @@ func (s *Server) mailboxAliaseQuery(mailboxEmail string) (Forwardings, error) {
 	return s.forwardingQuery(forwardingQueryMailboxAliasForwardingsByAddress, mailboxEmail)
 }
 
+func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {
+	var exists bool
+
+	sqlQuery := `
+	SELECT exists
+	(SELECT address FROM forwardings
+	WHERE address = ? AND is_alias = 1);`
+
+	err := s.DB.QueryRow(sqlQuery, aliasEmail).Scan(&exists)
+
+	return exists, err
+}
+
+// MailboxAliasAdd adds a new mailbox alias
 func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
 	_, domain := parseEmail(mailboxEmail)
 	aliasEmail := fmt.Sprintf("%s@%s", alias, domain)
@@ -45,6 +59,7 @@ func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
 	return err
 }
 
+// MailboxAliasDelete deletes a mailbox alias
 func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 	aliasExists, err := s.mailboxAliasExists(aliasEmail)
 	if err != nil {
@@ -61,23 +76,11 @@ func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 	return err
 }
 
+// MailboxAliasDeleteAll delets all mailbox aliases of a mailbox
 func (s *Server) MailboxAliasDeleteAll(mailboxEmail string) error {
 	_, err := s.DB.Exec(`
 		DELETE FROM forwardings WHERE forwarding = '` + mailboxEmail + `' AND is_alias = 1
 	`)
 
 	return err
-}
-
-func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {
-	var exists bool
-
-	sqlQuery := `
-	SELECT exists
-	(SELECT address FROM forwardings
-	WHERE address = ? AND is_alias = 1);`
-
-	err := s.DB.QueryRow(sqlQuery, aliasEmail).Scan(&exists)
-
-	return exists, err
 }

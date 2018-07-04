@@ -53,26 +53,20 @@ var mailboxUpdateCmd = &cobra.Command{
 		defer server.Close()
 
 		updated := false
-		keepCopy := keepCopyInMailbox == "yes"
 		mailboxEmail := args[0]
-		mailbox, err := server.Mailbox(mailboxEmail)
-		if err != nil {
-			fatal("%v\n", err)
-		}
 
-		if cmd.Flag("quota").Changed && quota != mailbox.Quota {
+		if cmd.Flag("quota").Changed {
 			info("Udating quota...\n")
-			mailbox.Quota = quota
-			err = server.MailboxUpdate(mailbox)
+			err = server.MailboxSetQuota(mailboxEmail, quota)
 			if err != nil {
 				fatal("%v\n", err)
 			}
 			updated = true
 		}
 
-		if cmd.Flag("keep-copy").Changed && mailbox.IsCopyKept() != keepCopy {
+		if cmd.Flag("keep-copy").Changed {
 			info("Udating keep-copy...\n")
-			err := server.MailboxKeepCopy(mailbox, keepCopy)
+			err := server.MailboxSetKeepCopy(mailboxEmail, keepCopyInMailbox == "yes")
 			if err != nil {
 				fatal("%v\n", err)
 			}
@@ -81,7 +75,7 @@ var mailboxUpdateCmd = &cobra.Command{
 
 		if updated {
 			success("Successfully updated mailbox\n")
-			mailbox, err = server.Mailbox(mailboxEmail)
+			mailbox, err := server.Mailbox(mailboxEmail)
 			if err != nil {
 				fatal("%v\n", err)
 			}

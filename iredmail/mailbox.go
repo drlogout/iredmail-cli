@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -14,9 +13,7 @@ const (
 	mailboxQueryByUserName = "WHERE username = ?"
 )
 
-type MailboxEmail string
-
-// types
+// Mailbox struct
 type Mailbox struct {
 	Email          string
 	Name           string
@@ -28,8 +25,10 @@ type Mailbox struct {
 	Forwardings    Forwardings
 }
 
+// Mailboxes ...
 type Mailboxes []Mailbox
 
+// IsCopyKept checks if am internal forwarding exists which leaves a copy in the mailbox
 func (m *Mailbox) IsCopyKept() bool {
 	for _, f := range m.Forwardings {
 		if m.Email == f.Forwarding {
@@ -39,6 +38,7 @@ func (m *Mailbox) IsCopyKept() bool {
 	return false
 }
 
+// FilterBy is method that filters Mailboxes by a given string
 func (mailboxes Mailboxes) FilterBy(filter string) Mailboxes {
 	filteredMailboxes := Mailboxes{}
 
@@ -65,26 +65,26 @@ func (s *Server) mailboxQuery(whereQuery string, args ...interface{}) (Mailboxes
 	defer rows.Close()
 
 	for rows.Next() {
-		var username, password, name, domain, maildir string
+		var mailboxEmail, password, name, domain, maildir string
 		var quota int
 
-		err := rows.Scan(&username, &password, &name, &domain, &quota, &maildir)
+		err := rows.Scan(&mailboxEmail, &password, &name, &domain, &quota, &maildir)
 		if err != nil {
 			return mailboxes, err
 		}
 
-		forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByAddress, username)
+		forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByAddress, mailboxEmail)
 		if err != nil {
 			return mailboxes, err
 		}
 
-		mailboxAliases, err := s.mailboxAliaseQuery(username)
+		mailboxAliases, err := s.mailboxAliaseQuery(mailboxEmail)
 		if err != nil {
 			return mailboxes, err
 		}
 
 		mailboxes = append(mailboxes, Mailbox{
-			Email:          username,
+			Email:          mailboxEmail,
 			Name:           name,
 			Domain:         domain,
 			PasswordHash:   password,
@@ -99,42 +99,35 @@ func (s *Server) mailboxQuery(whereQuery string, args ...interface{}) (Mailboxes
 	return mailboxes, err
 }
 
-func (s *Server) mailboxExists(email string) (bool, error) {
+func (s *Server) mailboxExists(mailboxEmail string) (bool, error) {
 	var exists bool
 
-	query := `SELECT exists
+	sqlQuery := `SELECT exists
 	(SELECT username FROM mailbox
-		WHERE username = '` + email + `');`
+	WHERE username = ?);`
+	err := s.DB.QueryRow(sqlQuery, mailboxEmail).Scan(&exists)
 
-	err := s.DB.QueryRow(query).Scan(&exists)
-	if err != nil {
-		return exists, err
-	}
-
-	if exists {
-		return true, nil
-	}
-
-	return exists, nil
+	return exists, err
 }
 
+// Mailboxes returns all mailboxes
 func (s *Server) Mailboxes() (Mailboxes, error) {
 	return s.mailboxQuery(mailboxQueryAll)
 }
 
-func (s *Server) Mailbox(email string) (Mailbox, error) {
+// Mailbox returns a Mailbox by mailboxEmail
+func (s *Server) Mailbox(mailboxEmail string) (Mailbox, error) {
 	mailbox := Mailbox{}
 
-	exists, err := s.mailboxExists(email)
+	exists, err := s.mailboxExists(mailboxEmail)
 	if err != nil {
 		return mailbox, err
 	}
-
 	if !exists {
-		return mailbox, fmt.Errorf("Mailbox does not exist")
+		return mailbox, fmt.Errorf("Mailbox doesn't exist")
 	}
 
-	mailboxes, err := s.mailboxQuery(mailboxQueryByUserName, email)
+	mailboxes, err := s.mailboxQuery(mailboxQueryByUserName, mailboxEmail)
 	if err != nil {
 		return mailbox, err
 	}
@@ -145,10 +138,12 @@ func (s *Server) Mailbox(email string) (Mailbox, error) {
 	return mailboxes[0], nil
 }
 
-func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath string) error {
-	name, domain := parseEmail(email)
+// MailboxAdd adds a new mailbox
+func (s *Server) MailboxAdd(mailboxEmail, password string, quota int, storageBasePath string) error {
+	name, domain := parseEmail(mailboxEmail)
+
 	m := Mailbox{
-		Email:  email,
+		Email:  mailboxEmail,
 		Name:   name,
 		Domain: domain,
 		Quota:  quota,
@@ -167,28 +162,28 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 		}
 	}
 
-	mailboxExists, err := s.mailboxExists(email)
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
 	if err != nil {
 		return err
 	}
 	if mailboxExists {
-		return fmt.Errorf("Mailbox %s already exists", email)
+		return fmt.Errorf("Mailbox %s already exists", mailboxEmail)
 	}
 
-	aliasExists, err := s.aliasExists(email)
+	aliasExists, err := s.aliasExists(mailboxEmail)
 	if err != nil {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("An alias %s already exists", email)
+		return fmt.Errorf("An alias %s already exists", mailboxEmail)
 	}
 
-	mailboxAliasExists, err := s.mailboxAliasExists(email)
+	mailboxAliasExists, err := s.mailboxAliasExists(mailboxEmail)
 	if err != nil {
 		return err
 	}
 	if mailboxAliasExists {
-		return fmt.Errorf("A mailbox alias %s already exists", email)
+		return fmt.Errorf("A mailbox alias %s already exists", mailboxEmail)
 	}
 
 	hash, err := generatePassword(password)
@@ -198,39 +193,37 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 
 	m.PasswordHash = hash
 
-	mailDirHash := generateMaildirHash(email)
+	mailDirHash := generateMaildirHash(mailboxEmail)
 	storageBase := filepath.Dir(storageBasePath)
 	storageNode := filepath.Base(storageBasePath)
 
-	_, err = s.DB.Exec(`
-		INSERT INTO mailbox (username, password, name,
-			storagebasedirectory, storagenode, maildir,
-			quota, domain, active, passwordlastchange, created)
-		VALUES ('` + email + `', '` + hash + `', '` + name + `',
-			'` + storageBase + `','` + storageNode + `', '` + mailDirHash + `',
-			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
-		`)
+	sqlQuery := `
+	INSERT INTO mailbox (username, password, name, storagebasedirectory, storagenode, maildir, quota, domain, active, passwordlastchange, created)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, '1', NOW(), NOW());`
+	_, err = s.DB.Exec(sqlQuery, mailboxEmail, hash, name, storageBase, storageNode, mailDirHash, quota, domain)
 	if err != nil {
 		return err
 	}
 
-	err = s.ForwardingAdd(email, email)
+	err = s.ForwardingAdd(mailboxEmail, mailboxEmail)
 
 	return err
 }
 
-func (s *Server) MailboxDelete(email string) error {
-	mailboxExists, err := s.mailboxExists(email)
+// MailboxDelete delets a mailbox
+func (s *Server) MailboxDelete(mailboxEmail string) error {
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
 	if err != nil {
 		return err
 	}
 	if !mailboxExists {
-		return fmt.Errorf("Mailbox %s doesn't exist", email)
+		return fmt.Errorf("Mailbox %s doesn't exist", mailboxEmail)
 	}
 
 	var mailDir string
 
-	err = s.DB.QueryRow("SELECT maildir FROM mailbox WHERE username='" + email + "'").Scan(&mailDir)
+	sqlQuery := "SELECT maildir FROM mailbox WHERE username = ?;"
+	err = s.DB.QueryRow(sqlQuery, mailboxEmail).Scan(&mailDir)
 	if err != nil {
 		return err
 	}
@@ -240,27 +233,28 @@ func (s *Server) MailboxDelete(email string) error {
 		return err
 	}
 
-	_, err = s.DB.Exec(`DELETE FROM mailbox WHERE username='` + email + `';`)
+	sqlQuery = "DELETE FROM mailbox WHERE username = ?;"
+	_, err = s.DB.Exec(sqlQuery, mailboxEmail)
 	if err != nil {
 		return err
 	}
 
-	err = s.ForwardingDeleteAll(email)
+	err = s.ForwardingDeleteAll(mailboxEmail)
 	if err != nil {
 		return err
 	}
 
-	err = s.MailboxAliasDeleteAll(email)
+	err = s.MailboxAliasDeleteAll(mailboxEmail)
 
 	return err
 }
 
-func (s *Server) MailboxUpdate(mailbox Mailbox) error {
-	query := `
-	UPDATE mailbox
-	SET quota = ?, password = ?
+// MailboxSetQuota sets the mailbox quota
+func (s *Server) MailboxSetQuota(mailboxEmail string, quota int) error {
+	sqlQuery := `UPDATE mailbox
+	SET quota = ?
 	WHERE username = ?;`
-	_, err := s.DB.Exec(query, mailbox.Quota, mailbox.PasswordHash, mailbox.Email)
+	_, err := s.DB.Exec(sqlQuery, quota, mailboxEmail)
 	if err != nil {
 		return err
 	}
@@ -268,9 +262,23 @@ func (s *Server) MailboxUpdate(mailbox Mailbox) error {
 	return err
 }
 
-func (s *Server) MailboxKeepCopy(mailbox Mailbox, keepCopyInMailbox bool) error {
+// MailboxSetKeepCopy sets the keep-copy behavior if forwardings exist
+func (s *Server) MailboxSetKeepCopy(mailboxEmail string, keepCopyInMailbox bool) error {
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %s doesn't exist", mailboxEmail)
+	}
+
+	mailbox, err := s.Mailbox(mailboxEmail)
+	if err != nil {
+		return err
+	}
+
 	if len(mailbox.Forwardings) == 0 {
-		return fmt.Errorf("No existing forwardings")
+		return fmt.Errorf("No forwardings exist")
 	}
 
 	isCopyKept := mailbox.IsCopyKept()
