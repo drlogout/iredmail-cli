@@ -77,8 +77,8 @@ var (
 	skipDomainList               = true
 	skipForwardingAddDelete      = true
 	skipMailboxAddDelete         = true
-	skipMailboxAliasAddDelete    = false
-	skipMailboxInfo              = true
+	skipMailboxAliasAddDelete    = true
+	skipMailboxInfo              = false
 	skipMailboxList              = true
 )
 

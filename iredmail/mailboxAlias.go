@@ -8,30 +8,39 @@ func (s *Server) mailboxAliaseQuery(mailboxEmail string) (Forwardings, error) {
 	return s.forwardingQuery(forwardingQueryMailboxAliasForwardingsByAddress, mailboxEmail)
 }
 
-func (s *Server) MailboxAliasAdd(alias, email string) error {
-	_, domain := parseEmail(email)
-	a := fmt.Sprintf("%s@%s", alias, domain)
+func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
+	_, domain := parseEmail(mailboxEmail)
+	aliasEmail := fmt.Sprintf("%s@%s", alias, domain)
 
-	mailboxExists, err := s.mailboxExists(a)
+	mailboxAliasExists, err := s.mailboxAliasExists(aliasEmail)
+	if err != nil {
+		return err
+	}
+	if mailboxAliasExists {
+		return fmt.Errorf("A mailbox alias with %s already exists", aliasEmail)
+	}
+
+	mailboxExists, err := s.mailboxExists(aliasEmail)
 	if err != nil {
 		return err
 	}
 	if mailboxExists {
-		return fmt.Errorf("A mailbox with %s already exists", a)
+		return fmt.Errorf("A mailbox with %s already exists", aliasEmail)
 	}
 
-	aliasExists, err := s.aliasExists(a)
+	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("An alias with %s already exists", a)
+		return fmt.Errorf("An alias with %s already exists", aliasEmail)
 	}
 
-	_, err = s.DB.Exec(`
-		INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
-		VALUES ('` + a + `', '` + email + `', '` + domain + `', '` + domain + `', 1, 1)
-	`)
+	sqlQuery := `
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
+	VALUES (?, ?, ?, ?, 1, 1)`
+
+	_, err = s.DB.Exec(sqlQuery, aliasEmail, mailboxEmail, domain, domain)
 
 	return err
 }
