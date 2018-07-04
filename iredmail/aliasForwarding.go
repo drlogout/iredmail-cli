@@ -15,6 +15,7 @@ func (s *Server) aliasForwardingExists(aliasEmail, forwardingEmail string) (bool
 	return exists, err
 }
 
+// AliasForwardingAdd adds a new alias fowarding
 func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {
@@ -43,6 +44,7 @@ func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 	return err
 }
 
+// AliasForwardingDelete deletes an alias forwarding
 func (s *Server) AliasForwardingDelete(aliasEmail, forwardingEmail string) error {
 	aliasExists, err := s.aliasExists(aliasEmail)
 	if err != nil {

@@ -73,12 +73,12 @@ func (s *Server) mailboxQuery(whereQuery string, args ...interface{}) (Mailboxes
 			return mailboxes, err
 		}
 
-		forwardings, err := s.forwardingsByMailbox(username)
+		forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByAddress, username)
 		if err != nil {
 			return mailboxes, err
 		}
 
-		mailboxAliases, err := s.queryMailboxAliases(username)
+		mailboxAliases, err := s.mailboxAliaseQuery(username)
 		if err != nil {
 			return mailboxes, err
 		}

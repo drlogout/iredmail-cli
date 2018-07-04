@@ -35,7 +35,7 @@ var forwardingListCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		forwardings, err := server.ForwardingList()
+		forwardings, err := server.Forwardings()
 		if err != nil {
 			fatal("%v\n")
 		}

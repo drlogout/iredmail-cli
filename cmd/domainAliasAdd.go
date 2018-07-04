@@ -28,10 +28,10 @@ import (
 var domainAliasAddCmd = &cobra.Command{
 	Use:   "add-alias",
 	Short: "Add an alias domain",
-	Long:  "Emails sent to user@[ALIAS_DOMAIN] will be delivered to user@[TARGET_DOMAIN]",
+	Long:  "Emails sent to user@[ALIAS_DOMAIN] will be delivered to user@[DOMAIN]",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires an [ALIAS_DOMAIN] and a [TARGET_DOMAIN]")
+			return errors.New("Requires an [ALIAS_DOMAIN] and a [DOMAIN]")
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
@@ -40,7 +40,7 @@ var domainAliasAddCmd = &cobra.Command{
 		args[0] = strings.ToLower(args[0])
 
 		if !govalidator.IsDNSName(args[1]) {
-			return fmt.Errorf("Invalid [TARGET_DOMAIN] name format: \"%v\"", args[1])
+			return fmt.Errorf("Invalid [DOMAIN] name format: \"%v\"", args[1])
 		}
 		args[1] = strings.ToLower(args[1])
 
@@ -61,12 +61,12 @@ var domainAliasAddCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added alias domain %v -> %v\n", aliasDomain, targetDomain)
+		success("Successfully added alias domain %v %v %v\n", aliasDomain, arrowRight, targetDomain)
 	},
 }
 
 func init() {
 	domainCmd.AddCommand(domainAliasAddCmd)
 
-	domainAliasAddCmd.SetUsageTemplate(usageTemplate("domain add-alias [ALIAS_DOMAIN] [TARGET_DOMAIN]"))
+	domainAliasAddCmd.SetUsageTemplate(usageTemplate("domain add-alias [ALIAS_DOMAIN] [DOMAIN]"))
 }

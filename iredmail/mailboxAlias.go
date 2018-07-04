@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (s *Server) queryMailboxAliases(mailboxEmail string) (Forwardings, error) {
+func (s *Server) mailboxAliaseQuery(mailboxEmail string) (Forwardings, error) {
 	return s.forwardingQuery(forwardingQueryMailboxAliasForwardingsByAddress, mailboxEmail)
 }
 

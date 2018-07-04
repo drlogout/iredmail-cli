@@ -38,19 +38,6 @@ func (d Domains) FilterBy(filter string) Domains {
 	return filteredDomains
 }
 
-func (s *Server) domainExists(domain string) (bool, error) {
-	var exists bool
-
-	sqlQuery := `
-	SELECT exists
-	(SELECT * FROM domain
-	WHERE domain = ?);`
-
-	err := s.DB.QueryRow(sqlQuery, domain).Scan(&exists)
-
-	return exists, err
-}
-
 func (s *Server) domainQuery(whereQuery string, args ...interface{}) (Domains, error) {
 	domains := Domains{}
 
@@ -89,6 +76,19 @@ func (s *Server) domainQuery(whereQuery string, args ...interface{}) (Domains, e
 	err = rows.Err()
 
 	return domains, err
+}
+
+func (s *Server) domainExists(domain string) (bool, error) {
+	var exists bool
+
+	sqlQuery := `
+	SELECT exists
+	(SELECT * FROM domain
+	WHERE domain = ?);`
+
+	err := s.DB.QueryRow(sqlQuery, domain).Scan(&exists)
+
+	return exists, err
 }
 
 // Domains returns all Domains
@@ -143,7 +143,7 @@ func (s *Server) DomainAdd(domain Domain) error {
 	return err
 }
 
-// Domain deletes a domain
+// DomainDelete deletes a domain
 func (s *Server) DomainDelete(domain string) error {
 	exists, err := s.domainExists(domain)
 	if err != nil {
@@ -158,7 +158,15 @@ func (s *Server) DomainDelete(domain string) error {
 		return err
 	}
 	if len(domainMailboxes) > 0 {
-		return fmt.Errorf("The domain %s still has mailboxes you need to delete them before", domain)
+		return fmt.Errorf("The domain %s still has mailboxes, you need to delete them before", domain)
+	}
+
+	domainAliases, err := s.domainAliasQuery(domainAliasQueryByDomain, domain)
+	if err != nil {
+		return err
+	}
+	if len(domainAliases) > 0 {
+		return fmt.Errorf("The domain %s still has alias domains, you need to delete them before", domain)
 	}
 
 	sqlQuery := `DELETE FROM domain WHERE domain = ?;`

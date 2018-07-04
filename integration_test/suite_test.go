@@ -70,7 +70,8 @@ var (
 	skipAliasAddDelete           = true
 	skipAliasForwardingAddDelete = true
 	skipAliasInfo                = true
-	skipDomainAddDelete          = true
+	skipDomainAddDelete          = false
+	skipDomainAliasAddDelete     = false
 	skipDomainList               = false
 	skipMailbox                  = true
 	skipMailboxInfo              = true

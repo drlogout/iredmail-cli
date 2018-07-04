@@ -34,7 +34,7 @@ var domainAliasListCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		aliasDomains, err := server.DomainAliasList()
+		aliasDomains, err := server.DomainAliases()
 		if err != nil {
 			fatal("%v\n", err)
 		}

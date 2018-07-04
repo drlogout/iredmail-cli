@@ -133,12 +133,8 @@ func (s *Server) forwardingExists(mailboxEmail, destinationEmail string) (bool, 
 	return exists, err
 }
 
-func (s *Server) ForwardingList() (Forwardings, error) {
+func (s *Server) Forwardings() (Forwardings, error) {
 	return s.forwardingQuery(forwardingQueryForwardingsAll)
-}
-
-func (s *Server) forwardingsByMailbox(mailboxEmail string) (Forwardings, error) {
-	return s.forwardingQuery(forwardingQueryForwardingsByAddress, mailboxEmail)
 }
 
 func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {

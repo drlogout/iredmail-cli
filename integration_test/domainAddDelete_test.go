@@ -16,9 +16,9 @@ var _ = Describe("domain add/delete", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	It("can add an domain", func() {
+	It("can add a domain", func() {
 		if skipDomainAddDelete && !isCI {
-			Skip("can add an domain")
+			Skip("can add a domain")
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
@@ -94,9 +94,9 @@ var _ = Describe("domain add/delete", func() {
 		Expect(exists).To(Equal(true))
 	})
 
-	It("can delete an domain", func() {
+	It("can delete a domain", func() {
 		if skipDomainAddDelete && !isCI {
-			Skip("can delete an domain")
+			Skip("can delete a domain")
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
@@ -131,9 +131,9 @@ var _ = Describe("domain add/delete", func() {
 		Expect(exists).To(Equal(false))
 	})
 
-	It("can't delete an domain with mailboxes", func() {
+	It("can't delete a domain with mailboxes", func() {
 		if skipDomainAddDelete && !isCI {
-			Skip("can delete an domain with mailboxes")
+			Skip("can delete a domain with mailboxes")
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
@@ -151,7 +151,50 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		actual := string(output)
-		expected := fmt.Sprintf("The domain %s still has mailboxes you need to delete them before\n", domain1)
+		expected := fmt.Sprintf("The domain %s still has mailboxes, you need to delete them before\n", domain1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var exists bool
+
+		query := `SELECT exists
+		(SELECT domain FROM domain
+		WHERE domain = '` + domain1 + `');`
+
+		err = db.QueryRow(query).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(true))
+	})
+
+	It("can't delete a domain with domain aliases", func() {
+		if skipDomainAddDelete && !isCI {
+			Skip("can delete a domain with domain aliases")
+		}
+
+		cli := exec.Command(cliPath, "domain", "add", domain1)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain2, domain1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "delete", domain1)
+		output, err := cli.CombinedOutput()
+		Expect(err).To(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("The domain %s still has alias domains, you need to delete them before\n", domain1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
