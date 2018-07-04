@@ -31,13 +31,13 @@ var aliasInfoCmd = &cobra.Command{
 	Short: "Show alias info",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires alias email as argument")
+			return errors.New("Requires [ALIAS_EMAIL] as argument")
 		}
 
 		var err error
 
 		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
 		}
 		args[0], err = govalidator.NormalizeEmail(args[0])
 

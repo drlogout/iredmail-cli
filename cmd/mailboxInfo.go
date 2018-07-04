@@ -20,9 +20,9 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/fatih/color"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
@@ -32,15 +32,15 @@ var infoCmd = &cobra.Command{
 	Short: "Show mailbox info",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires mailbox (email) as argument")
+			return errors.New("Requires [MAILBOX_EMAIL] as argument")
 		}
 
-		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid mailbox email format: \"%v\"", args[0])
-		}
+		var err error
 
-		args[0] = emailx.Normalize(args[0])
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
+		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
 
 		return err
 	},
@@ -75,7 +75,7 @@ func printUserInfo(mailbox iredmail.Mailbox) {
 	if len(mailbox.MailboxAliases) > 0 {
 		fmt.Fprintf(w, "%v\t\n", bold("Aliases"))
 		for _, a := range mailbox.MailboxAliases {
-			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), a.Name(), a.Forwarding)
+			fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), a.Address, a.Forwarding)
 		}
 	}
 
@@ -84,7 +84,7 @@ func printUserInfo(mailbox iredmail.Mailbox) {
 		keepCopy = "yes"
 	}
 
-	forwardings := mailbox.Forwardings.External()
+	forwardings := mailbox.Forwardings
 	if len(forwardings) > 0 {
 		fmt.Fprintf(w, "%v\n", bold("Forwardings"))
 		fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "Keep copy in mailbox", keepCopy)

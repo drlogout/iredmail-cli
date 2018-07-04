@@ -29,13 +29,13 @@ var aliasDeleteCmd = &cobra.Command{
 	Short: "Delete an alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires alias email as argument")
+			return errors.New("Requires [ALIAS_EMAIL] as argument")
 		}
 
 		var err error
 
 		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
 		}
 		args[0], err = govalidator.NormalizeEmail(args[0])
 
@@ -51,7 +51,7 @@ var aliasDeleteCmd = &cobra.Command{
 		aliasEmail := args[0]
 
 		if !forceDelete {
-			fmt.Printf("Do you really want to delete the alias %v (with all its forwardings)? ", aliasEmail)
+			fmt.Printf("Do you really want to delete the alias %s (with all its forwardings)? ", aliasEmail)
 			delete := askForConfirmation()
 
 			if !delete {
@@ -73,5 +73,5 @@ func init() {
 
 	aliasDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 
-	aliasDeleteCmd.SetUsageTemplate(usageTemplate("alias delete [ALIAS_EMAIL]", true))
+	aliasDeleteCmd.SetUsageTemplate(usageTemplate("alias delete [ALIAS_EMAIL]", printFlags))
 }

@@ -18,26 +18,28 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
 // mailboxAliasDeleteCmd represents the delete-alias command
 var mailboxAliasDeleteCmd = &cobra.Command{
 	Use:   "delete-alias",
-	Short: "Delete mailbox alias (e.g. abuse@domain.com)",
+	Short: "Delete mailbox alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires alias (email)")
+			return errors.New("Requires [ALIAS_EMAIL]")
 		}
 
-		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
-		}
+		var err error
 
-		return nil
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
+		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -46,16 +48,19 @@ var mailboxAliasDeleteCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		err = server.MailboxAliasDelete(args[0])
+		mailboxAliasEmail := args[0]
+
+		err = server.MailboxAliasDelete(mailboxAliasEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted mailbox alias %v\n", args[0])
+		success("Successfully deleted mailbox alias %s\n", mailboxAliasEmail)
 	},
 }
 
 func init() {
 	mailboxCmd.AddCommand(mailboxAliasDeleteCmd)
-	mailboxAliasDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete-alias [alias_email]"))
+
+	mailboxAliasDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete-alias [ALIAS_EMAIL]"))
 }

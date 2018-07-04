@@ -30,11 +30,11 @@ var domainAddCmd = &cobra.Command{
 	Short: "Add a domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires domain name")
+			return errors.New("Requires [DOMAIN] as argument")
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
-			return fmt.Errorf("Invalid domain name format: %s", args[0])
+			return fmt.Errorf("Invalid [DOMAIN] format: %s", args[0])
 		}
 		args[0] = strings.ToLower(args[0])
 
@@ -74,5 +74,5 @@ func init() {
 	domainAddCmd.Flags().StringP("description", "d", "", "domain description (default: none)")
 	domainAddCmd.Flags().StringP("settings", "s", "", "domain settings (default: default_user_quota:2048)")
 
-	domainAddCmd.SetUsageTemplate(usageTemplate("domain add [DOMAIN]", true))
+	domainAddCmd.SetUsageTemplate(usageTemplate("domain add [DOMAIN]", printFlags))
 }

@@ -5,6 +5,15 @@ import (
 	"strings"
 )
 
+const (
+	forwardingQueryForwardingsAll                   = "WHERE is_forwarding = 1"
+	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1"
+	forwardingQueryAliasForwardingsAll              = "WHERE is_list = 1"
+	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_list = 1"
+	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE address = ? AND is_alias = 1"
+)
+
+// Forwarding struct
 type Forwarding struct {
 	Address             string
 	Domain              string
@@ -17,57 +26,10 @@ type Forwarding struct {
 	IsCopyLeftInMailbox bool
 }
 
+// Forwardings ...
 type Forwardings []Forwarding
 
-type ForwardingsInfo struct {
-	IsCopyLeftInMailbox bool
-}
-
-type ForwardingsInfoMap map[string]*ForwardingsInfo
-
-const (
-	forwardingQueryForwardingsAll                   = "WHERE is_forwarding = 1"
-	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1"
-	forwardingQueryAliasForwardingsAll              = "WHERE is_list = 1"
-	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_list = 1"
-	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE address = ? AND is_alias = 1"
-)
-
-func (f *Forwarding) Name() string {
-	name, _ := parseEmail(f.Address)
-
-	return name
-}
-
-func (forwardings Forwardings) Info() ForwardingsInfoMap {
-	infoMap := ForwardingsInfoMap{}
-
-	for _, f := range forwardings {
-		_, ok := infoMap[f.Address]
-		if !ok {
-			infoMap[f.Address] = &ForwardingsInfo{
-				IsCopyLeftInMailbox: false,
-			}
-		}
-
-		if f.Address == f.Forwarding {
-			infoMap[f.Address].IsCopyLeftInMailbox = true
-		}
-	}
-
-	return infoMap
-}
-
-func (forwardings Forwardings) External() Forwardings {
-	external := Forwardings{}
-	for _, f := range forwardings {
-		if f.Address != f.Forwarding {
-			external = append(external, f)
-		}
-	}
-	return external
-}
-
+// FilterBy is method that filters Forwardings by a given string
 func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 	filteredForwardings := Forwardings{}
 
@@ -96,10 +58,10 @@ func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwar
 	defer rows.Close()
 
 	for rows.Next() {
-		var mailboxEmail, domain, forwarding, destDomain string
+		var mailboxEmail, domain, destinationEmail, destinationDomain string
 		var active, isAlias, isForwarding, isList bool
 
-		err := rows.Scan(&mailboxEmail, &domain, &forwarding, &destDomain, &active, &isAlias, &isForwarding, &isList)
+		err := rows.Scan(&mailboxEmail, &domain, &destinationEmail, &destinationDomain, &active, &isAlias, &isForwarding, &isList)
 		if err != nil {
 			return Forwardings, err
 		}
@@ -107,8 +69,8 @@ func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwar
 		Forwardings = append(Forwardings, Forwarding{
 			Address:      mailboxEmail,
 			Domain:       domain,
-			Forwarding:   forwarding,
-			DestDomain:   destDomain,
+			Forwarding:   destinationEmail,
+			DestDomain:   destinationDomain,
 			Active:       active,
 			IsAlias:      isAlias,
 			IsForwarding: isForwarding,
@@ -128,22 +90,48 @@ func (s *Server) forwardingExists(mailboxEmail, destinationEmail string) (bool, 
 	(SELECT address FROM forwardings
 	WHERE address = ? AND forwarding = ? AND is_forwarding = 1
 	);`
+
 	err := s.DB.QueryRow(sqlQuery, mailboxEmail, destinationEmail).Scan(&exists)
 
 	return exists, err
 }
 
+// Forwardings returns all forwardings (actual forwardings, without mailbox copy)
 func (s *Server) Forwardings() (Forwardings, error) {
-	return s.forwardingQuery(forwardingQueryForwardingsAll)
+	withoutMailboxCopy := Forwardings{}
+
+	forwardings, err := s.forwardingQuery(forwardingQueryForwardingsAll)
+	if err != nil {
+		return withoutMailboxCopy, err
+	}
+
+	copyLeftInMailbox := map[string]bool{}
+
+	for _, f := range forwardings {
+		if _, ok := copyLeftInMailbox[f.Address]; !ok &&
+			f.Address == f.Forwarding {
+			copyLeftInMailbox[f.Address] = true
+		}
+	}
+
+	for _, f := range forwardings {
+		f.IsCopyLeftInMailbox = copyLeftInMailbox[f.Address]
+		if f.Address != f.Forwarding {
+			withoutMailboxCopy = append(withoutMailboxCopy, f)
+		}
+	}
+
+	return withoutMailboxCopy, err
 }
 
+// ForwardingAdd adds a new Forwarding
 func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
 	mailboxExists, err := s.mailboxExists(mailboxEmail)
 	if err != nil {
 		return err
 	}
 	if !mailboxExists {
-		return fmt.Errorf("User %s doesn't exist", mailboxEmail)
+		return fmt.Errorf("Mailbox %s doesn't exist", mailboxEmail)
 	}
 
 	forwardingExists, err := s.forwardingExists(mailboxEmail, destinationEmail)
@@ -151,36 +139,44 @@ func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
 		return err
 	}
 	if forwardingExists {
-		return fmt.Errorf("Forwarding %s -> %s already exists", mailboxEmail, destinationEmail)
+		return fmt.Errorf("Forwarding %s %s %s already exists", mailboxEmail, arrowRight, destinationEmail)
 	}
 
-	_, userDomain := parseEmail(mailboxEmail)
-	_, destDomain := parseEmail(destinationEmail)
+	_, domain := parseEmail(mailboxEmail)
+	_, destinationDomain := parseEmail(destinationEmail)
 
-	_, err = s.DB.Exec(`
+	sqlQuery := `
 	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
-    VALUES ('` + mailboxEmail + `', '` + destinationEmail + `','` + userDomain + `', '` + destDomain + `', 1);
-	`)
+	VALUES (?, ?, ?, ?, 1);`
+
+	_, err = s.DB.Exec(sqlQuery, mailboxEmail, destinationEmail, domain, destinationDomain)
 
 	return err
 }
 
-func (s *Server) ForwardingDelete(userAddress, destinationAddress string) error {
-	exists, err := s.forwardingExists(userAddress, destinationAddress)
+// ForwardingDelete deletes a forwarding
+func (s *Server) ForwardingDelete(mailboxEmail, destinationEmail string) error {
+	exists, err := s.forwardingExists(mailboxEmail, destinationEmail)
 	if err != nil {
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("Forwarding %s -> %s dosn't exist", userAddress, destinationAddress)
+		return fmt.Errorf("Forwarding %s %s %s dosn't exist", mailboxEmail, arrowRight, destinationEmail)
 	}
 
-	_, err = s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND forwarding='` + destinationAddress + `' AND is_forwarding=1;`)
+	sqlQuery := `DELETE FROM forwardings 
+	WHERE address = ? AND forwarding = ? AND is_forwarding = 1;`
+	_, err = s.DB.Exec(sqlQuery, mailboxEmail, destinationEmail)
 
 	return err
 }
 
-func (s *Server) ForwardingDeleteAll(userAddress string) error {
-	_, err := s.DB.Exec(`DELETE FROM forwardings WHERE address='` + userAddress + `' AND is_forwarding=1;`)
+// ForwardingDeleteAll deletes all forwardings of a mailbox
+func (s *Server) ForwardingDeleteAll(mailboxEmail string) error {
+	sqlQuery := `DELETE FROM forwardings 
+	WHERE address = ? AND is_forwarding = 1;`
+
+	_, err := s.DB.Exec(sqlQuery, mailboxEmail)
 
 	return err
 }

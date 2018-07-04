@@ -16,7 +16,10 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
@@ -27,8 +30,13 @@ var domainAliasDeleteCmd = &cobra.Command{
 	Short: "Delete an alias domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires an [ALIAS_DOMAIN] as argument")
+			return errors.New("Requires [ALIAS_DOMAIN] as argument")
 		}
+
+		if !govalidator.IsDNSName(args[0]) {
+			return fmt.Errorf("Invalid [ALIAS_DOMAIN] format: %s", args[0])
+		}
+		args[0] = strings.ToLower(args[0])
 
 		return nil
 	},
@@ -46,7 +54,7 @@ var domainAliasDeleteCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted alias domain %v\n", aliasDomain)
+		success("Successfully deleted alias domain %s\n", aliasDomain)
 	},
 }
 

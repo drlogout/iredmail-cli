@@ -37,7 +37,7 @@ func init() {
 
 	aliasListCmd.Flags().StringP("filter", "f", "", "Filter result")
 
-	aliasListCmd.SetUsageTemplate(usageTemplate("alias list", true))
+	aliasListCmd.SetUsageTemplate(usageTemplate("alias list", printFlags))
 }
 
 func printAliases(aliases iredmail.Aliases) {

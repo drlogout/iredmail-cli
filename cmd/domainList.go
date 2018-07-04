@@ -51,6 +51,8 @@ func init() {
 	domainCmd.AddCommand(domainListCmd)
 
 	domainListCmd.Flags().StringP("filter", "f", "", "Filter result")
+
+	domainListCmd.SetUsageTemplate(usageTemplate("domain list", printFlags))
 }
 
 func printDomains(domains iredmail.Domains) {

@@ -18,8 +18,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
@@ -33,17 +33,17 @@ var mailboxUpdateCmd = &cobra.Command{
 	Short: "Update quota and \"keep copy in mailbox\"",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires mailbox email")
+			return errors.New("Requires [MAILBOX_EMAIL]")
 		}
 
-		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid mailbox email format: \"%v\"", args[0])
+		var err error
+
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
 		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
 
-		args[0] = emailx.Normalize(args[0])
-
-		return nil
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -98,4 +98,6 @@ func init() {
 
 	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 0, "Quota")
 	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Keep copy in mailbox")
+
+	mailboxUpdateCmd.SetUsageTemplate(usageTemplate("mailbox update [MAILBOX_EMAIL]", printFlags))
 }

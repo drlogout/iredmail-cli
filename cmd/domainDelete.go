@@ -30,11 +30,11 @@ var domainDeleteCmd = &cobra.Command{
 	Short: "Delete a domain",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires domain name")
+			return errors.New("Requires [DOMAIN] as argument")
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
-			return fmt.Errorf("Invalid domain name format: %s", args[0])
+			return fmt.Errorf("Invalid [DOMAIN] format: %s", args[0])
 		}
 		args[0] = strings.ToLower(args[0])
 

@@ -9,7 +9,10 @@ import (
 )
 
 type Server struct {
-	DB *sql.DB
+	DB   *sql.DB
+	Data struct {
+		Forwardings
+	}
 }
 
 func (s *Server) Close() {

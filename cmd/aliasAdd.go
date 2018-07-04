@@ -27,15 +27,18 @@ import (
 var aliasAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add an alias",
+	Long: `Emails sent to [ALIAS_EMAIL] will be delivered to alias forwardings
+	Use the "alias add-forwarding" command to add forwardings to the alias
+	An alias can have multiple forwardings`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires alias email")
+			return errors.New("Requires [ALIAS_EMAIL]")
 		}
 
 		var err error
 
 		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
 		}
 		args[0], err = govalidator.NormalizeEmail(args[0])
 
@@ -53,7 +56,7 @@ var aliasAddCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added alias %v\n", args[0])
+		success("Successfully added alias %s\n", args[0])
 	},
 }
 

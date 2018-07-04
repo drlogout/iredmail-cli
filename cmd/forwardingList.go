@@ -15,12 +15,10 @@
 package cmd
 
 import (
-	"bytes"
-	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -53,7 +51,8 @@ func init() {
 	forwardingCmd.AddCommand(forwardingListCmd)
 
 	forwardingListCmd.Flags().StringP("filter", "f", "", "Filter result")
-	forwardingListCmd.SetUsageTemplate(usageTemplate("forwarding list"))
+
+	forwardingListCmd.SetUsageTemplate(usageTemplate("forwarding list", printFlags))
 }
 
 func printForwardings(forwardings iredmail.Forwardings) {
@@ -62,35 +61,26 @@ func printForwardings(forwardings iredmail.Forwardings) {
 		return
 	}
 
-	var buf bytes.Buffer
-	w := new(tabwriter.Writer)
-	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t      %v\t%v\n", "Mailbox Email", "Destination Email", "Keep copy in mailbox")
-	fmt.Fprintf(w, "%v\t      %v\t%v\n", "-------------", "-----------------", "--------------------")
-	w.Flush()
-	info(buf.String())
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Mailbox Email", "Destination Email", "Keep copy in mailbox"})
 
-	w = new(tabwriter.Writer)
-	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
+	var lastAddress string
 
-	info := forwardings.Info()
+	for _, f := range forwardings {
+		currentAddress := f.Address
+		copyLeft := "no"
 
-	lastAddress := ""
-	for _, f := range forwardings.External() {
-		newAddress := f.Address
-		newCopyLeft := "no"
-		arrow := "➞"
-
-		if info[f.Address].IsCopyLeftInMailbox {
-			newCopyLeft = "yes"
+		if f.IsCopyLeftInMailbox {
+			copyLeft = "yes"
 		}
 
 		if lastAddress == f.Address {
-			newAddress, newCopyLeft, arrow = "", "", "↳"
+			currentAddress = ""
 		}
-		fmt.Fprintf(w, "%v\t%v     %v\t%v\n", newAddress, arrow, f.Forwarding, newCopyLeft)
+
+		table.Append([]string{currentAddress, f.Forwarding, copyLeft})
+
 		lastAddress = f.Address
 	}
-
-	w.Flush()
+	table.Render()
 }

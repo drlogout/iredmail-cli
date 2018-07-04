@@ -27,15 +27,17 @@ import (
 var aliasAddForwardingCmd = &cobra.Command{
 	Use:   "add-forwarding",
 	Short: "Add forwarding to an alias",
+	Long: `Emails sent to [ALIAS_EMAIL] will be delivered to [DESTINATION_EMAIL]
+	An alias can have multiple forwardings`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires alias email and forwarding email")
+			return errors.New("Requires [ALIAS_EMAIL] and [DESTINATION_EMAIL]")
 		}
 
 		var err error
 
 		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
 		}
 		args[0], err = govalidator.NormalizeEmail(args[0])
 		if err != nil {
@@ -43,9 +45,8 @@ var aliasAddForwardingCmd = &cobra.Command{
 		}
 
 		if !govalidator.IsEmail(args[1]) {
-			return fmt.Errorf("Invalid forwarding email format: \"%v\"", args[1])
+			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
-
 		args[1], err = govalidator.NormalizeEmail(args[1])
 
 		return err
@@ -64,12 +65,12 @@ var aliasAddForwardingCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added alias forwarding %v %v %v\n", aliasEmail, arrowRight, forwardingEmail)
+		success("Successfully added alias forwarding %s %s %s\n", aliasEmail, arrowRight, forwardingEmail)
 	},
 }
 
 func init() {
 	aliasCmd.AddCommand(aliasAddForwardingCmd)
 
-	aliasAddForwardingCmd.SetUsageTemplate(usageTemplate("alias add-forwarding [ALIAS_EMAIL] [FORWARDING_EMAIL]"))
+	aliasAddForwardingCmd.SetUsageTemplate(usageTemplate("alias add-forwarding [ALIAS_EMAIL] [DESTINATION_EMAIL]"))
 }

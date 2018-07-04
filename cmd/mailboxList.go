@@ -40,6 +40,8 @@ func init() {
 	mailboxCmd.AddCommand(mailboxListCmd)
 
 	mailboxListCmd.Flags().StringP("filter", "f", "", "Filter result")
+
+	mailboxListCmd.SetUsageTemplate(usageTemplate("mailbox list", printFlags))
 }
 
 func printUserList(mailboxes iredmail.Mailboxes) {

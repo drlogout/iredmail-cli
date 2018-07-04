@@ -29,13 +29,13 @@ var deleteForwardingCmd = &cobra.Command{
 	Short: "Delete forwarding from an alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires alias email and forwarding email")
+			return errors.New("Requires [ALIAS_EMAIL] and [DESTINATION_EMAIL]")
 		}
 
 		var err error
 
 		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid alias email format: \"%v\"", args[0])
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
 		}
 		args[0], err = govalidator.NormalizeEmail(args[0])
 		if err != nil {
@@ -43,9 +43,8 @@ var deleteForwardingCmd = &cobra.Command{
 		}
 
 		if !govalidator.IsEmail(args[1]) {
-			return fmt.Errorf("Invalid forwarding email format: \"%v\"", args[1])
+			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
-
 		args[1], err = govalidator.NormalizeEmail(args[1])
 
 		return err
@@ -64,12 +63,12 @@ var deleteForwardingCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted alias forwarding %v %v %v\n", aliasEmail, arrowRight, forwardingEmail)
+		success("Successfully deleted alias forwarding %s %s %s\n", aliasEmail, arrowRight, forwardingEmail)
 	},
 }
 
 func init() {
 	aliasCmd.AddCommand(deleteForwardingCmd)
 
-	deleteForwardingCmd.SetUsageTemplate(usageTemplate("alias delete-forwarding [ALIAS_EMAIL] [FORWARDING_EMAIL]"))
+	deleteForwardingCmd.SetUsageTemplate(usageTemplate("alias delete-forwarding [ALIAS_EMAIL] [DESTINATION_EMAIL]"))
 }

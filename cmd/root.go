@@ -13,6 +13,7 @@ import (
 
 const (
 	arrowRight = "➞"
+	printFlags = true
 )
 
 var (

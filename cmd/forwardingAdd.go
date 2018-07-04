@@ -18,35 +18,39 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
 // forwardingAddCmd represents the add command
 var forwardingAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add forwarding (e.g. post@domain.com -> info@example.com)",
+	Short: "Add forwarding",
+	Long: `Emails sent to [MAILBOX_EMAIL] will be delivered to [DESTINATION_EMAIL]
+	By default a copy will be left in the mailbox, 
+	to change that behavior use the "mailbox update" command`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires user and destination email")
+			return errors.New("Requires [MAILBOX_EMAIL] and [DESTINATION_EMAIL]")
 		}
 
-		err := emailx.Validate(args[0])
+		var err error
+
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
+		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
 		if err != nil {
-			return fmt.Errorf("Invalid user email format: \"%v\"", args[0])
+			return err
 		}
 
-		args[0] = emailx.Normalize(args[0])
-
-		err = emailx.Validate(args[1])
-		if err != nil {
-			return fmt.Errorf("Invalid destination email format: \"%v\"", args[1])
+		if !govalidator.IsEmail(args[1]) {
+			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
+		args[1], err = govalidator.NormalizeEmail(args[1])
 
-		args[1] = emailx.Normalize(args[1])
-
-		return nil
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -62,12 +66,12 @@ var forwardingAddCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added forwarding %v -> %v\n", mailboxEmail, destinationEmail)
+		success("Successfully added forwarding %s %s %s\n", mailboxEmail, arrowRight, destinationEmail)
 	},
 }
 
 func init() {
 	forwardingCmd.AddCommand(forwardingAddCmd)
 
-	forwardingAddCmd.SetUsageTemplate(usageTemplate("forwarding add [user_email] [destination_email]"))
+	forwardingAddCmd.SetUsageTemplate(usageTemplate("forwarding add [MAILBOX_EMAIL] [DESTINATION_EMAIL]"))
 }

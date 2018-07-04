@@ -145,7 +145,7 @@ func (s *Server) Mailbox(email string) (Mailbox, error) {
 	return mailboxes[0], nil
 }
 
-func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath string) (Mailbox, error) {
+func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath string) error {
 	name, domain := parseEmail(email)
 	m := Mailbox{
 		Email:  email,
@@ -156,44 +156,44 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 
 	domainExists, err := s.domainExists(domain)
 	if err != nil {
-		return m, err
+		return err
 	}
 	if !domainExists {
 		err := s.DomainAdd(Domain{
 			Domain: domain,
 		})
 		if err != nil {
-			return m, err
+			return err
 		}
 	}
 
 	mailboxExists, err := s.mailboxExists(email)
 	if err != nil {
-		return m, err
+		return err
 	}
 	if mailboxExists {
-		return m, fmt.Errorf("Mailbox %s already exists", email)
+		return fmt.Errorf("Mailbox %s already exists", email)
 	}
 
 	aliasExists, err := s.aliasExists(email)
 	if err != nil {
-		return m, err
+		return err
 	}
 	if aliasExists {
-		return m, fmt.Errorf("An alias %s already exists", email)
+		return fmt.Errorf("An alias %s already exists", email)
 	}
 
 	mailboxAliasExists, err := s.mailboxAliasExists(email)
 	if err != nil {
-		return m, err
+		return err
 	}
 	if mailboxAliasExists {
-		return m, fmt.Errorf("A mailbox alias %s already exists", email)
+		return fmt.Errorf("A mailbox alias %s already exists", email)
 	}
 
 	hash, err := generatePassword(password)
 	if err != nil {
-		return m, err
+		return err
 	}
 
 	m.PasswordHash = hash
@@ -211,18 +211,12 @@ func (s *Server) MailboxAdd(email, password string, quota int, storageBasePath s
 			'` + strconv.Itoa(quota) + `', '` + domain + `', '1', NOW(), NOW());
 		`)
 	if err != nil {
-		return m, err
+		return err
 	}
 
 	err = s.ForwardingAdd(email, email)
-	m.Forwardings = Forwardings{
-		Forwarding{
-			Address:    email,
-			Forwarding: email,
-		},
-	}
 
-	return m, err
+	return err
 }
 
 func (s *Server) MailboxDelete(email string) error {
@@ -275,7 +269,7 @@ func (s *Server) MailboxUpdate(mailbox Mailbox) error {
 }
 
 func (s *Server) MailboxKeepCopy(mailbox Mailbox, keepCopyInMailbox bool) error {
-	if len(mailbox.Forwardings.External()) == 0 {
+	if len(mailbox.Forwardings) == 0 {
 		return fmt.Errorf("No existing forwardings")
 	}
 

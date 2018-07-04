@@ -18,33 +18,36 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
 // mailboxAliasAddCmd represents the add-alias command
 var mailboxAliasAddCmd = &cobra.Command{
 	Use:   "add-alias",
-	Short: "Add mailbox alias (e.g. abuse -> post@domain.com)",
+	Short: "Add a mailbox alias",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires alias and mailbox (email address)")
+			return errors.New("Requires [ALIAS] and [MAILBOX_EMAIL]")
 		}
 
-		err := emailx.Validate(args[0])
-		if err == nil {
-			return fmt.Errorf("Invalid alias format: \"%v\"", args[0])
-		}
+		var err error
 
-		err = emailx.Validate(args[1])
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [ALIAS] format: %s", args[0])
+		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
 		if err != nil {
-			return fmt.Errorf("Invalid mailbox format: \"%v\"", args[1])
+			return err
 		}
 
-		args[1] = emailx.Normalize(args[1])
+		if !govalidator.IsEmail(args[1]) {
+			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[1])
+		}
+		args[1], err = govalidator.NormalizeEmail(args[1])
 
-		return nil
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -58,11 +61,12 @@ var mailboxAliasAddCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added mailbox alias %v -> %v\n", args[0], args[1])
+		success("Successfully added mailbox alias %s %s %s\n", args[0], arrowRight, args[1])
 	},
 }
 
 func init() {
 	mailboxCmd.AddCommand(mailboxAliasAddCmd)
-	mailboxAliasAddCmd.SetUsageTemplate(usageTemplate("mailbox add-alias [alias] [mailbox_email]"))
+
+	mailboxAliasAddCmd.SetUsageTemplate(usageTemplate("mailbox add-alias [ALIAS] [MAILBOX_EMAIL]"))
 }

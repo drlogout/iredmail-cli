@@ -18,8 +18,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
-	"github.com/goware/emailx"
 	"github.com/spf13/cobra"
 )
 
@@ -33,15 +33,15 @@ var mailboxDeleteCmd = &cobra.Command{
 	Short: "Delete a mailbox",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
-			return errors.New("Requires mailbox (email) as argument")
+			return errors.New("Requires [MAILBOX_EMAIL] as argument")
 		}
 
-		err := emailx.Validate(args[0])
-		if err != nil {
-			return fmt.Errorf("Invalid email format: \"%v\"", args[0])
-		}
+		var err error
 
-		args[0] = emailx.Normalize(args[0])
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
+		}
+		args[0], err = govalidator.NormalizeEmail(args[0])
 
 		return err
 	},
@@ -55,7 +55,7 @@ var mailboxDeleteCmd = &cobra.Command{
 		mailboxEmail := args[0]
 
 		if !forceDelete {
-			fmt.Printf("Do you really want to delete the mailbox %v? ", mailboxEmail)
+			fmt.Printf("Do you really want to delete the mailbox %s? ", mailboxEmail)
 			delete := askForConfirmation()
 
 			if !delete {
@@ -68,7 +68,7 @@ var mailboxDeleteCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted mailbox %v\n", mailboxEmail)
+		success("Successfully deleted mailbox %s\n", mailboxEmail)
 	},
 }
 
@@ -77,5 +77,5 @@ func init() {
 
 	mailboxDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 
-	mailboxDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete [mailbox_email]"))
+	mailboxDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete [mailbox_email]", printFlags))
 }
