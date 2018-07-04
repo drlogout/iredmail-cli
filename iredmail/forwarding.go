@@ -161,7 +161,7 @@ func (s *Server) ForwardingDelete(mailboxEmail, destinationEmail string) error {
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("Forwarding %s %s %s dosn't exist", mailboxEmail, arrowRight, destinationEmail)
+		return fmt.Errorf("Forwarding %s %s %s doesn't exist", mailboxEmail, arrowRight, destinationEmail)
 	}
 
 	sqlQuery := `DELETE FROM forwardings 

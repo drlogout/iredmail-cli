@@ -66,18 +66,20 @@ var (
 	customQuota       = 4096
 	customStoragePath = "/var/mail/custom"
 
+	arrowRight = "➞"
+
 	skipAliasList                = true
 	skipAliasAddDelete           = true
 	skipAliasForwardingAddDelete = true
 	skipAliasInfo                = true
-	skipDomainAddDelete          = false
-	skipDomainAliasAddDelete     = false
-	skipDomainList               = false
-	skipMailbox                  = true
+	skipDomainAddDelete          = true
+	skipDomainAliasAddDelete     = true
+	skipDomainList               = true
+	skipForwarding               = true
+	skipMailbox                  = false
 	skipMailboxInfo              = true
 	skipMailboxList              = true
 	skipMailboxAlias             = true
-	skipForwarding               = true
 )
 
 func TestCLI(t *testing.T) {

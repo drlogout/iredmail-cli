@@ -25,9 +25,7 @@ var _ = Describe("mailbox", func() {
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		output, err := cli.CombinedOutput()
-		if err != nil {
-			Fail(string(output))
-		}
+		Expect(err).NotTo(HaveOccurred())
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added mailbox %v (quota: 2048 KB)\n", mailboxName1)

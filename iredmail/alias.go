@@ -161,7 +161,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("Alias %s alreday exists", aliasEmail)
+		return fmt.Errorf("Alias %s already exists", aliasEmail)
 	}
 
 	_, domain := parseEmail(aliasEmail)
