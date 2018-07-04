@@ -34,12 +34,8 @@ var mailboxAliasAddCmd = &cobra.Command{
 
 		var err error
 
-		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid [ALIAS] format: %s", args[0])
-		}
-		args[0], err = govalidator.NormalizeEmail(args[0])
-		if err != nil {
-			return err
+		if govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [ALIAS] format: %s, only name is required (the parte before @)", args[0])
 		}
 
 		if !govalidator.IsEmail(args[1]) {

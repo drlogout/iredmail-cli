@@ -17,7 +17,7 @@ var _ = Describe("forwarding", func() {
 	})
 
 	It("can add a forwarding", func() {
-		if skipForwarding && !isCI {
+		if skipForwardingAddDelete && !isCI {
 			Skip("can add a forwarding")
 		}
 
@@ -54,7 +54,7 @@ var _ = Describe("forwarding", func() {
 	})
 
 	It("can delete a forwarding", func() {
-		if skipForwarding && !isCI {
+		if skipForwardingAddDelete && !isCI {
 			Skip("can delete a forwarding")
 		}
 
@@ -95,7 +95,7 @@ var _ = Describe("forwarding", func() {
 	})
 
 	It("can't add an existing forwarding", func() {
-		if skipForwarding && !isCI {
+		if skipForwardingAddDelete && !isCI {
 			Skip("can't add an existing forwarding")
 		}
 
@@ -120,7 +120,7 @@ var _ = Describe("forwarding", func() {
 	})
 
 	It("can't delete a non-existing forwarding", func() {
-		if skipForwarding && !isCI {
+		if skipForwardingAddDelete && !isCI {
 			Skip("can't delete a non-existing forwarding")
 		}
 

@@ -17,7 +17,7 @@ func (s *Server) MailboxAliasAdd(alias, email string) error {
 		return err
 	}
 	if mailboxExists {
-		return fmt.Errorf("An mailbox with %s already exists", a)
+		return fmt.Errorf("A mailbox with %s already exists", a)
 	}
 
 	aliasExists, err := s.aliasExists(a)
