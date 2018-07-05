@@ -17,7 +17,8 @@ const (
 )
 
 var (
-	cfgFile string
+	cfgFile     string
+	prettyPrint = true
 )
 var rootCmd = &cobra.Command{
 	Use:   "iredmail-cli",
@@ -40,6 +41,8 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.iredmail-cli.yaml)")
+	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "pretty", "", true, "")
+	rootCmd.PersistentFlags().MarkHidden("pretty")
 }
 
 // initConfig reads in config file and ENV variables if set.

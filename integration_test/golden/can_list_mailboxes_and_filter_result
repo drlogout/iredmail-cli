@@ -1,4 +1,6 @@
-Mailbox                                 Quota (KB)
-----                                    ----------
-abuse@domain.com                        2048
-info@domain.com                         2048
++------------------+------------+
+|     MAILBOX      | QUOTA (MB) |
++------------------+------------+
+| abuse@domain.com |       2048 |
+| info@domain.com  |       2048 |
++------------------+------------+

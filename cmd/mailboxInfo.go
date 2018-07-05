@@ -57,20 +57,12 @@ var mailboxInfoCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		pretty, err := cmd.Flags().GetBool("pretty")
-		if err != nil {
-			fatal("%v\n", err)
-		}
-
-		printUserInfo(mailbox, pretty)
+		printUserInfo(mailbox, prettyPrint)
 	},
 }
 
 func init() {
 	mailboxCmd.AddCommand(mailboxInfoCmd)
-
-	mailboxInfoCmd.Flags().Bool("pretty", true, "")
-	mailboxInfoCmd.Flags().MarkHidden("not-pretty")
 }
 
 func printUserInfo(mailbox iredmail.Mailbox, pretty bool) {

@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"bytes"
-	"fmt"
 	"os"
-	"text/tabwriter"
+	"strconv"
 
 	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -50,19 +49,11 @@ func printUserList(mailboxes iredmail.Mailboxes) {
 		return
 	}
 
-	var buf bytes.Buffer
-	w := new(tabwriter.Writer)
-	w.Init(&buf, 40, 8, 0, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\n", "Mailbox", "Quota (KB)")
-	fmt.Fprintf(w, "%v\t%v\n", "----", "----------")
-	w.Flush()
-	info(buf.String())
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Mailbox", "Quota (MB)"})
 
-	w = new(tabwriter.Writer)
-	w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-	for _, u := range mailboxes {
-		fmt.Fprintf(w, "%v\t%v\n", u.Email, u.Quota)
+	for _, m := range mailboxes {
+		table.Append([]string{m.Email, strconv.Itoa(m.Quota)})
 	}
-
-	w.Flush()
+	table.Render()
 }
