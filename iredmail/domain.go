@@ -18,6 +18,7 @@ type Domain struct {
 	Description string
 	Settings    string
 	Aliases     DomainAliases
+	Catchalls   Forwardings
 }
 
 // Domains ...
@@ -30,7 +31,8 @@ func (d Domains) FilterBy(filter string) Domains {
 	for _, domain := range d {
 		if strings.Contains(domain.Domain, filter) ||
 			strings.Contains(domain.Description, filter) ||
-			strings.Contains(domain.Settings, filter) {
+			len(domain.Aliases.FilterBy(filter)) > 0 ||
+			len(domain.Catchalls.FilterBy(filter)) > 0 {
 			filteredDomains = append(filteredDomains, domain)
 		}
 	}
@@ -65,11 +67,17 @@ func (s *Server) domainQuery(whereQuery string, args ...interface{}) (Domains, e
 			return domains, err
 		}
 
+		catchalls, err := s.forwardingQuery(forwardingQueryCatchallByDomain, domain)
+		if err != nil {
+			return domains, err
+		}
+
 		domains = append(domains, Domain{
 			Domain:      domain,
 			Description: description,
 			Settings:    settings,
 			Aliases:     domainAliases,
+			Catchalls:   catchalls,
 		})
 
 	}
@@ -135,9 +143,8 @@ func (s *Server) DomainAdd(domain Domain) error {
 	}
 
 	sqlQuery := `
-	INSERT INTO domain (domain, description, settings)
-	VALUES (?, ?, ?);`
-
+	INSERT INTO domain (domain, description, settings, active)
+	VALUES (?, ?, ?, 1);`
 	_, err = s.DB.Exec(sqlQuery, domain.Domain, domain.Description, domain.Settings)
 
 	return err
@@ -180,7 +187,7 @@ func (s *Server) DomainDelete(domain string) error {
 		}
 	}
 
-	sqlQuery := `DELETE FROM domain WHERE domain = ?;`
+	sqlQuery := "DELETE FROM domain WHERE domain = ?;"
 	_, err = s.DB.Exec(sqlQuery, domain)
 
 	return err

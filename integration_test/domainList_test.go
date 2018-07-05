@@ -24,7 +24,7 @@ var _ = Describe("domain list", func() {
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "domain", "add", domain2, "-s", "default_user_quota:4096")
+		cli = exec.Command(cliPath, "domain", "add", domain2)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
@@ -37,6 +37,14 @@ var _ = Describe("domain list", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain2, domain3)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain3, forwardingAddress1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain3, mailboxName1)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
@@ -63,14 +71,31 @@ var _ = Describe("domain list", func() {
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "domain", "add", domain2, "-s", "default_user_quota:4096")
+		cli = exec.Command(cliPath, "domain", "add", domain2)
 		err = cli.Run()
 		Expect(err).NotTo(HaveOccurred())
 
 		cli = exec.Command(cliPath, "domain", "add", domain3)
 		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
 
-		cli = exec.Command(cliPath, "domain", "list", "-f", "4096")
+		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain3)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain2, domain3)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain3, forwardingAddress1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain3, mailboxName1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "list", "-f", "alias.com")
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))

@@ -62,21 +62,57 @@ func printDomains(domains iredmail.Domains) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Domain", "Alias", "Settings", "Description"})
+	table.SetHeader([]string{"Domain", "Alias", "Catch-all address", "Description"})
 
 	for _, d := range domains {
 		firstAlias := ""
+		firstCatchall := ""
 
 		if len(d.Aliases) > 0 {
 			firstAlias = d.Aliases[0].AliasDomain
 		}
-		table.Append([]string{d.Domain, firstAlias, d.Settings, d.Description})
 
+		if len(d.Catchalls) > 0 {
+			firstCatchall = d.Catchalls[0].Forwarding
+		}
+
+		table.Append([]string{d.Domain, firstAlias, firstCatchall, d.Description})
+
+		aliases := []string{}
 		for i := range d.Aliases {
 			if (i + 1) < len(d.Aliases) {
-				table.Append([]string{"", d.Aliases[i+1].AliasDomain, "", d.Description})
+				aliases = append(aliases, d.Aliases[i+1].AliasDomain)
 			}
+		}
+
+		catchalls := []string{}
+		for i := range d.Catchalls {
+			if (i + 1) < len(d.Catchalls) {
+				catchalls = append(catchalls, d.Catchalls[i+1].Forwarding)
+			}
+		}
+
+		var longerSlice []string
+		aliasLength := len(aliases)
+		catchallLength := len(catchalls)
+
+		if aliasLength >= catchallLength {
+			longerSlice = aliases
+		} else {
+			longerSlice = catchalls
+		}
+
+		for i := range longerSlice {
+			alias, catchall := "", ""
+			if aliasLength > i {
+				alias = aliases[i]
+			}
+			if catchallLength > i {
+				catchall = catchalls[i]
+			}
+			table.Append([]string{"", alias, catchall, ""})
 		}
 	}
 	table.Render()
+
 }

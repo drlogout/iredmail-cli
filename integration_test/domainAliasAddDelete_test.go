@@ -69,7 +69,7 @@ var _ = Describe("domain add/delete-alias", func() {
 		Expect(err).To(HaveOccurred())
 
 		actual := string(output)
-		expected := fmt.Sprintf("Alias domain %s ➞ %s alreday exists\n", aliasDomain1, domain1)
+		expected := fmt.Sprintf("Alias domain %s ➞ %s already exists\n", aliasDomain1, domain1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))

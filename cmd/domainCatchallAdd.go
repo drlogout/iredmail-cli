@@ -17,31 +17,35 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
-var (
-	forceDelete = false
-)
-
-// mailboxDeleteCmd represents the delete command
-var mailboxDeleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete a mailbox",
+// domainCatchallAdd represents the 'domain add-catchall' command
+var domainCatchallAdd = &cobra.Command{
+	Use:   "add-catchall",
+	Short: "Add a per-domain catch-all mailbox",
+	Long: `Emails sent to non-existing mailboxes of [DOMAIN] will be delivered to [CATCHALL_EMAIL]
+	Multiple [CATCHALL_EMAIL]s are possible`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return errors.New("Requires [MAILBOX_EMAIL] as argument")
+		if len(args) != 2 {
+			return errors.New("Requires [DOMAIN] and [CATCHALL_EMAIL] as argument")
 		}
+
+		if !govalidator.IsDNSName(args[0]) {
+			return fmt.Errorf("Invalid [DOMAIN] format: %s", args[0])
+		}
+		args[0] = strings.ToLower(args[0])
 
 		var err error
 
-		if !govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
+		if !govalidator.IsEmail(args[1]) {
+			return fmt.Errorf("Invalid [CATCHALL_EMAIL] format: %s", args[1])
 		}
-		args[0], err = govalidator.NormalizeEmail(args[0])
+		args[1], err = govalidator.NormalizeEmail(args[1])
 
 		return err
 	},
@@ -52,30 +56,20 @@ var mailboxDeleteCmd = &cobra.Command{
 		}
 		defer server.Close()
 
-		mailboxEmail := args[0]
+		domain := args[0]
+		catchallEmail := args[1]
 
-		if !forceDelete {
-			fmt.Printf("Do you really want to delete the mailbox %s (with all its alias mailboxes and forwardings)? ", mailboxEmail)
-			delete := askForConfirmation()
-
-			if !delete {
-				fatal("cancelled\n")
-			}
-		}
-
-		err = server.MailboxDelete(mailboxEmail)
+		err = server.DomainCatchallAdd(domain, catchallEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted mailbox %s\n", mailboxEmail)
+		success("Successfully added catch-all mailbox %s for domain %s\n", catchallEmail, domain)
 	},
 }
 
 func init() {
-	mailboxCmd.AddCommand(mailboxDeleteCmd)
+	domainCmd.AddCommand(domainCatchallAdd)
 
-	mailboxDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
-
-	mailboxDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete [mailbox_email]", printFlags))
+	domainCatchallAdd.SetUsageTemplate(usageTemplate("domain add-catchall [DOMAIN] [CATCHALL_EMAIL]"))
 }

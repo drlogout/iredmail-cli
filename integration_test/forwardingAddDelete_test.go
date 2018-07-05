@@ -87,7 +87,6 @@ var _ = Describe("forwarding", func() {
 		(SELECT * FROM forwardings
 		WHERE address = ? AND forwarding = ?
 		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
-
 		_, err = db.Exec(sqlQuery, mailboxName1, forwardingAddress1)
 		Expect(err).NotTo(HaveOccurred())
 

@@ -6,11 +6,12 @@ import (
 )
 
 const (
-	forwardingQueryForwardingsAll                   = "WHERE is_forwarding = 1"
-	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1"
-	forwardingQueryAliasForwardingsAll              = "WHERE is_list = 1"
-	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_list = 1"
-	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE forwarding = ? AND is_alias = 1"
+	forwardingQueryForwardingsAll                   = "WHERE is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryAliasForwardingsAll              = "WHERE is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
+	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
+	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0"
+	forwardingQueryCatchallByDomain                 = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0"
 )
 
 // Forwarding struct
@@ -46,11 +47,10 @@ func (forwardings Forwardings) FilterBy(filter string) Forwardings {
 func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwardings, error) {
 	Forwardings := Forwardings{}
 
-	sqlQuery := `SELECT address, domain, forwarding, dest_domain, active, is_alias, is_forwarding, is_list 
+	sqlQuery := `SELECT address, domain, forwarding, dest_domain, is_forwarding, is_alias, is_list, active
 	FROM forwardings
 	` + whereQuery + `
 	ORDER BY domain ASC, address ASC;`
-
 	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return Forwardings, err
@@ -59,9 +59,9 @@ func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwar
 
 	for rows.Next() {
 		var mailboxEmail, domain, destinationEmail, destinationDomain string
-		var active, isAlias, isForwarding, isList bool
+		var isForwarding, isAlias, isList, active bool
 
-		err := rows.Scan(&mailboxEmail, &domain, &destinationEmail, &destinationDomain, &active, &isAlias, &isForwarding, &isList)
+		err := rows.Scan(&mailboxEmail, &domain, &destinationEmail, &destinationDomain, &isForwarding, &isAlias, &isList, &active)
 		if err != nil {
 			return Forwardings, err
 		}
@@ -88,9 +88,7 @@ func (s *Server) forwardingExists(mailboxEmail, destinationEmail string) (bool, 
 	sqlQuery := `
 	SELECT exists
 	(SELECT address FROM forwardings
-	WHERE address = ? AND forwarding = ? AND is_forwarding = 1
-	);`
-
+	WHERE address = ? AND forwarding = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0);`
 	err := s.DB.QueryRow(sqlQuery, mailboxEmail, destinationEmail).Scan(&exists)
 
 	return exists, err
@@ -174,9 +172,8 @@ func (s *Server) ForwardingAdd(mailboxEmail, destinationEmail string) error {
 	_, destinationDomain := parseEmail(destinationEmail)
 
 	sqlQuery := `
-	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding)
-	VALUES (?, ?, ?, ?, 1);`
-
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding, is_alias, is_list, active)
+	VALUES (?, ?, ?, ?, 1, 0, 0, 1);`
 	_, err = s.DB.Exec(sqlQuery, mailboxEmail, destinationEmail, domain, destinationDomain)
 
 	return err
@@ -193,7 +190,7 @@ func (s *Server) ForwardingDelete(mailboxEmail, destinationEmail string) error {
 	}
 
 	sqlQuery := `DELETE FROM forwardings 
-	WHERE address = ? AND forwarding = ? AND is_forwarding = 1;`
+	WHERE address = ? AND forwarding = ? AND is_forwarding = 1 AND is_list = 0 AND is_alias = 0;`
 	_, err = s.DB.Exec(sqlQuery, mailboxEmail, destinationEmail)
 
 	return err
@@ -202,8 +199,7 @@ func (s *Server) ForwardingDelete(mailboxEmail, destinationEmail string) error {
 // ForwardingDeleteAll deletes all forwardings of a mailbox
 func (s *Server) ForwardingDeleteAll(mailboxEmail string) error {
 	sqlQuery := `DELETE FROM forwardings 
-	WHERE address = ? AND is_forwarding = 1;`
-
+	WHERE address = ? AND is_forwarding = 1 AND is_list = 0 AND is_alias = 0;`
 	_, err := s.DB.Exec(sqlQuery, mailboxEmail)
 
 	return err

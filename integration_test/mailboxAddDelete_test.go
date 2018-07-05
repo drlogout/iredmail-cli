@@ -102,6 +102,108 @@ var _ = Describe("mailbox", func() {
 		Expect(exists).To(Equal(false))
 	})
 
+	It("can delete a mailbox with aliases", func() {
+		if skipMailboxAddDelete && !isCI {
+			Skip("can delete a mailbox with aliases")
+		}
+
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias2, mailboxName1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "mailbox", "delete", "--force", mailboxName1)
+		output, err := cli.CombinedOutput()
+		Expect(err).NotTo(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("Successfully deleted mailbox %v\n", mailboxName1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var exists bool
+
+		sqlQuery := `SELECT exists
+		(SELECT * FROM mailbox
+		WHERE username = ?);`
+
+		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(false))
+
+		sqlQuery = `SELECT exists
+		(SELECT * FROM forwardings
+		WHERE address = ? AND is_alias = 1);`
+
+		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(false))
+	})
+
+	It("can delete a mailbox with forwardings", func() {
+		if skipMailboxAddDelete && !isCI {
+			Skip("can delete a mailbox with forwardings")
+		}
+
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress2)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "mailbox", "delete", "--force", mailboxName1)
+		output, err := cli.CombinedOutput()
+		Expect(err).NotTo(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("Successfully deleted mailbox %v\n", mailboxName1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var exists bool
+
+		sqlQuery := `SELECT exists
+		(SELECT * FROM mailbox
+		WHERE username = ?);`
+
+		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(false))
+
+		sqlQuery = `SELECT exists
+		(SELECT * FROM forwardings
+		WHERE address = ? AND is_forwarding = 1);`
+
+		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(false))
+	})
+
 	It("can't add an existing mailbox", func() {
 		if skipMailboxAddDelete && !isCI {
 			Skip("can't add an existing mailbox")

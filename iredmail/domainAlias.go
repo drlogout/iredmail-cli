@@ -2,6 +2,7 @@ package iredmail
 
 import (
 	"fmt"
+	"strings"
 )
 
 const (
@@ -17,6 +18,19 @@ type DomainAlias struct {
 
 // DomainAliases ...
 type DomainAliases []DomainAlias
+
+func (a DomainAliases) FilterBy(filter string) DomainAliases {
+	filteredAliases := DomainAliases{}
+
+	for _, alias := range a {
+		if strings.Contains(alias.AliasDomain, filter) ||
+			strings.Contains(alias.Domain, filter) {
+			filteredAliases = append(filteredAliases, alias)
+		}
+	}
+
+	return filteredAliases
+}
 
 func (s *Server) domainAliasQuery(whereQuery string, args ...interface{}) (DomainAliases, error) {
 	aliasDomains := DomainAliases{}
@@ -53,20 +67,12 @@ func (s *Server) domainAliasQuery(whereQuery string, args ...interface{}) (Domai
 func (s *Server) domainAliasExists(aliasDomain string) (bool, error) {
 	var exists bool
 
-	query := `SELECT exists
+	slqQuery := `SELECT exists
 	(SELECT * FROM alias_domain
-	WHERE alias_domain = '` + aliasDomain + `');`
+	WHERE alias_domain = ?);`
+	err := s.DB.QueryRow(slqQuery, aliasDomain).Scan(&exists)
 
-	err := s.DB.QueryRow(query).Scan(&exists)
-	if err != nil {
-		return exists, err
-	}
-
-	if exists {
-		return true, nil
-	}
-
-	return exists, nil
+	return exists, err
 }
 
 // DomainAliasAdd adds a new domain alias
@@ -84,13 +90,13 @@ func (s *Server) DomainAliasAdd(aliasDomain, domain string) error {
 		return err
 	}
 	if aliasExists {
-		return fmt.Errorf("Alias domain %s %s %s alreday exists", aliasDomain, arrowRight, domain)
+		return fmt.Errorf("Alias domain %s %s %s already exists", aliasDomain, arrowRight, domain)
 	}
 
-	_, err = s.DB.Exec(`
-		INSERT INTO alias_domain (alias_domain, target_domain)
-		VALUES ('` + aliasDomain + `', '` + domain + `')
-	`)
+	sqlQuery := `
+	INSERT INTO alias_domain (alias_domain, target_domain)
+	VALUES (?, ?);`
+	_, err = s.DB.Exec(sqlQuery, aliasDomain, domain)
 
 	return err
 }
@@ -105,13 +111,14 @@ func (s *Server) DomainAliasDelete(aliasDomain string) error {
 		return fmt.Errorf("Alias domain %s doesn't exist", aliasDomain)
 	}
 
-	_, err = s.DB.Exec(`DELETE FROM alias_domain WHERE alias_domain = '` + aliasDomain + `';`)
+	sqlQuery := "DELETE FROM alias_domain WHERE alias_domain = ?;"
+	_, err = s.DB.Exec(sqlQuery, aliasDomain)
 
 	return err
 }
 
 func (s *Server) domainAliasDeleteAll(domain string) error {
-	sqlQuery := `DELETE FROM alias_domain WHERE target_domain = ?;`
+	sqlQuery := "DELETE FROM alias_domain WHERE target_domain = ?;"
 	_, err := s.DB.Exec(sqlQuery, domain)
 
 	return err

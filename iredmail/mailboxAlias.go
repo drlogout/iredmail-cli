@@ -14,8 +14,7 @@ func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {
 	sqlQuery := `
 	SELECT exists
 	(SELECT address FROM forwardings
-	WHERE address = ? AND is_alias = 1);`
-
+	WHERE address = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0);`
 	err := s.DB.QueryRow(sqlQuery, aliasEmail).Scan(&exists)
 
 	return exists, err
@@ -51,9 +50,8 @@ func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
 	}
 
 	sqlQuery := `
-	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_alias, active)
-	VALUES (?, ?, ?, ?, 1, 1)`
-
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding, is_alias, is_list, active)
+	VALUES (?, ?, ?, ?, 0, 1, 0, 1)`
 	_, err = s.DB.Exec(sqlQuery, aliasEmail, mailboxEmail, domain, domain)
 
 	return err
@@ -69,18 +67,17 @@ func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 		return fmt.Errorf("An alias with %s doesn't exists", aliasEmail)
 	}
 
-	_, err = s.DB.Exec(`
-		DELETE FROM forwardings WHERE address = '` + aliasEmail + `' AND is_alias = 1
-	`)
+	sqlQuery := `DELETE FROM forwardings 
+	WHERE address = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0;`
+	_, err = s.DB.Exec(sqlQuery, aliasEmail)
 
 	return err
 }
 
 // MailboxAliasDeleteAll delets all mailbox aliases of a mailbox
 func (s *Server) MailboxAliasDeleteAll(mailboxEmail string) error {
-	_, err := s.DB.Exec(`
-		DELETE FROM forwardings WHERE forwarding = '` + mailboxEmail + `' AND is_alias = 1
-	`)
+	sqlQuery := "DELETE FROM forwardings WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0;"
+	_, err := s.DB.Exec(sqlQuery, mailboxEmail)
 
 	return err
 }

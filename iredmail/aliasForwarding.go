@@ -8,8 +8,7 @@ func (s *Server) aliasForwardingExists(aliasEmail, forwardingEmail string) (bool
 	sqlQuery := `
 	SELECT exists
 	(SELECT address FROM forwardings
-	WHERE address = ? AND forwarding = ? AND is_list = 1
-	);`
+	WHERE address = ? AND forwarding = ? AND is_list = 1 AND is_forwarding = 0 AND is_alias = 0);`
 	err := s.DB.QueryRow(sqlQuery, aliasEmail, forwardingEmail).Scan(&exists)
 
 	return exists, err
@@ -37,8 +36,8 @@ func (s *Server) AliasForwardingAdd(aliasEmail, forwardingEmail string) error {
 	_, forwardingDomain := parseEmail(forwardingEmail)
 
 	sqlQuery := `
-	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_list, active)
-	VALUES (?, ?, ?, ?, 1, 1);`
+	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding, is_alias, is_list, active)
+	VALUES (?, ?, ?, ?, 0, 0, 1, 1);`
 	_, err = s.DB.Exec(sqlQuery, aliasEmail, forwardingEmail, aliasDomain, forwardingDomain)
 
 	return err
@@ -63,7 +62,7 @@ func (s *Server) AliasForwardingDelete(aliasEmail, forwardingEmail string) error
 	}
 
 	sqlQuery := `
-	DELETE FROM forwardings WHERE address = ? AND forwarding = ? AND is_list = 1;`
+	DELETE FROM forwardings WHERE address = ? AND forwarding = ? AND is_list = 1 AND is_forwarding = 0 AND is_alias = 0;`
 	_, err = s.DB.Exec(sqlQuery, aliasEmail, forwardingEmail)
 
 	return err

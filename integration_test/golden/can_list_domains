@@ -1,8 +1,8 @@
-+-------------+-----------+-------------------------+-------------+
-|   DOMAIN    |   ALIAS   |        SETTINGS         | DESCRIPTION |
-+-------------+-----------+-------------------------+-------------+
-| domain.com  | alias.com | default_user_quota:2048 |             |
-|             | alias.de  |                         |             |
-| example.com |           | default_user_quota:2048 |             |
-| example.net |           | default_user_quota:4096 |             |
-+-------------+-----------+-------------------------+-------------+
++-------------+-----------+----------------------+-------------+
+|   DOMAIN    |   ALIAS   |  CATCH-ALL ADDRESS   | DESCRIPTION |
++-------------+-----------+----------------------+-------------+
+| domain.com  | alias.com | info@otherdomain.com |             |
+|             | alias.de  | mail@example.net     |             |
+| example.com |           |                      |             |
+| example.net |           |                      |             |
++-------------+-----------+----------------------+-------------+

@@ -43,7 +43,6 @@ func (s *Server) aliasQuery(whereQuery string, args ...interface{}) (Aliases, er
 	SELECT address, domain, active FROM alias
 	` + whereQuery + `
 	ORDER BY domain ASC, address ASC;`
-
 	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return aliases, err
@@ -77,7 +76,6 @@ func (s *Server) aliasExists(aliasEmail string) (bool, error) {
 	SELECT exists
 	(SELECT address FROM alias
 	WHERE address = ?);`
-
 	err := s.DB.QueryRow(sqlQuery, aliasEmail).Scan(&exists)
 
 	return exists, err
@@ -182,8 +180,7 @@ func (s *Server) AliasAdd(aliasEmail string) error {
 
 	sqlQuery := `
 	INSERT INTO alias (address, domain, active)
-	VALUES (?, ?, 1)`
-
+	VALUES (?, ?, 1);`
 	_, err = s.DB.Exec(sqlQuery, aliasEmail, domain)
 
 	return err
@@ -200,7 +197,7 @@ func (s *Server) AliasDelete(aliasEmail string) error {
 	}
 
 	tx, err := s.DB.Begin()
-	stmt1, err := tx.Prepare("DELETE FROM forwardings WHERE address='" + aliasEmail + "' and is_list=1")
+	stmt1, err := tx.Prepare("DELETE FROM forwardings WHERE address='" + aliasEmail + "' AND is_forwarding = 0 AND is_alias = 0 AND is_list=1")
 	_, err = stmt1.Exec()
 
 	stmt2, err := tx.Prepare("DELETE FROM alias WHERE address='" + aliasEmail + "'")
