@@ -42,7 +42,6 @@ var mailboxAddCmd = &cobra.Command{
 		defer server.Close()
 
 		mailboxEmail, password := args[0], args[1]
-
 		err = server.MailboxAdd(mailboxEmail, password, quota, storageBasePath)
 		if err != nil {
 			fatal("%v\n", err)

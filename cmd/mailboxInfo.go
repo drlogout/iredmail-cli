@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
@@ -26,8 +27,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// infoCmd represents the info command
-var infoCmd = &cobra.Command{
+// mailboxInfoCmd represents the info command
+var mailboxInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Show mailbox info",
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -56,65 +57,60 @@ var infoCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		printUserInfo(mailbox)
+		pretty, err := cmd.Flags().GetBool("pretty")
+		if err != nil {
+			fatal("%v\n", err)
+		}
+
+		printUserInfo(mailbox, pretty)
 	},
 }
 
 func init() {
-	mailboxCmd.AddCommand(infoCmd)
+	mailboxCmd.AddCommand(mailboxInfoCmd)
+
+	mailboxInfoCmd.Flags().Bool("pretty", true, "")
+	mailboxInfoCmd.Flags().MarkHidden("not-pretty")
 }
 
-func printUserInfo(mailbox iredmail.Mailbox) {
+func printUserInfo(mailbox iredmail.Mailbox, pretty bool) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"MAILBOX", mailbox.Email})
 	table.SetAutoFormatHeaders(false)
-	table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{tablewriter.Bold, tablewriter.FgGreenColor})
-	table.SetColumnColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{})
 
-	table.Append([]string{"Quota", strconv.Itoa(mailbox.Quota)})
+	if pretty {
+		table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{tablewriter.Bold})
+		table.SetColumnColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{})
+	}
+
+	table.Append([]string{"Quota", fmt.Sprintf("%v MB", strconv.Itoa(mailbox.Quota))})
 
 	if len(mailbox.MailboxAliases) > 0 {
-		table.Append([]string{"Aliases", ""})
-		for _, a := range mailbox.MailboxAliases {
-			rightColumn := fmt.Sprintf("%s %s", a.Forwarding, arrowRight)
-			table.Append([]string{"", rightColumn})
+		name := strings.Split(mailbox.MailboxAliases[0].Address, "@")[0]
+		table.Append([]string{"Mailbox aliases", name})
+		for i := range mailbox.MailboxAliases {
+			if (i + 1) < len(mailbox.MailboxAliases) {
+				name = strings.Split(mailbox.MailboxAliases[i+1].Address, "@")[0]
+				table.Append([]string{"", name})
+			}
 		}
 	}
 
 	if len(mailbox.Forwardings) > 0 {
-		table.Append([]string{"Forwardings", ""})
-		for _, f := range mailbox.Forwardings {
-			rightColumn := fmt.Sprintf("%s %s", arrowRight, f.Forwarding)
-			table.Append([]string{"", rightColumn})
+		table.Append([]string{"Forwardings", mailbox.Forwardings[0].Forwarding})
+		for i := range mailbox.Forwardings {
+			if (i + 1) < len(mailbox.Forwardings) {
+				table.Append([]string{"", mailbox.Forwardings[i+1].Forwarding})
+			}
 		}
 		keepCopy := "no"
-		if mailbox.IsCopyKept() {
+		if mailbox.Forwardings[0].IsCopyLeftInMailbox {
 			keepCopy = "yes"
 		}
 		table.Append([]string{"Keep copy in mailbox", keepCopy})
 	}
+
+	table.Append([]string{"Maildir", mailbox.MailDir})
+
 	table.Render()
-
-	// bold := color.New(color.Bold).SprintfFunc()
-	// w := new(tabwriter.Writer)
-	// w.Init(os.Stdout, 40, 8, 0, ' ', 0)
-
-	// fmt.Fprintf(w, "%v\t%v\n", bold("Mailbox"), mailbox.Email)
-	// fmt.Fprintf(w, "%v\t%v KB\n", bold("Quota"), mailbox.Quota)
-
-	// keepCopy := "no"
-	// if mailbox.IsCopyKept() {
-	// 	keepCopy = "yes"
-	// }
-
-	// forwardings := mailbox.Forwardings
-	// if len(forwardings) > 0 {
-	// 	fmt.Fprintf(w, "%v\n", bold("Forwardings"))
-	// 	fmt.Fprintf(w, "%v  %v\t%v\n", bold(""), "Keep copy in mailbox", keepCopy)
-	// 	for _, f := range forwardings {
-	// 		fmt.Fprintf(w, "%v\t%v -> %v\n", bold(""), f.Address, f.Forwarding)
-	// 	}
-	// }
-
-	// w.Flush()
 }

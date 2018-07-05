@@ -1,9 +1,11 @@
-Mailbox                                 post@web.de
-Quota                                   2048 KB
-Aliases                                 
-                                        abuse -> post@web.de
-                                        mail -> post@web.de
-Forwardings
-  keep copy in mailbox                  yes
-                                        post@web.de -> info@example.com
-                                        post@web.de -> webmaster@example.net
++----------------------+---------------------------------------------+
+|       MAILBOX        |              mail@example.net               |
++----------------------+---------------------------------------------+
+| Quota                | 2048 MB                                     |
+| Mailbox aliases      | abuse                                       |
+|                      | postmaster                                  |
+| Forwardings          | info@otherdomain.com                        |
+|                      | webmaster@otherexample.net                  |
+| Keep copy in mailbox | yes                                         |
+| Maildir              | example.net/m/a/i/mail-2018.07.05.06.12.36/ |
++----------------------+---------------------------------------------+

@@ -75,12 +75,12 @@ var mailboxUpdateCmd = &cobra.Command{
 
 		if updated {
 			success("Successfully updated mailbox\n")
-			mailbox, err := server.Mailbox(mailboxEmail)
-			if err != nil {
-				fatal("%v\n", err)
-			}
-			fmt.Println()
-			printUserInfo(mailbox)
+			// mailbox, err := server.Mailbox(mailboxEmail)
+			// if err != nil {
+			// 	fatal("%v\n", err)
+			// }
+			// fmt.Println()
+			// printUserInfo(mailbox)
 		} else {
 			info("No changes, nothing updated\n")
 		}
@@ -90,7 +90,7 @@ var mailboxUpdateCmd = &cobra.Command{
 func init() {
 	mailboxCmd.AddCommand(mailboxUpdateCmd)
 
-	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 0, "Quota")
+	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Quota")
 	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Keep copy in mailbox")
 
 	mailboxUpdateCmd.SetUsageTemplate(usageTemplate("mailbox update [MAILBOX_EMAIL]", printFlags))

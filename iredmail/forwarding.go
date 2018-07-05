@@ -10,7 +10,7 @@ const (
 	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1"
 	forwardingQueryAliasForwardingsAll              = "WHERE is_list = 1"
 	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_list = 1"
-	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE address = ? AND is_alias = 1"
+	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE forwarding = ? AND is_alias = 1"
 )
 
 // Forwarding struct
@@ -101,6 +101,34 @@ func (s *Server) Forwardings() (Forwardings, error) {
 	withoutMailboxCopy := Forwardings{}
 
 	forwardings, err := s.forwardingQuery(forwardingQueryForwardingsAll)
+	if err != nil {
+		return withoutMailboxCopy, err
+	}
+
+	copyLeftInMailbox := map[string]bool{}
+
+	for _, f := range forwardings {
+		if _, ok := copyLeftInMailbox[f.Address]; !ok &&
+			f.Address == f.Forwarding {
+			copyLeftInMailbox[f.Address] = true
+		}
+	}
+
+	for _, f := range forwardings {
+		f.IsCopyLeftInMailbox = copyLeftInMailbox[f.Address]
+		if f.Address != f.Forwarding {
+			withoutMailboxCopy = append(withoutMailboxCopy, f)
+		}
+	}
+
+	return withoutMailboxCopy, err
+}
+
+// forwardingsByMailbox returns all forwardings of a mailbox
+func (s *Server) forwardingsByMailbox(mailboxEmail string) (Forwardings, error) {
+	withoutMailboxCopy := Forwardings{}
+
+	forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByAddress, mailboxEmail)
 	if err != nil {
 		return withoutMailboxCopy, err
 	}
