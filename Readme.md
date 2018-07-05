@@ -1,4 +1,6 @@
+# iredmail-cli
 
+[![CircleCI](https://circleci.com/gh/drlogout/iredmail-cli/tree/master.svg?style=svg)](https://circleci.com/gh/drlogout/iredmail-cli/tree/master)
 
 
 
