@@ -158,7 +158,15 @@ func (s *Server) DomainDelete(domain string) error {
 		return err
 	}
 	if len(domainMailboxes) > 0 {
-		return fmt.Errorf("The domain %s still has mailboxes, you need to delete them before", domain)
+		return fmt.Errorf("There are still mailboxes with the domain %s, you need to delete them before", domain)
+	}
+
+	aliases, err := s.aliasQuery(aliasQueryByDomain, domain)
+	if err != nil {
+		return err
+	}
+	if len(aliases) > 0 {
+		return fmt.Errorf("There are still aliases with the domain %s, you need to delete them before", domain)
 	}
 
 	domainAliases, err := s.domainAliasQuery(domainAliasQueryByDomain, domain)
@@ -166,7 +174,10 @@ func (s *Server) DomainDelete(domain string) error {
 		return err
 	}
 	if len(domainAliases) > 0 {
-		return fmt.Errorf("The domain %s still has alias domains, you need to delete them before", domain)
+		err = s.domainAliasDeleteAll(domain)
+		if err != nil {
+			return err
+		}
 	}
 
 	sqlQuery := `DELETE FROM domain WHERE domain = ?;`

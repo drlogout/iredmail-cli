@@ -8,6 +8,7 @@ import (
 const (
 	aliasQueryAll       = ""
 	aliasQueryByAddress = "WHERE address = ?"
+	aliasQueryByDomain  = "WHERE domain = ?"
 )
 
 // Alias struct

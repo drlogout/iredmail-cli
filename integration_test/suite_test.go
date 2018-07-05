@@ -68,18 +68,18 @@ var (
 
 	arrowRight = "➞"
 
-	skipAliasAddDelete           = false
-	skipAliasForwardingAddDelete = false
-	skipAliasInfo                = false
-	skipAliasList                = false
+	skipAliasAddDelete           = true
+	skipAliasForwardingAddDelete = true
+	skipAliasInfo                = true
+	skipAliasList                = true
 	skipDomainAddDelete          = false
-	skipDomainAliasAddDelete     = false
-	skipDomainList               = false
-	skipForwardingAddDelete      = false
-	skipMailboxAddDelete         = false
-	skipMailboxAliasAddDelete    = false
-	skipMailboxInfo              = false
-	skipMailboxList              = false
+	skipDomainAliasAddDelete     = true
+	skipDomainList               = true
+	skipForwardingAddDelete      = true
+	skipMailboxAddDelete         = true
+	skipMailboxAliasAddDelete    = true
+	skipMailboxInfo              = true
+	skipMailboxList              = true
 )
 
 func TestCLI(t *testing.T) {

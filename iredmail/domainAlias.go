@@ -110,6 +110,13 @@ func (s *Server) DomainAliasDelete(aliasDomain string) error {
 	return err
 }
 
+func (s *Server) domainAliasDeleteAll(domain string) error {
+	sqlQuery := `DELETE FROM alias_domain WHERE target_domain = ?;`
+	_, err := s.DB.Exec(sqlQuery, domain)
+
+	return err
+}
+
 // DomainAliases returns all domainaliases
 func (s *Server) DomainAliases() (DomainAliases, error) {
 	return s.domainAliasQuery(domainAliasQueryAll)

@@ -49,6 +49,15 @@ var domainDeleteCmd = &cobra.Command{
 
 		domain := args[0]
 
+		if !forceDelete {
+			fmt.Printf("Do you really want to delete the domain %s (with all its alias domains)? ", domain)
+			delete := askForConfirmation()
+
+			if !delete {
+				fatal("cancelled\n")
+			}
+		}
+
 		err = server.DomainDelete(domain)
 		if err != nil {
 			fatal("%v\n", err)
@@ -60,6 +69,7 @@ var domainDeleteCmd = &cobra.Command{
 
 func init() {
 	domainCmd.AddCommand(domainDeleteCmd)
+	domainDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 
 	domainDeleteCmd.SetUsageTemplate(usageTemplate("domain delete [DOMAIN]"))
 }

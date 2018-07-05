@@ -3,3 +3,4 @@ testDB/mysql
 built/
 iredmail-cli
 add.sh
+build.sh
