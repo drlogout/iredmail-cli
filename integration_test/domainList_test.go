@@ -54,33 +54,33 @@ var _ = Describe("domain list", func() {
 		}
 	})
 
-	// It("can list domains and filter result", func() {
-	// 	if skipDomainList && !isCI {
-	// 		Skip("can list domains and filter result")
-	// 	}
+	It("can list domains and filter result", func() {
+		if skipDomainList && !isCI {
+			Skip("can list domains and filter result")
+		}
 
-	// 	cli := exec.Command(cliPath, "domain", "add", domain1)
-	// 	err := cli.Run()
-	// 	Expect(err).NotTo(HaveOccurred())
+		cli := exec.Command(cliPath, "domain", "add", domain1)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
 
-	// 	cli = exec.Command(cliPath, "domain", "add", domain2, "-s", "default_user_quota:4096")
-	// 	err = cli.Run()
-	// 	Expect(err).NotTo(HaveOccurred())
+		cli = exec.Command(cliPath, "domain", "add", domain2, "-s", "default_user_quota:4096")
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
 
-	// 	cli = exec.Command(cliPath, "domain", "add", domain3)
-	// 	err = cli.Run()
+		cli = exec.Command(cliPath, "domain", "add", domain3)
+		err = cli.Run()
 
-	// 	cli = exec.Command(cliPath, "domain", "list", "-f", "4096")
-	// 	output, err := cli.CombinedOutput()
-	// 	if err != nil {
-	// 		Fail(string(output))
-	// 	}
+		cli = exec.Command(cliPath, "domain", "list", "-f", "4096")
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
-	// 	actual := string(output)
-	// 	expected := loadGolden("can_list_domains_and_filter_result")
+		actual := string(output)
+		expected := loadGolden("can_list_domains_and_filter_result")
 
-	// 	if !reflect.DeepEqual(actual, expected) {
-	// 		Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
-	// 	}
-	// })
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
 })
