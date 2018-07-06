@@ -9,6 +9,7 @@ jobs:
     working_directory: /go/src/github.com/drlogout/iredmail-cli
     steps:
       - checkout
+      - run: sudo cp .circleci/iredmail-release /etc/iredmail-release
       - run: sudo cp .circleci/doveadm /usr/local/bin/doveadm
       - run: sudo chmod a+x /usr/local/bin/doveadm
       - run: cp .circleci/iredmail-cli.yml $HOME/.iredmail-cli.yml
