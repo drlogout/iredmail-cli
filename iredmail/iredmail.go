@@ -24,6 +24,15 @@ type queryOptions struct {
 }
 
 func New() (*Server, error) {
+	version, err := GetIredMailVersion()
+	if err != nil {
+		return nil, err
+	}
+	err = version.Check()
+	if err != nil {
+		return nil, err
+	}
+
 	db, err := sql.Open("mysql", viper.GetString("dbuser")+":"+viper.GetString("dbpassword")+"@tcp("+viper.GetString("dbhost")+":"+viper.GetString("dbport")+")/vmail")
 
 	server := &Server{

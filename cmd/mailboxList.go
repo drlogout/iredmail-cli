@@ -17,13 +17,13 @@ var mailboxListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {
-			fatal("%v", err)
+			fatal("%v\n", err)
 		}
 		defer server.Close()
 
 		mailboxes, err := server.Mailboxes()
 		if err != nil {
-			fatal("%v", err)
+			fatal("%v\n", err)
 		}
 
 		filter := cmd.Flag("filter").Value.String()

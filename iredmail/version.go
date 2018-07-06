@@ -1,6 +1,7 @@
 package iredmail
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,13 +12,24 @@ import (
 )
 
 const (
+	// Version of iredmail-cli
+	Version = "0.1.0"
+
 	releaseFile         = "/etc/iredmail-release"
 	supportedReleaseMin = "0.9.8"
 	supportedReleaseMax = "0.9.8"
 )
 
-func Version() (string, error) {
-	var version string
+var (
+	// ErrIredMailVersionNotSupported ...
+	ErrIredMailVersionNotSupported = errors.New("iredMail version is not supported")
+)
+
+type iredMailVersion string
+
+// GetIredMailVersion retrievs the iredMail version
+func GetIredMailVersion() (iredMailVersion, error) {
+	var version iredMailVersion
 
 	if _, err := os.Stat(releaseFile); os.IsNotExist(err) {
 		return version, fmt.Errorf("iredMail release file %s does not exist, is iredMail installed?", releaseFile)
@@ -32,28 +44,38 @@ func Version() (string, error) {
 	versionLine := re.FindString(string(file))
 
 	if versionLine == "" {
-		return version, fmt.Errorf("No version info found in release file %s", releaseFile)
+		return version, fmt.Errorf("No MYSQL version info found in release file %s", releaseFile)
 	}
 
 	splitLine := strings.Split(versionLine, " ")
-	version = splitLine[0]
+	version = iredMailVersion(splitLine[0])
+
+	return version, nil
+}
+
+// Check checks the iredMail version
+func (v *iredMailVersion) Check() error {
+	version, err := GetIredMailVersion()
+	if err != nil {
+		return err
+	}
 
 	versionMin, err := semver.Parse(supportedReleaseMin)
 	if err != nil {
-		return version, err
+		return err
 	}
 	versionMax, err := semver.Parse(supportedReleaseMax)
 	if err != nil {
-		return version, err
+		return err
 	}
-	versionCur, err := semver.Parse(version)
+	versionCur, err := semver.Parse(string(version))
 	if err != nil {
-		return version, err
+		return err
 	}
 
 	if versionCur.LT(versionMin) || versionCur.GT(versionMax) {
-		return version, fmt.Errorf("iredMail version %s is not supported", version)
+		return ErrIredMailVersionNotSupported
 	}
 
-	return version, nil
+	return nil
 }
