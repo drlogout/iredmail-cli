@@ -68,7 +68,7 @@ func (s *Server) domainAliasExists(aliasDomain string) (bool, error) {
 	var exists bool
 
 	slqQuery := `SELECT exists
-	(SELECT * FROM alias_domain
+	(SELECT alias_domain FROM alias_domain
 	WHERE alias_domain = ?);`
 	err := s.DB.QueryRow(slqQuery, aliasDomain).Scan(&exists)
 

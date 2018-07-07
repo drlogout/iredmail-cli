@@ -280,6 +280,53 @@ var _ = Describe("domain add/delete", func() {
 		Expect(exists).To(Equal(false))
 	})
 
+	It("can delete a domain with domain catch-all forwardings", func() {
+		if skipDomainAddDelete && !isCI {
+			Skip("can delete a domain with domain catch-all forwardings")
+		}
+
+		cli := exec.Command(cliPath, "domain", "add", domain1)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
+		err = cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "domain", "delete", "--force", domain1)
+		output, err := cli.CombinedOutput()
+		Expect(err).NotTo(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("Successfully deleted domain %s\n", domain1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var exists bool
+
+		query := `SELECT exists
+		(SELECT domain FROM domain
+		WHERE domain = '` + domain1 + `');`
+
+		err = db.QueryRow(query).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(false))
+
+		query = `SELECT exists
+		(SELECT address FROM forwardings
+		WHERE address = ? AND forwarding = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0);`
+
+		err = db.QueryRow(query, domain1, mailboxName1).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(false))
+	})
+
 	It("can't delete an non existing domain", func() {
 		if skipDomainAddDelete && !isCI {
 			Skip("can't delete an non existing domain")

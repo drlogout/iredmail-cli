@@ -5,7 +5,7 @@ import (
 )
 
 func (s *Server) mailboxAliaseQuery(mailboxEmail string) (Forwardings, error) {
-	return s.forwardingQuery(forwardingQueryMailboxAliasForwardingsByAddress, mailboxEmail)
+	return s.forwardingQuery(forwardingQueryMailboxAliasForwardingsByMailboxEamil, mailboxEmail)
 }
 
 func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {

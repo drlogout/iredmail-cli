@@ -187,6 +187,17 @@ func (s *Server) DomainDelete(domain string) error {
 		}
 	}
 
+	domainCatchalls, err := s.forwardingQuery(forwardingQueryCatchallByDomain, domain)
+	if err != nil {
+		return err
+	}
+	if len(domainCatchalls) > 0 {
+		err = s.domainCatchallDeleteAll(domain)
+		if err != nil {
+			return err
+		}
+	}
+
 	sqlQuery := "DELETE FROM domain WHERE domain = ?;"
 	_, err = s.DB.Exec(sqlQuery, domain)
 

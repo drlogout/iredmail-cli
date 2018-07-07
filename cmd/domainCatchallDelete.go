@@ -24,13 +24,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// domainDeleteCmd represents the 'domain delete' command
-var domainDeleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete a domain",
+// domainCatchalldelete represents the 'domain delete-catchall' command
+var domainCatchalldelete = &cobra.Command{
+	Use:   "delete-catchall",
+	Short: "Delete a per-domain catch-all forwarding",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return errors.New("Requires [DOMAIN] as argument")
+		if len(args) != 2 {
+			return errors.New("Requires [DOMAIN] and [CATCHALL_EMAIL] as argument")
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
@@ -38,7 +38,14 @@ var domainDeleteCmd = &cobra.Command{
 		}
 		args[0] = strings.ToLower(args[0])
 
-		return nil
+		var err error
+
+		if !govalidator.IsEmail(args[1]) {
+			return fmt.Errorf("Invalid [CATCHALL_EMAIL] format: %s", args[1])
+		}
+		args[1], err = govalidator.NormalizeEmail(args[1])
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
@@ -48,28 +55,19 @@ var domainDeleteCmd = &cobra.Command{
 		defer server.Close()
 
 		domain := args[0]
+		catchallEmail := args[1]
 
-		if !forceDelete {
-			fmt.Printf("Do you really want to delete the domain %s (with all its alias domains and catch-all forwardings)? ", domain)
-			delete := askForConfirmation()
-
-			if !delete {
-				fatal("cancelled\n")
-			}
-		}
-
-		err = server.DomainDelete(domain)
+		err = server.DomainCatchallDelete(domain, catchallEmail)
 		if err != nil {
 			fatal("%v\n", err)
 		}
 
-		success("Successfully deleted domain %s\n", domain)
+		success("Successfully deleted catch-all forwarding %s %s %s\n", domain, arrowRight, catchallEmail)
 	},
 }
 
 func init() {
-	domainCmd.AddCommand(domainDeleteCmd)
-	domainDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
+	domainCmd.AddCommand(domainCatchalldelete)
 
-	domainDeleteCmd.SetUsageTemplate(usageTemplate("domain delete [DOMAIN]"))
+	domainCatchalldelete.SetUsageTemplate(usageTemplate("domain delete-catchall [DOMAIN] [CATCHALL_EMAIL]"))
 }

@@ -127,7 +127,7 @@ func (s *Server) Alias(aliasEmail string) (Alias, error) {
 
 	alias = aliases[0]
 
-	forwardings, err := s.forwardingQuery(forwardingQueryAliasForwardingsByAddress, aliasEmail)
+	forwardings, err := s.forwardingQuery(forwardingQueryAliasForwardingsByAliasEmail, aliasEmail)
 	if err != nil {
 		return alias, err
 	}

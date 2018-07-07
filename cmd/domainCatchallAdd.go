@@ -27,7 +27,7 @@ import (
 // domainCatchallAdd represents the 'domain add-catchall' command
 var domainCatchallAdd = &cobra.Command{
 	Use:   "add-catchall",
-	Short: "Add a per-domain catch-all mailbox",
+	Short: "Add a per-domain catch-all forwarding",
 	Long: `Emails sent to non-existing mailboxes of [DOMAIN] will be delivered to [CATCHALL_EMAIL]
 	Multiple [CATCHALL_EMAIL]s are possible`,
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -64,7 +64,7 @@ var domainCatchallAdd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		success("Successfully added catch-all mailbox %s for domain %s\n", catchallEmail, domain)
+		success("Successfully added catch-all forwarding %s %s %s\n", domain, arrowRight, catchallEmail)
 	},
 }
 

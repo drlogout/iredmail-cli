@@ -74,6 +74,7 @@ var (
 	skipAliasList                = false
 	skipDomainAddDelete          = false
 	skipDomainAliasAddDelete     = false
+	skipDomainCatchallAddDelete  = false
 	skipDomainList               = false
 	skipForwardingAddDelete      = false
 	skipMailboxAddDelete         = false

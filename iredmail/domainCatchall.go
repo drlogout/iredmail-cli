@@ -2,41 +2,17 @@ package iredmail
 
 import (
 	"fmt"
-	"strings"
 )
 
-type Catchalls Forwardings
-
-func (c Catchalls) FilterBy(filter string) Catchalls {
-	filteredCatchalls := Catchalls{}
-
-	for _, catchall := range c {
-		if strings.Contains(catchall.Address, filter) ||
-			strings.Contains(catchall.Forwarding, filter) {
-			filteredCatchalls = append(filteredCatchalls, catchall)
-		}
-	}
-
-	return filteredCatchalls
-}
-
-func (s *Server) domainCatchallExists(catchallEmail string) (bool, error) {
+func (s *Server) domainCatchallExists(domain, catchallEmail string) (bool, error) {
 	var exists bool
 
 	query := `SELECT exists
 	(SELECT forwarding FROM forwardings
-	WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0);`
+	WHERE address = ? AND forwarding = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0);`
 
-	err := s.DB.QueryRow(query, catchallEmail).Scan(&exists)
-	if err != nil {
-		return exists, err
-	}
-
-	if exists {
-		return true, nil
-	}
-
-	return exists, nil
+	err := s.DB.QueryRow(query, domain, catchallEmail).Scan(&exists)
+	return exists, err
 }
 
 // DomainCatchallAdd adds a new catchall mailbox
@@ -49,12 +25,12 @@ func (s *Server) DomainCatchallAdd(domain, catchallEmail string) error {
 		return fmt.Errorf("Domain %s doesn't exists", domain)
 	}
 
-	catchallExists, err := s.domainCatchallExists(catchallEmail)
+	catchallExists, err := s.domainCatchallExists(domain, catchallEmail)
 	if err != nil {
 		return err
 	}
 	if catchallExists {
-		return fmt.Errorf("Catch-all mailbox %s already exists", catchallEmail)
+		return fmt.Errorf("Catch-all forwarding %s %s %s already exists", domain, arrowRight, catchallEmail)
 	}
 
 	_, forwardingDomain := parseEmail(catchallEmail)
@@ -66,29 +42,43 @@ func (s *Server) DomainCatchallAdd(domain, catchallEmail string) error {
 	return err
 }
 
-// // DomainAliasDelete deletes a domain alias
-// func (s *Server) DomainAliasDelete(aliasDomain string) error {
-// 	aliasExists, err := s.domainAliasExists(aliasDomain)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if !aliasExists {
-// 		return fmt.Errorf("Alias domain %s doesn't exist", aliasDomain)
-// 	}
+// DomainCatchallDelete deletes a domain alias
+func (s *Server) DomainCatchallDelete(domain, catchallEmail string) error {
+	domainExists, err := s.domainExists(domain)
+	if err != nil {
+		return err
+	}
+	if !domainExists {
+		return fmt.Errorf("Domain %s doesn't exists", domain)
+	}
 
-// 	_, err = s.DB.Exec(`DELETE FROM alias_domain WHERE alias_domain = '` + aliasDomain + `';`)
+	catchallExists, err := s.domainCatchallExists(domain, catchallEmail)
+	if err != nil {
+		return err
+	}
+	if !catchallExists {
+		return fmt.Errorf("Catch-all forwarding %s %s %s doesn't exist", domain, arrowRight, catchallEmail)
+	}
 
-// 	return err
-// }
+	sqlQuery := `DELETE FROM forwardings
+	WHERE address = ? AND forwarding = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0;`
+	_, err = s.DB.Exec(sqlQuery, domain, catchallEmail)
 
-// func (s *Server) domainAliasDeleteAll(domain string) error {
-// 	sqlQuery := `DELETE FROM alias_domain WHERE target_domain = ?;`
-// 	_, err := s.DB.Exec(sqlQuery, domain)
+	return err
+}
 
-// 	return err
-// }
+// domainCatchallDeleteAll deletes all catch-all forwardings of a domain
+func (s *Server) domainCatchallDeleteAll(domain string) error {
+	domainExists, err := s.domainExists(domain)
+	if err != nil {
+		return err
+	}
+	if !domainExists {
+		return fmt.Errorf("Domain %s doesn't exists", domain)
+	}
 
-// // DomainAliases returns all domainaliases
-// func (s *Server) DomainAliases() (DomainAliases, error) {
-// 	return s.domainAliasQuery(domainAliasQueryAll)
-// }
+	sqlQuery := `DELETE FROM forwardings WHERE domain = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0;`
+	_, err = s.DB.Exec(sqlQuery, domain)
+
+	return err
+}

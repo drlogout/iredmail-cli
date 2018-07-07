@@ -6,12 +6,15 @@ import (
 )
 
 const (
-	forwardingQueryForwardingsAll                   = "WHERE is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
-	forwardingQueryForwardingsByAddress             = "WHERE address = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
-	forwardingQueryAliasForwardingsAll              = "WHERE is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
-	forwardingQueryAliasForwardingsByAddress        = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
-	forwardingQueryMailboxAliasForwardingsByAddress = "WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0"
-	forwardingQueryCatchallByDomain                 = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryCatchallForwardingsAll     = "WHERE is_forwarding = 0 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryForwardingsAll             = "WHERE is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryMailboxAliasForwardingsAll = "WHERE is_forwarding = 0 AND is_alias = 1 AND is_list = 0"
+	forwardingQueryAliasForwardingsAll        = "WHERE is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
+
+	forwardingQueryCatchallByDomain                      = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryForwardingsByMailboxEmail             = "WHERE address = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryMailboxAliasForwardingsByMailboxEamil = "WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0"
+	forwardingQueryAliasForwardingsByAliasEmail          = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
 )
 
 // Forwarding struct
@@ -126,7 +129,7 @@ func (s *Server) Forwardings() (Forwardings, error) {
 func (s *Server) forwardingsByMailbox(mailboxEmail string) (Forwardings, error) {
 	withoutMailboxCopy := Forwardings{}
 
-	forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByAddress, mailboxEmail)
+	forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByMailboxEmail, mailboxEmail)
 	if err != nil {
 		return withoutMailboxCopy, err
 	}
