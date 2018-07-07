@@ -27,9 +27,9 @@ import (
 var aliasAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add an alias",
-	Long: `Emails sent to [ALIAS_EMAIL] will be delivered to alias forwardings
-	Use the "alias add-forwarding" command to add forwardings to the alias
-	An alias can have multiple forwardings`,
+	Long: `Emails sent to [ALIAS_EMAIL] will be delivered to alias forwardings.
+Use the "alias add-forwarding" command to add forwardings to the alias.
+An alias can have multiple forwardings.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("Requires [ALIAS_EMAIL]")
