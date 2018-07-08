@@ -28,7 +28,9 @@ import (
 var domainAliasAddCmd = &cobra.Command{
 	Use:   "add-alias",
 	Short: "Add an alias domain",
-	Long:  "Emails sent to user@[ALIAS_DOMAIN] will be delivered to user@[DOMAIN]",
+	Long: `Add an alias domain.
+
+Emails sent to user@[ALIAS_DOMAIN] will be delivered to user@[DOMAIN]`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires [ALIAS_DOMAIN] and [DOMAIN] as argument")

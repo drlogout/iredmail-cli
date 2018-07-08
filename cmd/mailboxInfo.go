@@ -57,7 +57,7 @@ var mailboxInfoCmd = &cobra.Command{
 			fatal("%v\n", err)
 		}
 
-		printUserInfo(mailbox, prettyPrint)
+		printMailboxInfo(mailbox, prettyPrint)
 	},
 }
 
@@ -65,12 +65,12 @@ func init() {
 	mailboxCmd.AddCommand(mailboxInfoCmd)
 }
 
-func printUserInfo(mailbox iredmail.Mailbox, pretty bool) {
+func printMailboxInfo(mailbox iredmail.Mailbox, prettyPrint bool) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"MAILBOX", mailbox.Email})
 	table.SetAutoFormatHeaders(false)
 
-	if pretty {
+	if prettyPrint {
 		table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{tablewriter.Bold})
 		table.SetColumnColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{})
 	}

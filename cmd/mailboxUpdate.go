@@ -30,7 +30,11 @@ var (
 // mailboxUpdateCmd represents the 'mailbox update' command
 var mailboxUpdateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "Update quota and \"keep copy in mailbox\"",
+	Short: "Update quota and keep-copy",
+	Long: `Update quota and keep-copy.
+	
+keep-copy = no only makes sense if there is a forwarding from [MAILBOX_EMAIL] to [DESTINATION_EMAIL]
+`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("Requires [MAILBOX_EMAIL]")
@@ -56,31 +60,31 @@ var mailboxUpdateCmd = &cobra.Command{
 		mailboxEmail := args[0]
 
 		if cmd.Flag("quota").Changed {
-			info("Udating quota...\n")
 			err = server.MailboxSetQuota(mailboxEmail, quota)
 			if err != nil {
 				fatal("%v\n", err)
 			}
+			info("Udating quota...\n")
 			updated = true
 		}
 
 		if cmd.Flag("keep-copy").Changed {
-			info("Udating keep-copy...\n")
 			err := server.MailboxSetKeepCopy(mailboxEmail, keepCopyInMailbox == "yes")
 			if err != nil {
 				fatal("%v\n", err)
 			}
+			info("Udating keep-copy...\n")
 			updated = true
 		}
 
 		if updated {
 			success("Successfully updated mailbox\n")
-			// mailbox, err := server.Mailbox(mailboxEmail)
-			// if err != nil {
-			// 	fatal("%v\n", err)
-			// }
-			// fmt.Println()
-			// printUserInfo(mailbox)
+			mailbox, err := server.Mailbox(mailboxEmail)
+			if err != nil {
+				fatal("%v\n", err)
+			}
+			fmt.Println()
+			printMailboxInfo(mailbox, prettyPrint)
 		} else {
 			info("No changes, nothing updated\n")
 		}
@@ -90,8 +94,8 @@ var mailboxUpdateCmd = &cobra.Command{
 func init() {
 	mailboxCmd.AddCommand(mailboxUpdateCmd)
 
-	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Quota")
-	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Keep copy in mailbox")
+	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Sets quota")
+	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Sets keep-copy of forwardings")
 
 	mailboxUpdateCmd.SetUsageTemplate(usageTemplate("mailbox update [MAILBOX_EMAIL]", printFlags))
 }

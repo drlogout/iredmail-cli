@@ -30,7 +30,7 @@ var domainCatchalldelete = &cobra.Command{
 	Short: "Delete a per-domain catch-all forwarding",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires [DOMAIN] and [CATCHALL_EMAIL] as argument")
+			return errors.New("Requires [DOMAIN] and [DESTINATION_EMAIL] as argument")
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
@@ -41,7 +41,7 @@ var domainCatchalldelete = &cobra.Command{
 		var err error
 
 		if !govalidator.IsEmail(args[1]) {
-			return fmt.Errorf("Invalid [CATCHALL_EMAIL] format: %s", args[1])
+			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
 		args[1], err = govalidator.NormalizeEmail(args[1])
 
@@ -69,5 +69,5 @@ var domainCatchalldelete = &cobra.Command{
 func init() {
 	domainCmd.AddCommand(domainCatchalldelete)
 
-	domainCatchalldelete.SetUsageTemplate(usageTemplate("domain delete-catchall [DOMAIN] [CATCHALL_EMAIL]"))
+	domainCatchalldelete.SetUsageTemplate(usageTemplate("domain delete-catchall [DOMAIN] [DESTINATION_EMAIL]"))
 }

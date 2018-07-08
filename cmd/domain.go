@@ -21,7 +21,7 @@ import (
 // domainCmd represents the 'domain' command
 var domainCmd = &cobra.Command{
 	Use:   "domain",
-	Short: "Add, delete, list domains and domain aliases",
+	Short: "Add/delete/list domains, domain aliases and catchall forwardings",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

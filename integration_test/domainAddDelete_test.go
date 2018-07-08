@@ -343,4 +343,29 @@ var _ = Describe("domain add/delete", func() {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
 		}
 	})
+
+	It("can add a domain with description and settings", func() {
+		if skipDomainAddDelete && !isCI {
+			Skip("can add a domain with description and settings")
+		}
+
+		cli := exec.Command(cliPath, "domain", "add", "-s", domainSettings, "-d", domainDescription, domain1)
+		err := cli.Run()
+		Expect(err).NotTo(HaveOccurred())
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var exists bool
+
+		query := `SELECT exists
+		(SELECT domain FROM domain
+		WHERE domain = ? AND description = ? AND settings = ?);`
+
+		err = db.QueryRow(query, domain1, domainDescription, domainSettings).Scan(&exists)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(exists).To(Equal(true))
+	})
+
 })

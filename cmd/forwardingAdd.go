@@ -27,9 +27,10 @@ import (
 var forwardingAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add forwarding",
-	Long: `Emails sent to [MAILBOX_EMAIL] will be delivered to [DESTINATION_EMAIL]
-	By default a copy will be left in the mailbox, 
-	to change that behavior use the "mailbox update" command`,
+	Long: `Add forwarding. 
+
+Emails sent to [MAILBOX_EMAIL] will be delivered to [DESTINATION_EMAIL]
+By default a copy will be left in the mailbox, to change that behavior use the "mailbox update" command`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires [MAILBOX_EMAIL] and [DESTINATION_EMAIL]")

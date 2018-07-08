@@ -12,7 +12,7 @@ import (
 // mailboxAddCmd represents the add command
 var mailboxAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a mailbox (e.g. post@domain.com)",
+	Short: "Add a mailbox",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires [MAILBOX_EMAIL] and [PLAIN_PASSWORD] as arguments")

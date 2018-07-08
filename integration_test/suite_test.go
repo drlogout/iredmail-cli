@@ -63,6 +63,9 @@ var (
 	aliasDomain1 = "alias.com"
 	aliasDomain2 = "alias.de"
 
+	domainSettings    = "default_user_quota:4096"
+	domainDescription = "A domain description"
+
 	customQuota       = 4096
 	customStoragePath = "/var/mail/custom"
 

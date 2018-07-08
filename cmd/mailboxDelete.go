@@ -77,5 +77,5 @@ func init() {
 
 	mailboxDeleteCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "force deletion")
 
-	mailboxDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete [mailbox_email]", printFlags))
+	mailboxDeleteCmd.SetUsageTemplate(usageTemplate("mailbox delete [MAILBOX_EMAIL]", printFlags))
 }

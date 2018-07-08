@@ -11,8 +11,7 @@ var (
 
 var mailboxCmd = &cobra.Command{
 	Use:   "mailbox",
-	Short: "add, delete, list mailbox | mailbox-alias | mailbox-forwarding",
-	Long:  ``,
+	Short: "Add/delete/list mailboxes and mailbox-aliases",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

@@ -21,7 +21,7 @@ import (
 // forwardingCmd represents the forwarding command
 var forwardingCmd = &cobra.Command{
 	Use:   "forwarding",
-	Short: "Add and delete forwarding",
+	Short: "Add/delete/list forwardings",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

@@ -28,11 +28,13 @@ import (
 var domainCatchallAdd = &cobra.Command{
 	Use:   "add-catchall",
 	Short: "Add a per-domain catch-all forwarding",
-	Long: `Emails sent to non-existing mailboxes of [DOMAIN] will be delivered to [CATCHALL_EMAIL]
-	Multiple [CATCHALL_EMAIL]s are possible`,
+	Long: `Add a per-domain catch-all forwarding.
+
+Emails sent to non-existing mailboxes of [DOMAIN] will be delivered to [DESTINATION_EMAIL]
+Multiple [DESTINATION_EMAIL]s are possible`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires [DOMAIN] and [CATCHALL_EMAIL] as argument")
+			return errors.New("Requires [DOMAIN] and [DESTINATION_EMAIL] as argument")
 		}
 
 		if !govalidator.IsDNSName(args[0]) {
@@ -43,7 +45,7 @@ var domainCatchallAdd = &cobra.Command{
 		var err error
 
 		if !govalidator.IsEmail(args[1]) {
-			return fmt.Errorf("Invalid [CATCHALL_EMAIL] format: %s", args[1])
+			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
 		args[1], err = govalidator.NormalizeEmail(args[1])
 
@@ -71,5 +73,5 @@ var domainCatchallAdd = &cobra.Command{
 func init() {
 	domainCmd.AddCommand(domainCatchallAdd)
 
-	domainCatchallAdd.SetUsageTemplate(usageTemplate("domain add-catchall [DOMAIN] [CATCHALL_EMAIL]"))
+	domainCatchallAdd.SetUsageTemplate(usageTemplate("domain add-catchall [DOMAIN] [DESTINATION_EMAIL]"))
 }
