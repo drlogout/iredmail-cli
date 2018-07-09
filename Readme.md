@@ -125,7 +125,7 @@ $ iredmail-cli mailbox info info@example.com
 | Quota                | 2048 MB                                     |
 | Mailbox aliases      | abuse                                       |
 |                      | webmaster									 |
-| Maildir              | example.com/i/n/f/info-2018.07.09.09.13.27/ |
+| Maildir              | example.com/i/n/f/info-2018.07.09.09.13.27/ 		 |
 +----------------------+---------------------------------------------+
 ```
 
@@ -159,7 +159,7 @@ $ iredmail-cli mailbox info info@example.com
 +----------------------+---------------------------------------------+
 | Quota                | 2048 MB                                     |
 | Mailbox aliases      | abuse                                       |
-|                      | webmaster									                 |
+|                      | webmaster									 |
 | Forwardings          | tech@company.com                            |
 |                      | post@otherdomain.com                        |
 | Keep copy in mailbox | yes                                         |
@@ -191,8 +191,8 @@ $ iredmail-cli forwarding list
 +------------------+----------------------------+----------------------+
 |  MAILBOX EMAIL   |     DESTINATION EMAIL      | KEEP COPY IN MAILBOX |
 +------------------+----------------------------+----------------------+
-| info@example.com | tech@company.com   	      | yes                  |
-|                  | post@otherdomain.com 		  |                      |
+| info@example.com | tech@company.com			| yes				   |
+|                  | post@otherdomain.com		|					   |
 | mail@example.net | mail@domain.com            | no                   |
 +------------------+----------------------------+----------------------+
 ```
