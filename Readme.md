@@ -329,6 +329,9 @@ Add/delete/list aliases and their forwardings.
 #### *add [ALIAS_EMAIL]*
 
 Add an alias.<br/>
+Emails sent to [ALIAS_EMAIL] will be delivered to alias forwardings.<br/>
+Use the "alias add-forwarding" command to add forwardings to the alias.<br/>
+An alias can have multiple forwardings.<br/>
 *Example:*
 
 ```bash
