@@ -23,7 +23,9 @@ var _ = Describe("domain add/delete", func() {
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
 		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added domain %s\n", domain1)
@@ -53,12 +55,16 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add", domain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Domain %s already exists\n", domain1)
@@ -74,8 +80,10 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName3, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		db, err := sql.Open("mysql", dbConnectionString)
 		Expect(err).NotTo(HaveOccurred())
@@ -98,8 +106,10 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		db, err := sql.Open("mysql", dbConnectionString)
 		Expect(err).NotTo(HaveOccurred())
@@ -122,11 +132,13 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete", "--force", domain1)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
@@ -159,15 +171,19 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add", mailboxName3, mailboxPW)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete", "--force", domain1)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err == nil {
 			Fail("It should exit because mailbox exists")
 		}
@@ -200,12 +216,16 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete", "--force", domain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("There are still aliases with the domain %s, you need to delete them before\n", domain1)
@@ -235,20 +255,28 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain2, domain1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete", "--force", domain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted domain %s\n", domain1)
@@ -286,16 +314,22 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete", "--force", domain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted domain %s\n", domain1)
@@ -334,7 +368,9 @@ var _ = Describe("domain add/delete", func() {
 
 		cli := exec.Command(cliPath, "domain", "delete", "--force", domain1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Domain %s doesn't exist\n", domain1)
@@ -350,8 +386,10 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", "-s", domainSettings, "-d", domainDescription, domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		db, err := sql.Open("mysql", dbConnectionString)
 		Expect(err).NotTo(HaveOccurred())

@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("mailbox", func() {
+var _ = Describe("mailbox update", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())
@@ -24,16 +24,22 @@ var _ = Describe("mailbox", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-k", "no", "--pretty=false")
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := loadGolden("can_disable_keep-copy")
@@ -70,20 +76,28 @@ var _ = Describe("mailbox", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-k", "no")
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-k", "yes", "--pretty=false")
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := loadGolden("can_enable_keep-copy")
@@ -120,12 +134,16 @@ var _ = Describe("mailbox", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-k", "no", "--pretty=false")
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("No forwardings exist for mailbox %s\n", mailboxName1)
@@ -156,20 +174,28 @@ var _ = Describe("mailbox", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-k", "no")
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "delete", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		db, err := sql.Open("mysql", dbConnectionString)
 		Expect(err).NotTo(HaveOccurred())
@@ -193,8 +219,10 @@ var _ = Describe("mailbox", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		db, err := sql.Open("mysql", dbConnectionString)
 		Expect(err).NotTo(HaveOccurred())
@@ -208,8 +236,10 @@ var _ = Describe("mailbox", func() {
 		Expect(quota).To(Equal(2048))
 
 		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-q", strconv.Itoa(customQuota), "--pretty=false")
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := loadGolden("can_set_quota")

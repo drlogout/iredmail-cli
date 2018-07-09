@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("forwarding", func() {
+var _ = Describe("forwarding add/delete", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())
@@ -22,12 +22,16 @@ var _ = Describe("forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added forwarding %s %s %s\n", mailboxName1, arrowRight, forwardingAddress1)
@@ -59,16 +63,22 @@ var _ = Describe("forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "delete", mailboxName1, forwardingAddress1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted forwarding %s %s %s\n", mailboxName1, arrowRight, forwardingAddress1)
@@ -99,16 +109,22 @@ var _ = Describe("forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Forwarding %s %s %s already exists\n", mailboxName1, arrowRight, forwardingAddress1)
@@ -125,7 +141,9 @@ var _ = Describe("forwarding", func() {
 
 		cli := exec.Command(cliPath, "forwarding", "delete", mailboxName1, forwardingAddress1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Forwarding %s %s %s doesn't exist\n", mailboxName1, arrowRight, forwardingAddress1)

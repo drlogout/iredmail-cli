@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("mailbox alias", func() {
+var _ = Describe("mailbox alias add/delete", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())
@@ -23,12 +23,16 @@ var _ = Describe("mailbox alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added mailbox alias %s %s %s\n", mailboxAlias1, arrowRight, mailboxName1)
@@ -61,14 +65,18 @@ var _ = Describe("mailbox alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		name := strings.Split(mailboxName1, "@")[0]
 
 		cli = exec.Command(cliPath, "mailbox", "add-alias", name, mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("A mailbox with %s already exists\n", mailboxName1)
@@ -84,16 +92,21 @@ var _ = Describe("mailbox alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		domain := strings.Split(mailboxName1, "@")[1]
 		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
@@ -115,16 +128,22 @@ var _ = Describe("mailbox alias", func() {
 		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
 
 		cli := exec.Command(cliPath, "alias", "add", aliasEmail)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("An alias with %s already exists\n", aliasEmail)
@@ -157,19 +176,25 @@ var _ = Describe("mailbox alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		domain := strings.Split(mailboxName1, "@")[1]
 		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
 
 		cli = exec.Command(cliPath, "mailbox", "delete-alias", aliasEmail)
-		output, err := cli.CombinedOutput()
-		Expect(err).ToNot(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted mailbox alias %s\n", fmt.Sprintf("%s@%s", mailboxAlias1, domain))
@@ -186,7 +211,9 @@ var _ = Describe("mailbox alias", func() {
 
 		cli := exec.Command(cliPath, "mailbox", "delete-alias", mailboxName1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("An alias with %s doesn't exists\n", mailboxName1)

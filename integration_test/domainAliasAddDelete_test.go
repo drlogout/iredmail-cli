@@ -22,12 +22,16 @@ var _ = Describe("domain add/delete-alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added alias domain %s ➞ %s\n", aliasDomain1, domain1)
@@ -57,16 +61,22 @@ var _ = Describe("domain add/delete-alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Alias domain %s ➞ %s already exists\n", aliasDomain1, domain1)
@@ -83,7 +93,9 @@ var _ = Describe("domain add/delete-alias", func() {
 
 		cli := exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Domain %s doesn't exists\n", domain1)
@@ -99,17 +111,22 @@ var _ = Describe("domain add/delete-alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-alias", aliasDomain1, domain1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete-alias", aliasDomain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
-
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted alias domain %s\n", aliasDomain1)
 
@@ -138,12 +155,16 @@ var _ = Describe("domain add/delete-alias", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete-alias", aliasDomain1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Alias domain %s doesn't exist\n", aliasDomain1)

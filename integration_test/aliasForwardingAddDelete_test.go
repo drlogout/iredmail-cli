@@ -22,11 +22,13 @@ var _ = Describe("alias add/delete-forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
@@ -67,16 +69,22 @@ var _ = Describe("alias add/delete-forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Alias forwarding %s ➞ %s already exists\n", alias1, aliasForwarding1)
@@ -92,19 +100,25 @@ var _ = Describe("alias add/delete-forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding2)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "delete-forwarding", alias1, aliasForwarding2)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
@@ -147,18 +161,22 @@ var _ = Describe("alias add/delete-forwarding", func() {
 		Expect(exists).To(Equal(false))
 	})
 
-	It("can delete an non existing alias forwarding", func() {
+	It("can't delete an non existing alias forwarding", func() {
 		if skipAliasForwardingAddDelete && !isCI {
-			Skip("can delete an non existing alias forwarding")
+			Skip("can't delete an non existing alias forwarding")
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "delete-forwarding", alias1, aliasForwarding1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("An alias forwarding %s ➞ %s doesn't exists\n", alias1, aliasForwarding1)

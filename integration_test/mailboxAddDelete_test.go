@@ -25,7 +25,9 @@ var _ = Describe("mailbox add/delete", func() {
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
 		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added mailbox %s\n", mailboxName1)
@@ -64,12 +66,16 @@ var _ = Describe("mailbox add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "delete", "--force", mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted mailbox %v\n", mailboxName1)
@@ -108,20 +114,28 @@ var _ = Describe("mailbox add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias2, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "delete", "--force", mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted mailbox %v\n", mailboxName1)
@@ -159,20 +173,28 @@ var _ = Describe("mailbox add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "forwarding", "add", mailboxName1, forwardingAddress2)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "delete", "--force", mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted mailbox %v\n", mailboxName1)
@@ -210,13 +232,16 @@ var _ = Describe("mailbox add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
-
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 		actual := string(output)
 		expected := fmt.Sprintf("Mailbox %v already exists\n", mailboxName1)
 
@@ -232,7 +257,9 @@ var _ = Describe("mailbox add/delete", func() {
 
 		cli := exec.Command(cliPath, "mailbox", "add", "--quota", strconv.Itoa(customQuota), mailboxName1, mailboxPW)
 		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added mailbox %s\n", mailboxName1)

@@ -55,12 +55,16 @@ var _ = Describe("alias add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "add", alias1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Alias %s already exists\n", alias1)
@@ -76,11 +80,13 @@ var _ = Describe("alias add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "delete", "-f", alias1)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
@@ -113,19 +119,25 @@ var _ = Describe("alias add/delete", func() {
 		}
 
 		cli := exec.Command(cliPath, "alias", "add", alias1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "add-forwarding", alias1, aliasForwarding2)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "alias", "delete", "-f", alias1)
-		output, err := cli.CombinedOutput()
+		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
@@ -171,7 +183,9 @@ var _ = Describe("alias add/delete", func() {
 
 		cli := exec.Command(cliPath, "alias", "delete", "-f", alias1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Alias %s does not exist\n", alias1)

@@ -22,12 +22,16 @@ var _ = Describe("domain add/delete-catch-all forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully added catch-all forwarding %s %s %s\n", domain1, arrowRight, mailboxName1)
@@ -57,16 +61,22 @@ var _ = Describe("domain add/delete-catch-all forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
-
-		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Catch-all forwarding %s %s %s already exists\n", domain1, arrowRight, mailboxName1)
@@ -83,7 +93,9 @@ var _ = Describe("domain add/delete-catch-all forwarding", func() {
 
 		cli := exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
 		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Domain %s doesn't exists\n", domain1)
@@ -99,16 +111,22 @@ var _ = Describe("domain add/delete-catch-all forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
-		err = cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete-catchall", domain1, mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).NotTo(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Successfully deleted catch-all forwarding %s %s %s\n", domain1, arrowRight, mailboxName1)
@@ -138,12 +156,16 @@ var _ = Describe("domain add/delete-catch-all forwarding", func() {
 		}
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
-		err := cli.Run()
-		Expect(err).NotTo(HaveOccurred())
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
 
 		cli = exec.Command(cliPath, "domain", "delete-catchall", domain1, mailboxName1)
-		output, err := cli.CombinedOutput()
-		Expect(err).To(HaveOccurred())
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
 
 		actual := string(output)
 		expected := fmt.Sprintf("Catch-all forwarding %s %s %s doesn't exist\n", domain1, arrowRight, mailboxName1)

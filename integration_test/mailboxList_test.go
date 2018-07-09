@@ -30,8 +30,10 @@ var _ = Describe("mailbox list", func() {
 
 		for _, mailbox := range mailboxes {
 			cli := exec.Command(cliPath, "mailbox", "add", mailbox, mailboxPW)
-			err := cli.Run()
-			Expect(err).NotTo(HaveOccurred())
+			output, err := cli.CombinedOutput()
+			if err != nil {
+				Fail(string(output))
+			}
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "list")
@@ -63,8 +65,10 @@ var _ = Describe("mailbox list", func() {
 
 		for _, mailbox := range mailboxes {
 			cli := exec.Command(cliPath, "mailbox", "add", mailbox, mailboxPW)
-			err := cli.Run()
-			Expect(err).NotTo(HaveOccurred())
+			output, err := cli.CombinedOutput()
+			if err != nil {
+				Fail(string(output))
+			}
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "list", "-f", "domain.com")
