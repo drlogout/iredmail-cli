@@ -114,10 +114,10 @@ Flags:<br/>
 #### *update \[MAILBOX_EMAIL]*
 
 Update keep-copy and quota.<br/>
--k, --keep-copy: If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".<br/>
+*keep-copy:* If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".<br/>
 This is only possible if at least one forwarding for [MAILBOX_EMAIL] exists.<br/>
 By default copies are kept in the mailbox.<br/>
--q, --quota: The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).<br/>
+*quota:* The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).<br/>
 *Example:*
 
 ```bash
