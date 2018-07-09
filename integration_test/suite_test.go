@@ -84,6 +84,7 @@ var (
 	skipMailboxAliasAddDelete    = false
 	skipMailboxInfo              = false
 	skipMailboxList              = false
+	skipMailboxUpdate            = false
 )
 
 func TestCLI(t *testing.T) {

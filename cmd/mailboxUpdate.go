@@ -30,11 +30,16 @@ var (
 // mailboxUpdateCmd represents the 'mailbox update' command
 var mailboxUpdateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "Update quota and keep-copy",
-	Long: `Update quota and keep-copy.
-	
-keep-copy = no only makes sense if there is a forwarding from [MAILBOX_EMAIL] to [DESTINATION_EMAIL]
-`,
+	Short: "Update keep-copy and quota",
+	Long: `Update keep-copy and quota.
+
+-k, --keep-copy:
+If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".
+This is only possible if at least one forwarding for [MAILBOX_EMAIL] exists.
+By default copies are kept in the mailbox.
+
+-q, --quota:
+The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("Requires [MAILBOX_EMAIL]")
@@ -64,7 +69,7 @@ keep-copy = no only makes sense if there is a forwarding from [MAILBOX_EMAIL] to
 			if err != nil {
 				fatal("%v\n", err)
 			}
-			info("Udating quota...\n")
+			info("Updating quota...\n")
 			updated = true
 		}
 
@@ -73,12 +78,12 @@ keep-copy = no only makes sense if there is a forwarding from [MAILBOX_EMAIL] to
 			if err != nil {
 				fatal("%v\n", err)
 			}
-			info("Udating keep-copy...\n")
+			info("Updating keep-copy...\n")
 			updated = true
 		}
 
 		if updated {
-			success("Successfully updated mailbox\n")
+			success("Successfully updated mailbox %s\n", mailboxEmail)
 			mailbox, err := server.Mailbox(mailboxEmail)
 			if err != nil {
 				fatal("%v\n", err)
@@ -94,7 +99,7 @@ keep-copy = no only makes sense if there is a forwarding from [MAILBOX_EMAIL] to
 func init() {
 	mailboxCmd.AddCommand(mailboxUpdateCmd)
 
-	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Sets quota")
+	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Sets quota (in MB)")
 	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Sets keep-copy of forwardings")
 
 	mailboxUpdateCmd.SetUsageTemplate(usageTemplate("mailbox update [MAILBOX_EMAIL]", printFlags))

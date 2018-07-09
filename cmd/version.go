@@ -30,7 +30,7 @@ var versionCmd = &cobra.Command{
 		}
 
 		info("cli version: %s\n", iredmail.Version)
-		info("iredMail version: %s\n", iredMailVersion)
+		info("iredMail version (MySQL): %s\n", iredMailVersion)
 
 		if iredMailVersion.Check() == iredmail.ErrIredMailVersionNotSupported {
 			warning("%v\n", iredmail.ErrIredMailVersionNotSupported)

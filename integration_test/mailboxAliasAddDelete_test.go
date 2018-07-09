@@ -48,7 +48,7 @@ var _ = Describe("mailbox alias", func() {
 		sqlQuery := `SELECT exists
 		(SELECT address FROM forwardings
 		WHERE address = ? AND forwarding = ?
-		AND is_alias = 1 AND active = 1 AND is_forwarding = 0 AND is_maillist = 0);`
+		AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0 AND active = 1);`
 
 		err = db.QueryRow(sqlQuery, aliasEmail, mailboxName1).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())

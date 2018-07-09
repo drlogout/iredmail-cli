@@ -28,16 +28,6 @@ type Mailbox struct {
 // Mailboxes ...
 type Mailboxes []Mailbox
 
-// IsCopyKept checks if am internal forwarding exists which leaves a copy in the mailbox
-func (m *Mailbox) IsCopyKept() bool {
-	for _, f := range m.Forwardings {
-		if m.Email == f.Forwarding {
-			return true
-		}
-	}
-	return false
-}
-
 // FilterBy is method that filters Mailboxes by a given string
 func (mailboxes Mailboxes) FilterBy(filter string) Mailboxes {
 	filteredMailboxes := Mailboxes{}
@@ -239,7 +229,7 @@ func (s *Server) MailboxDelete(mailboxEmail string) error {
 		return err
 	}
 
-	err = s.ForwardingDeleteAll(mailboxEmail)
+	err = s.forwardingDeleteAll(mailboxEmail)
 	if err != nil {
 		return err
 	}
@@ -278,19 +268,27 @@ func (s *Server) MailboxSetKeepCopy(mailboxEmail string, keepCopyInMailbox bool)
 	}
 
 	if len(mailbox.Forwardings) == 0 {
-		return fmt.Errorf("No forwardings exist")
+		return fmt.Errorf("No forwardings exist for mailbox %s", mailboxEmail)
 	}
 
-	isCopyKept := mailbox.IsCopyKept()
+	exists, err := s.forwardingExists(mailboxEmail, mailboxEmail)
+	if err != nil {
+		return err
+	}
 
-	if isCopyKept && !keepCopyInMailbox {
+	if !keepCopyInMailbox {
+		if !exists {
+			return fmt.Errorf("keep-copy is already disabled")
+		}
+
 		err := s.ForwardingDelete(mailbox.Email, mailbox.Email)
 		if err != nil {
 			return err
 		}
-	}
-
-	if !isCopyKept && keepCopyInMailbox {
+	} else {
+		if exists {
+			return fmt.Errorf("keep-copy is already enabled")
+		}
 		err := s.ForwardingAdd(mailbox.Email, mailbox.Email)
 		if err != nil {
 			return err

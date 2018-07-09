@@ -70,7 +70,7 @@ func printForwardings(forwardings iredmail.Forwardings) {
 		currentAddress := f.Address
 		copyLeft := "no"
 
-		if f.IsCopyLeftInMailbox {
+		if f.IsCopyKeptInMailbox {
 			copyLeft = "yes"
 		}
 

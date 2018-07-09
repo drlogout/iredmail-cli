@@ -1,0 +1,9 @@
+Updating quota...
+Successfully updated mailbox mail@example.net
+
++---------+---------------------------------------------+
+| MAILBOX |              mail@example.net               |
++---------+---------------------------------------------+
+| Quota   | 4096 MB                                     |
+| Maildir | example.net/m/a/i/mail-2018.07.09.08.26.08/ |
++---------+---------------------------------------------+

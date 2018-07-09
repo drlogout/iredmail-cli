@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("mailbox", func() {
+var _ = Describe("mailbox add/delete", func() {
 	BeforeEach(func() {
 		err := resetDB()
 		Expect(err).NotTo(HaveOccurred())
@@ -41,7 +41,7 @@ var _ = Describe("mailbox", func() {
 		var exists bool
 
 		sqlQuery := `SELECT exists
-		(SELECT * FROM mailbox
+		(SELECT username FROM mailbox
 		WHERE username = ?);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
@@ -49,9 +49,9 @@ var _ = Describe("mailbox", func() {
 		Expect(exists).To(Equal(true))
 
 		sqlQuery = `SELECT exists
-		(SELECT * FROM forwardings
+		(SELECT address FROM forwardings
 		WHERE address = ? AND forwarding = ? 
-		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
+		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_list = 0);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, mailboxName1).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())
@@ -85,7 +85,7 @@ var _ = Describe("mailbox", func() {
 		var exists bool
 
 		sqlQuery := `SELECT exists
-		(SELECT * FROM mailbox
+		(SELECT username FROM mailbox
 		WHERE username = ?);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
@@ -93,18 +93,18 @@ var _ = Describe("mailbox", func() {
 		Expect(exists).To(Equal(false))
 
 		sqlQuery = `SELECT exists
-		(SELECT * FROM forwardings
+		(SELECT address FROM forwardings
 		WHERE address = ? AND forwarding = ? 
-		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
+		AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0 AND active = 1);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, mailboxName1).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(exists).To(Equal(false))
 	})
 
-	It("can delete a mailbox with aliases", func() {
+	It("can delete a mailbox with mailbox aliases", func() {
 		if skipMailboxAddDelete && !isCI {
-			Skip("can delete a mailbox with aliases")
+			Skip("can delete a mailbox with mailbox aliases")
 		}
 
 		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
@@ -137,7 +137,7 @@ var _ = Describe("mailbox", func() {
 		var exists bool
 
 		sqlQuery := `SELECT exists
-		(SELECT * FROM mailbox
+		(SELECT username FROM mailbox
 		WHERE username = ?);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
@@ -145,8 +145,8 @@ var _ = Describe("mailbox", func() {
 		Expect(exists).To(Equal(false))
 
 		sqlQuery = `SELECT exists
-		(SELECT * FROM forwardings
-		WHERE address = ? AND is_alias = 1);`
+		(SELECT address FROM forwardings
+		WHERE address = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())
@@ -188,7 +188,7 @@ var _ = Describe("mailbox", func() {
 		var exists bool
 
 		sqlQuery := `SELECT exists
-		(SELECT * FROM mailbox
+		(SELECT username FROM mailbox
 		WHERE username = ?);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
@@ -196,8 +196,8 @@ var _ = Describe("mailbox", func() {
 		Expect(exists).To(Equal(false))
 
 		sqlQuery = `SELECT exists
-		(SELECT * FROM forwardings
-		WHERE address = ? AND is_forwarding = 1);`
+		(SELECT address FROM forwardings
+		WHERE address = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())

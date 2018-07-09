@@ -96,7 +96,7 @@ func printMailboxInfo(mailbox iredmail.Mailbox, prettyPrint bool) {
 			}
 		}
 		keepCopy := "no"
-		if mailbox.Forwardings[0].IsCopyLeftInMailbox {
+		if mailbox.Forwardings[0].IsCopyKeptInMailbox {
 			keepCopy = "yes"
 		}
 		table.Append([]string{"Keep copy in mailbox", keepCopy})

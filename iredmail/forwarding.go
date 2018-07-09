@@ -27,7 +27,7 @@ type Forwarding struct {
 	IsList              bool
 	IsAlias             bool
 	IsForwarding        bool
-	IsCopyLeftInMailbox bool
+	IsCopyKeptInMailbox bool
 }
 
 // Forwardings ...
@@ -116,7 +116,7 @@ func (s *Server) Forwardings() (Forwardings, error) {
 	}
 
 	for _, f := range forwardings {
-		f.IsCopyLeftInMailbox = copyLeftInMailbox[f.Address]
+		f.IsCopyKeptInMailbox = copyLeftInMailbox[f.Address]
 		if f.Address != f.Forwarding {
 			withoutMailboxCopy = append(withoutMailboxCopy, f)
 		}
@@ -144,7 +144,7 @@ func (s *Server) forwardingsByMailbox(mailboxEmail string) (Forwardings, error) 
 	}
 
 	for _, f := range forwardings {
-		f.IsCopyLeftInMailbox = copyLeftInMailbox[f.Address]
+		f.IsCopyKeptInMailbox = copyLeftInMailbox[f.Address]
 		if f.Address != f.Forwarding {
 			withoutMailboxCopy = append(withoutMailboxCopy, f)
 		}
@@ -195,12 +195,27 @@ func (s *Server) ForwardingDelete(mailboxEmail, destinationEmail string) error {
 	sqlQuery := `DELETE FROM forwardings 
 	WHERE address = ? AND forwarding = ? AND is_forwarding = 1 AND is_list = 0 AND is_alias = 0;`
 	_, err = s.DB.Exec(sqlQuery, mailboxEmail, destinationEmail)
+	if err != nil {
+		return err
+	}
 
-	return err
+	// enable keep copy in mailbox if no forwarding exists
+	forwardings, err := s.forwardingQuery(forwardingQueryForwardingsByMailboxEmail, mailboxEmail)
+	if err != nil {
+		return err
+	}
+	if len(forwardings) == 0 {
+		err := s.ForwardingAdd(mailboxEmail, mailboxEmail)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-// ForwardingDeleteAll deletes all forwardings of a mailbox
-func (s *Server) ForwardingDeleteAll(mailboxEmail string) error {
+// forwardingDeleteAll deletes all forwardings of a mailbox
+func (s *Server) forwardingDeleteAll(mailboxEmail string) error {
 	sqlQuery := `DELETE FROM forwardings 
 	WHERE address = ? AND is_forwarding = 1 AND is_list = 0 AND is_alias = 0;`
 	_, err := s.DB.Exec(sqlQuery, mailboxEmail)

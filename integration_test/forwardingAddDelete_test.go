@@ -45,7 +45,7 @@ var _ = Describe("forwarding", func() {
 		sqlQuery := `SELECT exists
 		(SELECT * FROM forwardings
 		WHERE address = ? AND forwarding = ?
-		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
+		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_list = 0);`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, forwardingAddress1).Scan(&exists)
 		Expect(err).NotTo(HaveOccurred())
@@ -86,7 +86,7 @@ var _ = Describe("forwarding", func() {
 		sqlQuery := `SELECT exists
 		(SELECT * FROM forwardings
 		WHERE address = ? AND forwarding = ?
-		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_maillist = 0);`
+		AND is_forwarding = 1 AND active = 1 AND is_alias = 0 AND is_list = 0);`
 		_, err = db.Exec(sqlQuery, mailboxName1, forwardingAddress1)
 		Expect(err).NotTo(HaveOccurred())
 
