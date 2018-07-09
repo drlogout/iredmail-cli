@@ -27,6 +27,9 @@ import (
 var mailboxAliasAddCmd = &cobra.Command{
 	Use:   "add-alias",
 	Short: "Add a mailbox alias",
+	Long: `Add a mailbox alias
+	
+A mailbox [MAILBOX_EMAIL] can have additional email addresses [ALIAS]@[DOMAIN], all emails sent to these addresses will be delivered to the same mailbox.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires [ALIAS] and [MAILBOX_EMAIL]")

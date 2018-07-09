@@ -28,7 +28,6 @@ var aliasAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add an alias",
 	Long: `Add an alias.
-
 Emails sent to [ALIAS_EMAIL] will be delivered to alias forwardings.
 Use the "alias add-forwarding" command to add forwardings to the alias.
 An alias can have multiple forwardings.`,

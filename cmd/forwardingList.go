@@ -67,15 +67,14 @@ func printForwardings(forwardings iredmail.Forwardings) {
 	var lastAddress string
 
 	for _, f := range forwardings {
-		currentAddress := f.Address
-		copyLeft := "no"
+		currentAddress, copyLeft := f.Address, "no"
 
 		if f.IsCopyKeptInMailbox {
 			copyLeft = "yes"
 		}
 
 		if lastAddress == f.Address {
-			currentAddress = ""
+			currentAddress, copyLeft = "", ""
 		}
 
 		table.Append([]string{currentAddress, f.Forwarding, copyLeft})
