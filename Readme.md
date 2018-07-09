@@ -6,6 +6,8 @@
 
 To print the help of a command or sub command append the `—help` or `-h` flag.
 
+------
+
 ### mailbox
 
 Add/delete/list mailboxes and mailbox-aliases.
@@ -136,6 +138,7 @@ Example:
 ```bash
 $ iredmail-cli mailbox delete-alias abuse@example.com
 ```
+------
 
 ### forwarding
 
@@ -156,8 +159,8 @@ $ iredmail-cli mailbox info info@example.com
 +----------------------+---------------------------------------------+
 | Quota                | 2048 MB                                     |
 | Mailbox aliases      | abuse                                       |
-|                      | webmaster									 |
-| Forwardings          | tech@company.com                       	 |
+|                      | webmaster									                 |
+| Forwardings          | tech@company.com                            |
 |                      | post@otherdomain.com                        |
 | Keep copy in mailbox | yes                                         |
 | Maildir              | example.com/i/n/f/info-2018.07.09.09.13.27/ |
@@ -188,8 +191,8 @@ $ iredmail-cli forwarding list
 +------------------+----------------------------+----------------------+
 |  MAILBOX EMAIL   |     DESTINATION EMAIL      | KEEP COPY IN MAILBOX |
 +------------------+----------------------------+----------------------+
-| info@example.com | tech@company.com   	    | yes                  |
-|                  | post@otherdomain.com 		|                      |
+| info@example.com | tech@company.com   	      | yes                  |
+|                  | post@otherdomain.com 		  |                      |
 | mail@example.net | mail@domain.com            | no                   |
 +------------------+----------------------------+----------------------+
 ```
@@ -197,6 +200,8 @@ $ iredmail-cli forwarding list
 Flags:
 
 - -f, --filter: Filter results
+
+------
 
 ### domain
 
@@ -311,6 +316,8 @@ Example:
 $ iredmail-cli domain delete-catchall example.com post@otherdomain.com
 ```
 
+------
+
 ### alias
 
 Add/delete/list aliases and their forwardings.
@@ -405,6 +412,8 @@ Example:
 ```bash
 $ iredmail-cli alias delete tech@example.com pete@domain.com 
 ```
+
+------
 
 ### version
 
