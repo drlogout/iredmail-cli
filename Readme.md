@@ -2,15 +2,11 @@
 
 [![CircleCI](https://circleci.com/gh/drlogout/iredmail-cli/tree/master.svg?style=svg)](https://circleci.com/gh/drlogout/iredmail-cli/tree/master)
 
-
-
-[TOC]
-
 ## Commands
 
 To print the help of a command or sub command append the `—help` or `-h` flag.
 
-###mailbox
+### mailbox
 
 Add/delete/list mailboxes and mailbox-aliases.
 
