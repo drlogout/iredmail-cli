@@ -2,6 +2,7 @@ package iredmail
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/spf13/viper"
 
@@ -30,7 +31,7 @@ func New() (*Server, error) {
 	}
 	err = version.Check()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("iredMail version %s is not supported", version)
 	}
 
 	db, err := sql.Open("mysql", viper.GetString("dbuser")+":"+viper.GetString("dbpassword")+"@tcp("+viper.GetString("dbhost")+":"+viper.GetString("dbport")+")/vmail")
