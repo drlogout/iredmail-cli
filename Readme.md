@@ -46,7 +46,7 @@ Add/delete/list mailboxes and mailbox-aliases.
 
 #### *add \[MAILBOX_EMAIL] \[PLAIN_PASSWORD]*
 
-Add a new mailbox.
+Add a new mailbox.<br/>
 *Example:*
 
 ```bash
@@ -61,7 +61,7 @@ Flags:
 
 #### *delete \[MAILBOX_EMAIL]*
 
-Delete a mailbox.
+Delete a mailbox.<br/>
 *Example:*
 
 ```bash
@@ -73,7 +73,7 @@ Flags:
 
 #### *info \[MAILBOX_EMAIL]*
 
-Show mailbox info.
+Show mailbox info.<br/>
 *Example:*
 
 ```bash
@@ -87,7 +87,7 @@ $ iredmail-cli mailbox info info@example.com
 ```
 #### *list*
 
-List mailboxes.
+List mailboxes.<br/>
 *Example:*
 
 ```bash
@@ -117,11 +117,11 @@ Flags:
 
 #### *update \[MAILBOX_EMAIL]*
 
-Update keep-copy and quota.
-If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".
-This is only possible if at least one forwarding for [MAILBOX_EMAIL] exists.
-By default copies are kept in the mailbox.
-The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).
+Update keep-copy and quota.<br/>
+If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".<br/>
+This is only possible if at least one forwarding for [MAILBOX_EMAIL] exists.<br/>
+By default copies are kept in the mailbox.<br/>
+The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).<br/>
 *Example:*
 
 ```bash
@@ -135,8 +135,8 @@ Flags:
 
 #### *add-alias [ALIAS] \[MAILBOX_EMAIL]*
 
-Add a mailbox alias.
-A mailbox `info@example.com` can have additional email addresses like `abuse@example.com`, `webmaster@example.com` and more, all emails sent to these addresses will be delivered to the same mailbox (`info@example.com`). 
+Add a mailbox alias.<br/>
+A mailbox `info@example.com` can have additional email addresses like `abuse@example.com`, `webmaster@example.com` and more, all emails sent to these addresses will be delivered to the same mailbox (`info@example.com`).<br/>
 *Example:*
 
 ```bash
@@ -155,7 +155,7 @@ $ iredmail-cli mailbox info info@example.com
 
 #### *delete-alias [ALIAS_EMAIL]*
 
-Delete an alias.
+Delete an alias.<br/>
 *Example:*
 
 ```bash
@@ -169,7 +169,7 @@ Add/delete/list forwardings.
 
 #### *add \[MAILBOX_EMAIL] [DESTINATION_EMAIL]*
 
-Add forwarding.
+Add forwarding.<br/>
 *Example:*
 
 ```bash
@@ -194,7 +194,7 @@ By default a copy will be left in the mailbox, to change that behavior use the `
 
 #### *delete \[MAILBOX_EMAIL] [DESTINATION_EMAIL]*
 
-Delete forwarding.
+Delete forwarding.<br/>
 *Example:*
 
 ```bash
@@ -203,7 +203,7 @@ $ iredmail-cli forwarding delete info@example.com tech@company.com
 
 #### *list*
 
-List forwardings.
+List forwardings.<br/>
 *Example:*
 
 ```bash
@@ -229,7 +229,7 @@ Add/delete/list domains, domain aliases and catchall forwardings.
 
 #### *add [DOMAIN]*
 
-Add a domain.
+Add a domain.<br/>
 *Example:*
 
 ```bash
@@ -243,7 +243,7 @@ Flags:
 
 #### *delete [DOMAIN]*
 
-Delete a domain.
+Delete a domain.<br/>
 *Example:*
 
 ```bash
@@ -256,7 +256,7 @@ Flags:
 
 #### *list*
 
-List domains.
+List domains.<br/>
 *Example:*
 
 ```bash
@@ -275,9 +275,9 @@ Flags:
 
 #### *add-alias \[ALIAS_DOMAIN] \[DOMAIN]*
 
-Add an alias domain.
-Emails sent to user@[ALIAS_DOMAIN] will be delivered to user@[DOMAIN].
-*Example:*
+Add an alias domain.<br/>
+Emails sent to user@[ALIAS_DOMAIN] will be delivered to user@[DOMAIN].<br/>
+*Example:*<br/>
 
 ```bash
 $ iredmail-cli domain add-alias domain.net domain.com
@@ -292,7 +292,7 @@ $ iredmail-cli domain list
 
 #### *delete-alias  \[ALIAS_DOMAIN]*
 
-Delete an alias domain.
+Delete an alias domain.<br/>
 *Example:*
 
 ```bash
@@ -301,9 +301,9 @@ $ iredmail-cli domain delete-alias [ALIAS_DOMAIN]
 
 #### *add-catchall \[DOMAIN] \[DESTINATION_EMAIL]*
 
-Add a per-domain catch-all forwarding.
-Emails sent to non-existing mailboxes of [DOMAIN] will be delivered to [DESTINATION_EMAIL].
-Multiple [DESTINATION_EMAIL]s are possible.
+Add a per-domain catch-all forwarding.<br/>
+Emails sent to non-existing mailboxes of [DOMAIN] will be delivered to [DESTINATION_EMAIL].<br/>
+Multiple [DESTINATION_EMAIL]s are possible.<br/>
 *Example:*
 
 ```bash
@@ -322,7 +322,7 @@ $ iredmail-cli domain list
 
 #### *delete-catchall \[DOMAIN] \[DESTINATION_EMAIL]*
 
-Delete a per-domain catch-all forwarding.
+Delete a per-domain catch-all forwarding.<br/>
 *Example:*
 
 ```bash
@@ -337,7 +337,7 @@ Add/delete/list aliases and their forwardings.
 
 #### *add [ALIAS_EMAIL]*
 
-Add an alias.
+Add an alias.<br/>
 *Example:*
 
 ```bash
@@ -346,7 +346,7 @@ $ iredmail-cli alias add tech@example.com
 
 #### *delete [ALIAS_EMAIL]*
 
-Delete an alias.
+Delete an alias.<br/>
 *Example:*
 
 ```bash
@@ -359,7 +359,7 @@ Flags:
 
 #### *info [ALIAS_EMAIL]*
 
-Show alias info.
+Show alias info.<br/>
 *Example:*
 
 ```bash
@@ -375,7 +375,7 @@ $ iredmail-cli alias info tech@example.com
 
 #### *list*
 
-List aliases.
+List aliases.<br/>
 *Example:*
 
 ```bash
@@ -394,9 +394,9 @@ Flags:
 
 #### *add-forwarding \[ALIAS_EMAIL] \[DESTINATION_EMAIL]* 
 
-Add forwarding to an alias.
-Emails sent to [ALIAS_EMAIL] will be delivered to [DESTINATION_EMAIL].
-An alias can have multiple forwardings.
+Add forwarding to an alias.<br/>
+Emails sent to [ALIAS_EMAIL] will be delivered to [DESTINATION_EMAIL].<br/>
+An alias can have multiple forwardings.<br/>
 *Example:*
 
 ```bash
@@ -413,7 +413,7 @@ $ iredmail-cli alias add tech@example.com pete@domain.com
 
 #### *delete-forwarding \[ALIAS_EMAIL] \[DESTINATION_EMAIL]*
 
-Delete forwarding from an alias.
+Delete forwarding from an alias.<br/>
 *Example:* 
 
 ```bash
