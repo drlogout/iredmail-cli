@@ -53,7 +53,7 @@ Add a new mailbox.<br/>
 $ iredmail-cli mailbox add info@example.com swekjhlwekjdhw
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -q, --quota: Set custom quota in MB, default 2048<br/>
 -s, --storage-path: Set custom storage path
 
@@ -65,7 +65,7 @@ Delete a mailbox.<br/>
 ```bash
 $ iredmail-cli mailbox delete info@example.com
 ```
-Flags:<br/>
+*Flags:*<br/>
 -f, --force: Force deletion
 
 #### *info \[MAILBOX_EMAIL]*
@@ -108,7 +108,7 @@ $ iredmail-cli mailbox list -f example.com
 +-----------------------+------------+
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -f, --filter: Filter results
 
 #### *update \[MAILBOX_EMAIL]*
@@ -124,7 +124,7 @@ By default copies are kept in the mailbox.<br/>
 $ iredmail-cli mailbox update info@example.com -k no
 $ iredmail-cli mailbox update info@example.com -q 4098
 ```
-Flags:<br/>
+*Flags:*<br/>
 -k, --keep-copy: enable or disable keep-copy<br/>
 -q, --quota: Set custom quota in MB
 
@@ -212,7 +212,7 @@ $ iredmail-cli forwarding list
 +------------------+----------------------------+----------------------+
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -f, --filter: Filter results
 
 ------
@@ -230,7 +230,7 @@ Add a domain.<br/>
 $ iredmail-cli domain add somedomain.com
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -d, --description: Domain description<br/>
 -s, --settings: Domain settings (default: default_user_quota:2048)
 
@@ -243,7 +243,7 @@ Delete a domain.<br/>
 $ iredmail-cli domain delete somedomain.com
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -f, --force: Force deletion
 
 #### *list*
@@ -261,7 +261,7 @@ $ iredmail-cli domain list
 +-------------+-----------+-------------------+-------------+
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -f, --filter: Filter results
 
 #### *add-alias \[ALIAS_DOMAIN] \[DOMAIN]*
@@ -347,7 +347,7 @@ Delete an alias.<br/>
 $ iredmail-cli alias delete tech@example.com
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -f, --force: Force deletion
 
 #### *info [ALIAS_EMAIL]*
@@ -381,7 +381,7 @@ $ iredmail-cli alias list
 +-----------------------+---------------------------+
 ```
 
-Flags:<br/>
+*Flags:*<br/>
 -f, --filter: Filter results
 
 #### *add-forwarding \[ALIAS_EMAIL] \[DESTINATION_EMAIL]* 
