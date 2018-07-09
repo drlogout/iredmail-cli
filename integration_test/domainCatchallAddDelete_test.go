@@ -100,17 +100,14 @@ var _ = Describe("domain add/delete-catch-all forwarding", func() {
 
 		cli := exec.Command(cliPath, "domain", "add", domain1)
 		err := cli.Run()
-		fmt.Println(err)
 		Expect(err).NotTo(HaveOccurred())
 
 		cli = exec.Command(cliPath, "domain", "add-catchall", domain1, mailboxName1)
 		err = cli.Run()
-		fmt.Println(err)
 		Expect(err).NotTo(HaveOccurred())
 
 		cli = exec.Command(cliPath, "domain", "delete-catchall", domain1, mailboxName1)
 		output, err := cli.CombinedOutput()
-		fmt.Println(string(output))
 		Expect(err).NotTo(HaveOccurred())
 
 		actual := string(output)

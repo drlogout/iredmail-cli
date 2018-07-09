@@ -22,6 +22,14 @@ func (s *Server) mailboxAliasExists(aliasEmail string) (bool, error) {
 
 // MailboxAliasAdd adds a new mailbox alias
 func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %s doesn't exist", mailboxEmail)
+	}
+
 	_, domain := parseEmail(mailboxEmail)
 	aliasEmail := fmt.Sprintf("%s@%s", alias, domain)
 
@@ -33,11 +41,11 @@ func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
 		return fmt.Errorf("A mailbox alias with %s already exists", aliasEmail)
 	}
 
-	mailboxExists, err := s.mailboxExists(aliasEmail)
+	mailboxWithSameEmailExists, err := s.mailboxExists(aliasEmail)
 	if err != nil {
 		return err
 	}
-	if mailboxExists {
+	if mailboxWithSameEmailExists {
 		return fmt.Errorf("A mailbox with %s already exists", aliasEmail)
 	}
 

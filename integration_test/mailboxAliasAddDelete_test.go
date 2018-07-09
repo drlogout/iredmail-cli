@@ -114,8 +114,6 @@ var _ = Describe("mailbox alias", func() {
 		domain := strings.Split(mailboxName1, "@")[1]
 		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
 
-		fmt.Println(aliasEmail, mailboxAlias1, mailboxName1)
-
 		cli := exec.Command(cliPath, "alias", "add", aliasEmail)
 		err := cli.Run()
 		Expect(err).NotTo(HaveOccurred())
@@ -130,6 +128,23 @@ var _ = Describe("mailbox alias", func() {
 
 		actual := string(output)
 		expected := fmt.Sprintf("An alias with %s already exists\n", aliasEmail)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
+
+	It("can't add a mailbox alias if mailbox doesn't exist", func() {
+		if skipMailboxAliasAddDelete && !isCI {
+			Skip("can't add a mailbox alias if mailbox doesn't exist")
+		}
+
+		cli := exec.Command(cliPath, "mailbox", "add-alias", mailboxAlias1, mailboxName1)
+		output, err := cli.CombinedOutput()
+		Expect(err).To(HaveOccurred())
+
+		actual := string(output)
+		expected := fmt.Sprintf("Mailbox %s doesn't exist\n", mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
