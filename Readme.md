@@ -53,11 +53,9 @@ Add a new mailbox.<br/>
 $ iredmail-cli mailbox add info@example.com swekjhlwekjdhw
 ```
 
-Flags:
-
-- -q, --quota: Set custom quota in MB, default 2048
-
-- -s, --storage-path: Set custom storage path
+Flags:<br/>
+-q, --quota: Set custom quota in MB, default 2048<br/>
+-s, --storage-path: Set custom storage path
 
 #### *delete \[MAILBOX_EMAIL]*
 
@@ -67,9 +65,8 @@ Delete a mailbox.<br/>
 ```bash
 $ iredmail-cli mailbox delete info@example.com
 ```
-Flags:
-
-- -f, --force: Force deletion
+Flags:<br/>
+-f, --force: Force deletion
 
 #### *info \[MAILBOX_EMAIL]*
 
@@ -111,27 +108,25 @@ $ iredmail-cli mailbox list -f example.com
 +-----------------------+------------+
 ```
 
-Flags:
-
-- -f, --filter: Filter results
+Flags:<br/>
+-f, --filter: Filter results
 
 #### *update \[MAILBOX_EMAIL]*
 
 Update keep-copy and quota.<br/>
-If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".<br/>
+-k, --keep-copy: If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".<br/>
 This is only possible if at least one forwarding for [MAILBOX_EMAIL] exists.<br/>
 By default copies are kept in the mailbox.<br/>
-The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).<br/>
+-q, --quota: The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).<br/>
 *Example:*
 
 ```bash
 $ iredmail-cli mailbox update info@example.com -k no
 $ iredmail-cli mailbox update info@example.com -q 4098
 ```
-Flags:
-
-- -k, --keep-copy: enable or disable keep-copy
-- -q, --quota: Set custom quota in MB
+Flags:<br/>
+-k, --keep-copy: enable or disable keep-copy<br/>
+-q, --quota: Set custom quota in MB
 
 #### *add-alias [ALIAS] \[MAILBOX_EMAIL]*
 
@@ -217,9 +212,8 @@ $ iredmail-cli forwarding list
 +------------------+----------------------------+----------------------+
 ```
 
-Flags:
-
-- -f, --filter: Filter results
+Flags:<br/>
+-f, --filter: Filter results
 
 ------
 
@@ -236,10 +230,9 @@ Add a domain.<br/>
 $ iredmail-cli domain add somedomain.com
 ```
 
-Flags:
-
-- -d, --description: Domain description
-- -s, --settings: Domain settings (default: default_user_quota:2048)
+Flags:<br/>
+-d, --description: Domain description<br/>
+-s, --settings: Domain settings (default: default_user_quota:2048)
 
 #### *delete [DOMAIN]*
 
@@ -250,9 +243,8 @@ Delete a domain.<br/>
 $ iredmail-cli domain delete somedomain.com
 ```
 
-Flags:
-
-- -f, --force: Force deletion
+Flags:<br/>
+-f, --force: Force deletion
 
 #### *list*
 
@@ -269,9 +261,8 @@ $ iredmail-cli domain list
 +-------------+-----------+-------------------+-------------+
 ```
 
-Flags:
-
-- -f, --filter: Filter results
+Flags:<br/>
+-f, --filter: Filter results
 
 #### *add-alias \[ALIAS_DOMAIN] \[DOMAIN]*
 
@@ -353,9 +344,8 @@ Delete an alias.<br/>
 $ iredmail-cli alias delete tech@example.com
 ```
 
-Flags:
-
-- -f, --force: Force deletion
+Flags:<br/>
+-f, --force: Force deletion
 
 #### *info [ALIAS_EMAIL]*
 
@@ -388,9 +378,8 @@ $ iredmail-cli alias list
 +-----------------------+---------------------------+
 ```
 
-Flags:
-
-- -f, --filter: Filter results
+Flags:<br/>
+-f, --filter: Filter results
 
 #### *add-forwarding \[ALIAS_EMAIL] \[DESTINATION_EMAIL]* 
 
