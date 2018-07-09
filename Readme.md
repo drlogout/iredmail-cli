@@ -2,6 +2,39 @@
 
 [![CircleCI](https://circleci.com/gh/drlogout/iredmail-cli/tree/master.svg?style=svg)](https://circleci.com/gh/drlogout/iredmail-cli/tree/master)
 
+## Table of contents
+
+   * [iredmail-cli](#iredmail-cli)
+      * [Commands](#commands)
+         * [mailbox](#mailbox)
+            * [add [MAILBOX_EMAIL] [PLAIN_PASSWORD]](#add-mailbox_email-plain_password)
+            * [delete [MAILBOX_EMAIL]](#delete-mailbox_email)
+            * [info [MAILBOX_EMAIL]](#info-mailbox_email)
+            * [list](#list)
+            * [update [MAILBOX_EMAIL]](#update-mailbox_email)
+            * [add-alias [ALIAS] [MAILBOX_EMAIL]](#add-alias-alias-mailbox_email)
+            * [delete-alias [ALIAS_EMAIL]](#delete-alias-alias_email)
+         * [forwarding](#forwarding)
+            * [add [MAILBOX_EMAIL] [DESTINATION_EMAIL]](#add-mailbox_email-destination_email)
+            * [delete [MAILBOX_EMAIL] [DESTINATION_EMAIL]](#delete-mailbox_email-destination_email)
+            * [list](#list-1)
+         * [domain](#domain)
+            * [add [DOMAIN]](#add-domain)
+            * [delete [DOMAIN]](#delete-domain)
+            * [list](#list-2)
+            * [add-alias [ALIAS_DOMAIN] [DOMAIN]](#add-alias-alias_domain-domain)
+            * [delete-alias  [ALIAS_DOMAIN]](#delete-alias--alias_domain)
+            * [add-catchall [DOMAIN] [DESTINATION_EMAIL]](#add-catchall-domain-destination_email)
+            * [delete-catchall [DOMAIN] [DESTINATION_EMAIL]](#delete-catchall-domain-destination_email)
+         * [alias](#alias)
+            * [add [ALIAS_EMAIL]](#add-alias_email)
+            * [delete [ALIAS_EMAIL]](#delete-alias_email)
+            * [info [ALIAS_EMAIL]](#info-alias_email)
+            * [list](#list-3)
+            * [add-forwarding [ALIAS_EMAIL] [DESTINATION_EMAIL]](#add-forwarding-alias_email-destination_email)
+            * [delete-forwarding [ALIAS_EMAIL] [DESTINATION_EMAIL]](#delete-forwarding-alias_email-destination_email)
+         * [version](#version)
+
 ## Commands
 
 To print the help of a command or sub command append the `—help` or `-h` flag.
@@ -125,7 +158,7 @@ $ iredmail-cli mailbox info info@example.com
 | Quota                | 2048 MB                                     |
 | Mailbox aliases      | abuse                                       |
 |                      | webmaster                                   |
-| Maildir              | example.com/i/n/f/info-2018.07.09.09.13.27/          |
+| Maildir              | example.com/i/n/f/info-2018.07.09.09.13.27/ |
 +----------------------+---------------------------------------------+
 ```
 
@@ -159,8 +192,8 @@ $ iredmail-cli mailbox info info@example.com
 +----------------------+---------------------------------------------+
 | Quota                | 2048 MB                                     |
 | Mailbox aliases      | abuse                                       |
-|                      | webmaster									 |
-| Forwardings          | tech@company.com							 |
+|                      | webmaster                                   |
+| Forwardings          | tech@company.com                            |
 |                      | post@otherdomain.com                        |
 | Keep copy in mailbox | yes                                         |
 | Maildir              | example.com/i/n/f/info-2018.07.09.09.13.27/ |
@@ -191,8 +224,8 @@ $ iredmail-cli forwarding list
 +------------------+----------------------------+----------------------+
 |  MAILBOX EMAIL   |     DESTINATION EMAIL      | KEEP COPY IN MAILBOX |
 +------------------+----------------------------+----------------------+
-| info@example.com | tech@company.com			| yes				   |
-|                  | post@otherdomain.com		|					   |
+| info@example.com | tech@company.com           | yes                  |
+|                  | post@otherdomain.com       |                      |
 | mail@example.net | mail@domain.com            | no                   |
 +------------------+----------------------------+----------------------+
 ```
@@ -248,7 +281,7 @@ $ iredmail-cli domain list
 |   DOMAIN    |   ALIAS   | CATCH-ALL ADDRESS | DESCRIPTION |
 +-------------+-----------+-------------------+-------------+
 | domain.com  |           |                   |             |
-| example.com | 		  |                   |             |
+| example.com |           |                   |             |
 +-------------+-----------+-------------------+-------------+
 ```
 
@@ -270,7 +303,7 @@ $ iredmail-cli domain list
 |   DOMAIN    |   ALIAS    | CATCH-ALL ADDRESS | DESCRIPTION |
 +-------------+------------+-------------------+-------------+
 | domain.com  | domain.net |                   |             |
-| example.com | 		   |                   |             |
+| example.com |            |                   |             |
 +-------------+------------+-------------------+-------------+
 ```
 
@@ -301,8 +334,8 @@ $ iredmail-cli domain list
 |   DOMAIN    |   ALIAS    | CATCH-ALL ADDRESS    | DESCRIPTION |
 +-------------+------------+----------------------+-------------+
 | domain.com  | domain.net |                      |             |
-| example.com | 		   | info@example.com     |             |
-|			  | 		   | post@otherdomain.com |				|
+| example.com |            | info@example.com     |             |
+|             |            | post@otherdomain.com |             |
 +-------------+------------+----------------------+-------------+
 ```
 
@@ -357,9 +390,9 @@ $ iredmail-cli alias info tech@example.com
 +--------------------+---------------------------+
 |       ALIAS        |        FORWARDINGS        |
 +--------------------+---------------------------+
-| tech@example.com   | info@example.com 		 |
-| 				     | chris@example.com		 |
-| 				     | pete@domain.com		     |
+| tech@example.com   | info@example.com          |
+|                    | chris@example.com         |
+|                    | pete@domain.com           |
 +--------------------+---------------------------+
 ```
 
@@ -374,7 +407,7 @@ $ iredmail-cli alias list
 +-----------------------+---------------------------+
 |         ALIAS         |        FORWARDINGS        |
 +-----------------------+---------------------------+
-| tech@example.com      | 						    |
+| tech@example.com      |                           |
 | help@example.net      |                           |
 +-----------------------+---------------------------+
 ```
@@ -398,8 +431,8 @@ $ iredmail-cli alias add tech@example.com pete@domain.com
 +-----------------------+---------------------------+
 |         ALIAS         |        FORWARDINGS        |
 +-----------------------+---------------------------+
-| tech@example.com      | info@exmaple.com 			|
-| 					    | pete@domain.com           |
+| tech@example.com      | info@exmaple.com          |
+|                       | pete@domain.com           |
 +-----------------------+---------------------------+
 ```
 
