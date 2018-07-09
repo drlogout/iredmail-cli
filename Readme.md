@@ -40,11 +40,11 @@ To print the help of a command or sub command append the `—help` or `-h` flag.
 
 ------
 
-### mailbox
+### *mailbox*
 
 Add/delete/list mailboxes and mailbox-aliases.
 
-#### add \[MAILBOX_EMAIL] \[PLAIN_PASSWORD]
+#### *add \[MAILBOX_EMAIL] \[PLAIN_PASSWORD]*
 
 Add a new mailbox.
 
@@ -59,7 +59,7 @@ Flags:
 - -q, --quota: Set custom quota in MB, default 2048
 - -s, --storage-path: Set custom storage path
 
-#### delete \[MAILBOX_EMAIL]
+#### *delete \[MAILBOX_EMAIL]*
 
 Delete a mailbox.
 
