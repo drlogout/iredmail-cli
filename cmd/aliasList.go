@@ -48,7 +48,6 @@ func printAliases(aliases iredmail.Aliases) {
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Alias", "Forwardings"})
-	table.SetAutoMergeCells(true)
 
 	for _, a := range aliases {
 		firstForwarding := ""
