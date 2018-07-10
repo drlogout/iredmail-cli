@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -244,6 +245,64 @@ var _ = Describe("mailbox add/delete", func() {
 		}
 		actual := string(output)
 		expected := fmt.Sprintf("Mailbox %v already exists\n", mailboxName1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
+
+	It("can't add an mailbox if an alias with same email exists", func() {
+		if skipMailboxAddDelete && !isCI {
+			Skip("can't add an mailbox if an alias with same email exists")
+		}
+
+		cli := exec.Command(cliPath, "alias", "add", mailboxName1)
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
+		actual := string(output)
+		expected := fmt.Sprintf("An alias %s already exists\n", mailboxName1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
+
+	It("can't add an mailbox if an mailbox alias with same email exists", func() {
+		if skipMailboxAddDelete && !isCI {
+			Skip("can't add an mailbox if an mailbox alias with same email exists")
+		}
+
+		splitMail := strings.Split(mailboxName1, "@")
+		name, domain := splitMail[0], splitMail[1]
+		mailboxName := "othername@" + domain
+
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName, mailboxPW)
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "mailbox", "add-alias", name, mailboxName)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
+		actual := string(output)
+		expected := fmt.Sprintf("A mailbox alias %s already exists\n", mailboxName1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))

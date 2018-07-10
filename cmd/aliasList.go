@@ -57,7 +57,7 @@ func printAliases(aliases iredmail.Aliases) {
 		table.Append([]string{a.Address, firstForwarding})
 		for i := range a.Forwardings {
 			if (i + 1) < len(a.Forwardings) {
-				table.Append([]string{a.Address, a.Forwardings[i+1].Forwarding})
+				table.Append([]string{"", a.Forwardings[i+1].Forwarding})
 			}
 		}
 	}
