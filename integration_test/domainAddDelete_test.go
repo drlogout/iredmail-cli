@@ -170,14 +170,8 @@ var _ = Describe("domain add/delete", func() {
 			Skip("can't delete a domain with mailboxes")
 		}
 
-		cli := exec.Command(cliPath, "domain", "add", domain1)
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName3, mailboxPW)
 		output, err := cli.CombinedOutput()
-		if err != nil {
-			Fail(string(output))
-		}
-
-		cli = exec.Command(cliPath, "mailbox", "add", mailboxName3, mailboxPW)
-		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
@@ -228,7 +222,7 @@ var _ = Describe("domain add/delete", func() {
 		}
 
 		actual := string(output)
-		expected := fmt.Sprintf("There are still aliases with the domain %s, you need to delete them before\n", domain1)
+		expected := fmt.Sprintf("There are still aliases from the domain %s, you need to delete them before\n", domain1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))

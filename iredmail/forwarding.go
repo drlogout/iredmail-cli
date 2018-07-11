@@ -12,6 +12,7 @@ const (
 	forwardingQueryAliasForwardingsAll        = "WHERE is_forwarding = 0 AND is_alias = 0 AND is_list = 1"
 
 	forwardingQueryCatchallByDomain                      = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 0"
+	forwardingQueryForwardingsByDomain                   = "WHERE domain = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
 	forwardingQueryForwardingsByMailboxEmail             = "WHERE address = ? AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0"
 	forwardingQueryMailboxAliasForwardingsByMailboxEamil = "WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0"
 	forwardingQueryAliasForwardingsByAliasEmail          = "WHERE address = ? AND is_forwarding = 0 AND is_alias = 0 AND is_list = 1"

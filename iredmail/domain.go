@@ -173,7 +173,7 @@ func (s *Server) DomainDelete(domain string) error {
 		return err
 	}
 	if len(aliases) > 0 {
-		return fmt.Errorf("There are still aliases with the domain %s, you need to delete them before", domain)
+		return fmt.Errorf("There are still aliases from the domain %s, you need to delete them before", domain)
 	}
 
 	domainAliases, err := s.domainAliasQuery(domainAliasQueryByDomain, domain)
