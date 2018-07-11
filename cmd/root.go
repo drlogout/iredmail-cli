@@ -14,6 +14,8 @@ import (
 const (
 	arrowRight = "➞"
 	printFlags = true
+
+	passwordMinLength = 10
 )
 
 var (

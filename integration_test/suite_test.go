@@ -38,7 +38,8 @@ var (
 	mailboxName4 = "abuse@domain.com"
 	mailboxName5 = "support@example.org"
 
-	mailboxPW = "alskdlqkdjalskd"
+	mailboxPW  = "alskdlqkdjalskd"
+	mailboxPW2 = "\"qweqoiwueoqwiueq\""
 
 	forwardingAddress1 = "info@otherdomain.com"
 	forwardingAddress2 = "webmaster@otherexample.net"
@@ -71,19 +72,19 @@ var (
 
 	arrowRight = "➞"
 
-	skipAliasAddDelete           = false
-	skipAliasForwardingAddDelete = false
-	skipAliasInfo                = false
-	skipAliasList                = false
-	skipDomainAddDelete          = false
-	skipDomainAliasAddDelete     = false
-	skipDomainCatchallAddDelete  = false
-	skipDomainList               = false
-	skipForwardingAddDelete      = false
-	skipMailboxAddDelete         = false
-	skipMailboxAliasAddDelete    = false
-	skipMailboxInfo              = false
-	skipMailboxList              = false
+	skipAliasAddDelete           = true
+	skipAliasForwardingAddDelete = true
+	skipAliasInfo                = true
+	skipAliasList                = true
+	skipDomainAddDelete          = true
+	skipDomainAliasAddDelete     = true
+	skipDomainCatchallAddDelete  = true
+	skipDomainList               = true
+	skipForwardingAddDelete      = true
+	skipMailboxAddDelete         = true
+	skipMailboxAliasAddDelete    = true
+	skipMailboxInfo              = true
+	skipMailboxList              = true
 	skipMailboxUpdate            = false
 )
 

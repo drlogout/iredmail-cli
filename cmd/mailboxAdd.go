@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
@@ -28,8 +29,8 @@ var mailboxAddCmd = &cobra.Command{
 			return err
 		}
 
-		if len(args[1]) < 10 {
-			return errors.New("[PLAIN_PASSWORD] length to short (min length 10)")
+		if len(args[1]) < passwordMinLength {
+			return errors.New("[PLAIN_PASSWORD] length to short (min length " + strconv.Itoa(passwordMinLength) + ")")
 		}
 
 		return nil

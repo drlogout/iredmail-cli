@@ -176,7 +176,7 @@ func (s *Server) MailboxAdd(mailboxEmail, password string, quota int, storageBas
 		return fmt.Errorf("A mailbox alias %s already exists", mailboxEmail)
 	}
 
-	hash, err := generatePassword(password)
+	hash, err := generatePasswordHash(password)
 	if err != nil {
 		return err
 	}
@@ -296,4 +296,27 @@ func (s *Server) MailboxSetKeepCopy(mailboxEmail string, keepCopyInMailbox bool)
 	}
 
 	return nil
+}
+
+// MailboxSetPassword set the password of a mailbox
+func (s *Server) MailboxSetPassword(mailboxEmail, password string) error {
+	mailboxExists, err := s.mailboxExists(mailboxEmail)
+	if err != nil {
+		return err
+	}
+	if !mailboxExists {
+		return fmt.Errorf("Mailbox %s doesn't exist", mailboxEmail)
+	}
+
+	hash, err := generatePasswordHash(password)
+	if err != nil {
+		return err
+	}
+
+	sqlQuery := `UPDATE mailbox
+	SET password = ?
+	WHERE username = ?;`
+	_, err = s.DB.Exec(sqlQuery, hash, mailboxEmail)
+
+	return err
 }

@@ -20,7 +20,7 @@ func parseEmail(email string) (string, string) {
 	return split[0], split[1]
 }
 
-func generatePassword(password string) (string, error) {
+func generatePasswordHash(password string) (string, error) {
 	var hash string
 
 	out, err := exec.Command("doveadm", "pw", "-p", password).Output()

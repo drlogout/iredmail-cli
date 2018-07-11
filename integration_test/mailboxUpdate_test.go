@@ -62,7 +62,7 @@ var _ = Describe("mailbox update", func() {
 
 		sqlQuery := `SELECT exists
 		(SELECT address FROM forwardings
-		WHERE address = ? AND forwarding = ? 
+		WHERE address = ? AND forwarding = ?
 		AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0 AND active = 1 );`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, mailboxName1).Scan(&exists)
@@ -120,7 +120,7 @@ var _ = Describe("mailbox update", func() {
 
 		sqlQuery := `SELECT exists
 		(SELECT address FROM forwardings
-		WHERE address = ? AND forwarding = ? 
+		WHERE address = ? AND forwarding = ?
 		AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0 AND active = 1 );`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, mailboxName1).Scan(&exists)
@@ -160,7 +160,7 @@ var _ = Describe("mailbox update", func() {
 
 		sqlQuery := `SELECT exists
 		(SELECT address FROM forwardings
-		WHERE address = ? AND forwarding = ? 
+		WHERE address = ? AND forwarding = ?
 		AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0 AND active = 1 );`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, mailboxName1).Scan(&exists)
@@ -205,7 +205,7 @@ var _ = Describe("mailbox update", func() {
 
 		sqlQuery := `SELECT exists
 		(SELECT address FROM forwardings
-		WHERE address = ? AND forwarding = ? 
+		WHERE address = ? AND forwarding = ?
 		AND is_forwarding = 1 AND is_alias = 0 AND is_list = 0 AND active = 1 );`
 
 		err = db.QueryRow(sqlQuery, mailboxName1, mailboxName1).Scan(&exists)
@@ -258,5 +258,46 @@ var _ = Describe("mailbox update", func() {
 		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&quota)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(quota).To(Equal(customQuota))
+	})
+
+	It("can set password", func() {
+		if skipMailboxUpdate && !isCI {
+			Skip("can set password")
+		}
+
+		cli := exec.Command(cliPath, "mailbox", "add", mailboxName1, mailboxPW)
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		db, err := sql.Open("mysql", dbConnectionString)
+		Expect(err).NotTo(HaveOccurred())
+		defer db.Close()
+
+		var oldHash, newHash string
+
+		sqlQuery := `SELECT password FROM mailbox WHERE username = ?;`
+		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&oldHash)
+		Expect(err).NotTo(HaveOccurred())
+
+		cli = exec.Command(cliPath, "mailbox", "update", mailboxName1, "-p", mailboxPW2)
+		output, err = cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		actual := string(output)
+		expected := loadGolden("can_set_password")
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+
+		sqlQuery = `SELECT password FROM mailbox WHERE username = ?;`
+		err = db.QueryRow(sqlQuery, mailboxName1).Scan(&newHash)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(oldHash).NotTo(Equal(newHash))
 	})
 })

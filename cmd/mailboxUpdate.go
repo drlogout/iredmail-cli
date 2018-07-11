@@ -17,6 +17,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/drlogout/iredmail-cli/iredmail"
@@ -82,6 +83,19 @@ The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB
 			updated = true
 		}
 
+		if cmd.Flag("password").Changed {
+			pw := cmd.Flag("password").Value.String()
+			if len(pw) < passwordMinLength {
+				fatal("password length to short (min length " + strconv.Itoa(passwordMinLength) + ")")
+			}
+			err := server.MailboxSetPassword(mailboxEmail, pw)
+			if err != nil {
+				fatal("ERROR %v\n", err)
+			}
+			info("Updating password...\n")
+			updated = true
+		}
+
 		if updated {
 			success("Successfully updated mailbox %s\n", mailboxEmail)
 		} else {
@@ -95,6 +109,7 @@ func init() {
 
 	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Sets quota (in MB)")
 	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Sets keep-copy of forwardings")
+	mailboxUpdateCmd.Flags().StringP("password", "p", "", "Set password")
 
 	mailboxUpdateCmd.SetUsageTemplate(usageTemplate("mailbox update [MAILBOX_EMAIL]", printFlags))
 }
