@@ -39,8 +39,11 @@ If mailboxes with forwardings should not keep a copy of the forwarded email use 
 This is only possible if at least one forwarding for [MAILBOX_EMAIL] exists.
 By default copies are kept in the mailbox.
 
+-p, --password:
+Set password. Min length: ` + strconv.Itoa(passwordMinLength) + ` characters.
+
 -q, --quota:
-The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB).`,
+Set quota "--quota 4096" (in MB).`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return errors.New("Requires [MAILBOX_EMAIL]")

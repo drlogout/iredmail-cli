@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "{CRAM-MD5}3d8777e7658e3183d39f1356266233436f636cbc734ab39cf6b835b670baef10"
+echo $(openssl rand -hex 16)
