@@ -84,12 +84,6 @@ The quota of the mailbox could be set with this flag, e.g. "--quota 4096" (in MB
 
 		if updated {
 			success("Successfully updated mailbox %s\n", mailboxEmail)
-			mailbox, err := server.Mailbox(mailboxEmail)
-			if err != nil {
-				fatal("%v\n", err)
-			}
-			fmt.Println()
-			printMailboxInfo(mailbox, prettyPrint)
 		} else {
 			info("No changes, nothing updated\n")
 		}

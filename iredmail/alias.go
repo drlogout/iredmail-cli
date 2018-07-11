@@ -27,8 +27,8 @@ func (aliases Aliases) FilterBy(filter string) Aliases {
 	filteredAliases := Aliases{}
 
 	for _, a := range aliases {
-		if strings.Contains(a.Address, filter) ||
-			len(a.Forwardings.FilterBy(filter)) > 0 {
+		if strings.Contains(a.Address, filter) {
+			// len(a.Forwardings.FilterBy(filter)) > 0
 			filteredAliases = append(filteredAliases, a)
 		}
 	}

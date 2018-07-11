@@ -26,6 +26,7 @@ import (
 var domainListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List domains",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {

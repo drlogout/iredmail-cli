@@ -1,11 +1,2 @@
 Updating keep-copy...
 Successfully updated mailbox mail@example.net
-
-+----------------------+---------------------------------------------+
-|       MAILBOX        |              mail@example.net               |
-+----------------------+---------------------------------------------+
-| Quota                | 2048 MB                                     |
-| Forwardings          | info@otherdomain.com                        |
-| Keep copy in mailbox | yes                                         |
-| Maildir              | example.net/m/a/i/mail-2018.07.09.07.54.36/ |
-+----------------------+---------------------------------------------+

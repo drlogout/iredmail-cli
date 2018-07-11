@@ -86,6 +86,30 @@ var _ = Describe("domain add/delete-alias", func() {
 		}
 	})
 
+	It("can't add alias domain if it exists as domain", func() {
+		if skipDomainAliasAddDelete && !isCI {
+			Skip("can't add alias domain if it exists as domain")
+		}
+
+		cli := exec.Command(cliPath, "domain", "add", domain1)
+		output, err := cli.CombinedOutput()
+		if err != nil {
+			Fail(string(output))
+		}
+
+		cli = exec.Command(cliPath, "domain", "add-alias", domain1, domain2)
+		output, err = cli.CombinedOutput()
+		if err == nil {
+			Fail("Expect an error")
+		}
+		actual := string(output)
+		expected := fmt.Sprintf("%s is already a domain\n", domain1)
+
+		if !reflect.DeepEqual(actual, expected) {
+			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
+		}
+	})
+
 	It("can't add an alias domain if domain doesn't exist", func() {
 		if skipDomainAliasAddDelete && !isCI {
 			Skip("can't add an alias domain if domain doesn't exist")

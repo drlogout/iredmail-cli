@@ -12,6 +12,7 @@ import (
 var aliasListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List aliases",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
 		if err != nil {

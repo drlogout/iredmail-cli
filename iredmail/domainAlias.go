@@ -77,11 +77,19 @@ func (s *Server) domainAliasExists(aliasDomain string) (bool, error) {
 
 // DomainAliasAdd adds a new domain alias
 func (s *Server) DomainAliasAdd(aliasDomain, domain string) error {
-	exists, err := s.domainExists(domain)
+	asDomainExists, err := s.domainExists(aliasDomain)
 	if err != nil {
 		return err
 	}
-	if !exists {
+	if asDomainExists {
+		return fmt.Errorf("%s is already a domain", aliasDomain)
+	}
+
+	domainExists, err := s.domainExists(domain)
+	if err != nil {
+		return err
+	}
+	if !domainExists {
 		return fmt.Errorf("Domain %s doesn't exists", domain)
 	}
 
