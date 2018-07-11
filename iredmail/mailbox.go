@@ -210,15 +210,17 @@ func (s *Server) MailboxDelete(mailboxEmail string) error {
 		return fmt.Errorf("Mailbox %s doesn't exist", mailboxEmail)
 	}
 
-	var mailDir string
+	var storageBaseDir, storageNode, mailDir string
 
-	sqlQuery := "SELECT maildir FROM mailbox WHERE username = ?;"
-	err = s.DB.QueryRow(sqlQuery, mailboxEmail).Scan(&mailDir)
+	sqlQuery := "SELECT storagebasedirectory, storagenode, maildir FROM mailbox WHERE username = ?;"
+	err = s.DB.QueryRow(sqlQuery, mailboxEmail).Scan(&storageBaseDir, &storageNode, &mailDir)
 	if err != nil {
 		return err
 	}
 
-	err = os.RemoveAll(mailDir)
+	mailDirPath := filepath.Join(storageBaseDir, storageNode, mailDir)
+
+	err = os.RemoveAll(mailDirPath)
 	if err != nil {
 		return err
 	}
