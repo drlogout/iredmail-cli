@@ -42,14 +42,11 @@ Multiple [DESTINATION_EMAIL]s are possible`,
 		}
 		args[0] = strings.ToLower(args[0])
 
-		var err error
-
 		if !govalidator.IsEmail(args[1]) {
 			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
-		args[1], err = govalidator.NormalizeEmail(args[1])
 
-		return err
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()

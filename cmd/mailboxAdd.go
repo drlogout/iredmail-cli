@@ -19,14 +19,8 @@ var mailboxAddCmd = &cobra.Command{
 			return errors.New("Requires [MAILBOX_EMAIL] and [PLAIN_PASSWORD] as arguments")
 		}
 
-		var err error
-
 		if !govalidator.IsEmail(args[0]) {
 			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
-		}
-		args[0], err = govalidator.NormalizeEmail(args[0])
-		if err != nil {
-			return err
 		}
 
 		if len(args[1]) < passwordMinLength {

@@ -49,14 +49,11 @@ Set quota "--quota 4096" (in MB).`,
 			return errors.New("Requires [MAILBOX_EMAIL]")
 		}
 
-		var err error
-
 		if !govalidator.IsEmail(args[0]) {
 			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
 		}
-		args[0], err = govalidator.NormalizeEmail(args[0])
 
-		return err
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()

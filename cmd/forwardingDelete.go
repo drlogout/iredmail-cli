@@ -32,22 +32,15 @@ var forwardingDeleteCmd = &cobra.Command{
 			return errors.New("Requires [MAILBOX_EMAIL] and [DESTINATION_EMAIL]")
 		}
 
-		var err error
-
 		if !govalidator.IsEmail(args[0]) {
 			return fmt.Errorf("Invalid [MAILBOX_EMAIL] format: %s", args[0])
-		}
-		args[0], err = govalidator.NormalizeEmail(args[0])
-		if err != nil {
-			return err
 		}
 
 		if !govalidator.IsEmail(args[1]) {
 			return fmt.Errorf("Invalid [DESTINATION_EMAIL] format: %s", args[1])
 		}
-		args[1], err = govalidator.NormalizeEmail(args[1])
 
-		return err
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()

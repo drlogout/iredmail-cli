@@ -32,14 +32,11 @@ var mailboxAliasDeleteCmd = &cobra.Command{
 			return errors.New("Requires [ALIAS_EMAIL]")
 		}
 
-		var err error
-
 		if !govalidator.IsEmail(args[0]) {
 			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s", args[0])
 		}
-		args[0], err = govalidator.NormalizeEmail(args[0])
 
-		return err
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		server, err := iredmail.New()
