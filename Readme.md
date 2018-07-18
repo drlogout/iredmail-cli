@@ -6,6 +6,11 @@
 
 * [Table of contents](#table-of-contents)
 * [Installation](#installation)
+* [Overview](#overview)
+    * [Mailbox](#mailbox)
+    * [Mailbox-alias](#mailbox-alias)
+    * [Forwarding](#forwarding)
+    * [Alias](#alias)
 * [Commands](#commands)
     * [<em>mailbox</em>](#mailbox)
         * [<em>add [MAILBOX_EMAIL] [PLAIN_PASSWORD]</em>](#add-mailbox_email-plain_password)
@@ -55,6 +60,55 @@ port=3306 (optional, default 3306)
 user=vmailadmin
 password="UXXjQYn3KLbAJhonbkmNyGNJRsoXZ4rn"
 ```
+
+
+
+## Overview
+
+### Mailbox
+
+What is called `user` in iRedMail is a `mailbox` in the iredmail-cli terminology. I don't know if this is a good idea, but for me user feels wrong.
+
+```
+iRedMail: 
+	info@example.com = user
+iredmail-cli:
+	info@example.com = mailbox
+```
+
+### Mailbox-alias
+
+A mailbox can have additional email addresses:
+
+![doc-mailbox-alias](/Users/mofa/go/src/github.com/drlogout/iredmail-cli/assets/doc-mailbox-alias.png)
+
+All emails sent to `post@example.com` and `hello@example.com` will be delivered to the same mailbox. 
+
+Emails can now also be sent with  `post@example.com` and `hello@example.com` as sender.
+
+See [<em>mailbox add-alias [ALIAS] [MAILBOX_EMAIL]</em>](#add-alias-alias-mailbox_email)
+
+
+
+### Forwarding
+
+Mails can be forwarded from a mailbox:
+
+![doc-forwarding](/Users/mofa/go/src/github.com/drlogout/iredmail-cli/assets/doc-forwarding.png)
+
+Multiple destination addresses are possible.
+
+See [<em>forwarding</em>](#forwarding)
+
+### Alias
+
+If no mailbox is required, an alias can be used to forward emails to other addresses:
+
+![doc-alias](/Users/mofa/go/src/github.com/drlogout/iredmail-cli/assets/doc-alias.png)
+
+Multiple destination addresses are possible.
+
+[<em>alias</em>](#alias)
 
 
 
@@ -155,7 +209,7 @@ $ iredmail-cli mailbox update info@example.com -q 4098
 #### *add-alias [ALIAS] \[MAILBOX_EMAIL]*
 
 Add a mailbox alias.<br/>
-A mailbox `info@example.com` can have additional email addresses like `abuse@example.com`, `webmaster@example.com` and more, all emails sent to these addresses will be delivered to the same mailbox (`info@example.com`).<br/>
+A mailbox `info@example.com` can have additional email addresses like `abuse@example.com`, `webmaster@example.com` and more, all emails sent to these addresses will be delivered to the same mailbox (`info@example.com`). Emails can now also be sent with those addresses as sender.<br/>
 *Example:*
 
 ```bash
