@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/drlogout/iredmail-cli/iredmail"
 	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -42,7 +43,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.iredmail-cli.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.my.cnf-vmailadmin)")
 	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "pretty", "", true, "")
 	rootCmd.PersistentFlags().MarkHidden("pretty")
 }
@@ -51,7 +52,7 @@ func init() {
 func initConfig() {
 	if cfgFile != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+		iredmail.SetConfigFile(cfgFile)
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
@@ -61,15 +62,12 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".iredmail-cli" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".iredmail-cli")
+		iredmail.SetConfigFile(filepath.Join(home, ".my.cnf-vmailadmin"))
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
-
-	err := viper.ReadInConfig()
+	err := iredmail.ReadInConfig()
 	if err != nil {
-		log.Fatal("No config file found (default ~/.iredmail-cli.yml")
+		log.Fatal("No config file found (default ~/.my.cnf-vmailadmin)")
 	}
 }
 

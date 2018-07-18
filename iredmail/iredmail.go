@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/spf13/viper"
-
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -34,7 +32,15 @@ func New() (*Server, error) {
 		return nil, fmt.Errorf("iredMail version %s is not supported", version)
 	}
 
-	db, err := sql.Open("mysql", viper.GetString("dbuser")+":"+viper.GetString("dbpassword")+"@tcp("+viper.GetString("dbhost")+":"+viper.GetString("dbport")+")/vmail")
+	if config["port"] == "" {
+		config["port"] = "3306"
+	}
+
+	if config["host"] == "" {
+		config["host"] = "127.0.0.1"
+	}
+
+	db, err := sql.Open("mysql", config["user"]+":"+config["password"]+"@tcp("+config["host"]+":"+config["port"]+")/vmail")
 
 	server := &Server{
 		DB: db,

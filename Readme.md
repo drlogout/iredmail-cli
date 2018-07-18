@@ -34,6 +34,26 @@
         * [delete-forwarding [ALIAS_EMAIL] [DESTINATION_EMAIL]](#delete-forwarding-alias_email-destination_email)
     * [version](#version)
 
+
+
+## Installation
+
+Download the appropriate binary from https://github.com/drlogout/iredmail-cli/releases/latest, untar the file and move the binary to e.g. `/usr/local/bin/iredmail-cli`. 
+
+By default `iredmail-cli` expects a config file under `~/.my.cnf-vmailadmin`. This file is generated through the iRedMail installation. It's also possible to specify a config file with the `—config` flag.
+
+The `.my.cnf-vmailadmin` file needs following variables:
+
+```
+[client]
+host=127.0.0.1 (optional, default 127.0.0.1)
+port=3306 (optional, default 3306)
+user=vmailadmin
+password="UXXjQYn3KLbAJhonbkmNyGNJRsoXZ4rn"
+```
+
+
+
 ## Commands
 
 To print the help of a command or sub command append the `—help` or `-h` flag.
