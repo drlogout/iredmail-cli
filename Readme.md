@@ -10,7 +10,7 @@
     * Mailbox
     * Mailbox-alias
     * Forwarding
-    * Alias]
+    * Alias
 * [Commands](#commands)
     * [<em>mailbox</em>](#mailbox)
         * [<em>add [MAILBOX_EMAIL] [PLAIN_PASSWORD]</em>](#add-mailbox_email-plain_password)
@@ -65,7 +65,7 @@ password="UXXjQYn3KLbAJhonbkmNyGNJRsoXZ4rn"
 
 ## Overview
 
-### Mailbox
+**Mailbox**
 
 What is called `user` in iRedMail is a `mailbox` in the iredmail-cli terminology. I don't know if this is a good idea, but for me user feels wrong.
 
@@ -76,7 +76,7 @@ iredmail-cli:
 	info@example.com = mailbox
 ```
 
-### Mailbox-alias
+**Mailbox-alias**
 
 A mailbox can have additional email addresses:
 
@@ -88,9 +88,7 @@ Emails can now also be sent with  `post@example.com` and `hello@example.com` as 
 
 See [<em>mailbox add-alias [ALIAS] [MAILBOX_EMAIL]</em>](#add-alias-alias-mailbox_email)
 
-
-
-### Forwarding
+**Forwarding**
 
 Mails can be forwarded from a mailbox:
 
@@ -100,7 +98,7 @@ Multiple destination addresses are possible.
 
 See [<em>forwarding</em>](#forwarding)
 
-### Alias
+**Alias**
 
 If no mailbox is required, an alias can be used to forward emails to other addresses:
 
