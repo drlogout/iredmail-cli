@@ -80,7 +80,7 @@ iredmail-cli:
 
 A mailbox can have additional email addresses:
 
-![doc-mailbox-alias](/Users/mofa/go/src/github.com/drlogout/iredmail-cli/assets/doc-mailbox-alias.png)
+![doc-mailbox-alias](assets/doc-mailbox-alias.png)
 
 All emails sent to `post@example.com` and `hello@example.com` will be delivered to the same mailbox. 
 
@@ -94,7 +94,7 @@ See [<em>mailbox add-alias [ALIAS] [MAILBOX_EMAIL]</em>](#add-alias-alias-mailbo
 
 Mails can be forwarded from a mailbox:
 
-![doc-forwarding](/Users/mofa/go/src/github.com/drlogout/iredmail-cli/assets/doc-forwarding.png)
+![doc-forwarding](assets/doc-forwarding.png)
 
 Multiple destination addresses are possible.
 
@@ -104,7 +104,7 @@ See [<em>forwarding</em>](#forwarding)
 
 If no mailbox is required, an alias can be used to forward emails to other addresses:
 
-![doc-alias](/Users/mofa/go/src/github.com/drlogout/iredmail-cli/assets/doc-alias.png)
+![doc-alias](assets/doc-alias.png)
 
 Multiple destination addresses are possible.
 
