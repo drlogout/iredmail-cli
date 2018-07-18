@@ -1,8 +1,8 @@
 +-------------+-----------+----------------------+-------------+
 |   DOMAIN    |   ALIAS   |  CATCH-ALL ADDRESS   | DESCRIPTION |
 +-------------+-----------+----------------------+-------------+
-| domain.com  | alias.com | info@otherdomain.com |             |
-|             | alias.de  | mail@example.net     |             |
+| domain.com  | alias.com | mail@example.net     |             |
+|             | alias.de  | info@otherdomain.com |             |
 | example.com |           |                      |             |
 | example.net |           |                      |             |
 +-------------+-----------+----------------------+-------------+

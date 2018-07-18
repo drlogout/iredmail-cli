@@ -54,7 +54,7 @@ func (s *Server) forwardingQuery(whereQuery string, args ...interface{}) (Forwar
 	sqlQuery := `SELECT address, domain, forwarding, dest_domain, is_forwarding, is_alias, is_list, active
 	FROM forwardings
 	` + whereQuery + `
-	ORDER BY domain ASC, address ASC;`
+	ORDER BY domain ASC, address ASC, dest_domain ASC, forwarding ASC;`
 	rows, err := s.DB.Query(sqlQuery, args...)
 	if err != nil {
 		return Forwardings, err

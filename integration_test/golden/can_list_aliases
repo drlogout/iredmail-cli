@@ -2,7 +2,7 @@
 |         ALIAS         |        FORWARDINGS        |
 +-----------------------+---------------------------+
 | support@domain.com    | whatever@otherexample.com |
-| developer@example.com | mail@example.com          |
-|                       | info@domain.com           |
+| developer@example.com | info@domain.com           |
+|                       | mail@example.com          |
 | help@example.net      |                           |
 +-----------------------+---------------------------+

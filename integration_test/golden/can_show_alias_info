@@ -1,6 +1,6 @@
 +-----------------------+------------------+
 |         ALIAS         |   FORWARDINGS    |
 +-----------------------+------------------+
-| developer@example.com | mail@example.com |
-|                       | info@domain.com  |
+| developer@example.com | info@domain.com  |
+|                       | mail@example.com |
 +-----------------------+------------------+
