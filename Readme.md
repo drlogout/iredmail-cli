@@ -75,6 +75,7 @@ iRedMail:
 iredmail-cli:
 	info@example.com = mailbox
 ```
+See [<em>mailbox</em>](#mailbox)
 
 **Mailbox-alias**
 
