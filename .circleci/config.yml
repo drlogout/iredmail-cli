@@ -12,7 +12,7 @@ jobs:
       - run: sudo cp .circleci/iredmail-release /etc/iredmail-release
       - run: sudo cp .circleci/doveadm /usr/local/bin/doveadm
       - run: sudo chmod a+x /usr/local/bin/doveadm
-      - run: cp .circleci/iredmail-cli.yml $HOME/.iredmail-cli.yml
+      - run: cp .circleci/my.cnf-vmailadmin $HOME/.my.cnf-vmailadmin
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
 

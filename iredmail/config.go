@@ -25,6 +25,7 @@ func ReadInConfig() error {
 		line := scanner.Text()
 		if strings.Contains(line, "=") {
 			split := strings.Split(line, "=")
+			config[split[0]] = strings.Trim(split[1], " ")
 			config[split[0]] = strings.Trim(split[1], "\"")
 		}
 	}

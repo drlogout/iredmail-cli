@@ -1,0 +1,5 @@
+[client]
+host="iredmail-test-db.noltech.net"
+port="3357"
+user="vmail"
+password="MDmPEwViyNNrMVpxrRGQivvFdtxZAp98"
