@@ -7,10 +7,10 @@
 * [Table of contents](#table-of-contents)
 * [Installation](#installation)
 * [Overview](#overview)
-    * [Mailbox](#mailbox)
-    * [Mailbox-alias](#mailbox-alias)
-    * [Forwarding](#forwarding)
-    * [Alias](#alias)
+    * Mailbox
+    * Mailbox-alias
+    * Forwarding
+    * Alias]
 * [Commands](#commands)
     * [<em>mailbox</em>](#mailbox)
         * [<em>add [MAILBOX_EMAIL] [PLAIN_PASSWORD]</em>](#add-mailbox_email-plain_password)
