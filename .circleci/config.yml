@@ -3,7 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  release:
+  integration-test:
     docker:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/drlogout/iredmail-cli
@@ -15,6 +15,14 @@ jobs:
       - run: cp .circleci/my.cnf-vmailadmin $HOME/.my.cnf-vmailadmin
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
+
+  release:
+    docker:
+      - image: circleci/golang:1.9
+    working_directory: /go/src/github.com/drlogout/iredmail-cli
+    steps:
+      - checkout
+      - run: go get -v -t -d ./...
       - run: git config --global user.name drlogout
       - run: make dist
       - run: make release
@@ -23,7 +31,13 @@ workflows:
   version: 2
   run_release:
     jobs:
+      - integration-test:
+          filters:
+            tags:
+              ignore: /.*/
       - release:
+          requires:
+            - integration-test
           filters:
             tags:
               only: /^v.*/
