@@ -83,7 +83,7 @@ A mailbox can have additional email addresses:
 
 ![doc-mailbox-alias](assets/doc-mailbox-alias.png)
 
-All emails sent to `post@example.com` and `hello@example.com` will be delivered to the same mailbox. 
+All emails sent to the addresses `post@example.com` and `hello@example.com` will be delivered to the same mailbox `info@example.com`.
 
 Emails can now also be sent with  `post@example.com` and `hello@example.com` as sender.
 
@@ -95,7 +95,7 @@ Mails can be forwarded from a mailbox:
 
 ![doc-forwarding](assets/doc-forwarding.png)
 
-Multiple destination addresses are possible.
+All emails sent to the mailbox `info@example.com` will also be delivered to the addresses `tech@company.com` and `support@example.net`.
 
 See [<em>forwarding</em>](#forwarding)
 
