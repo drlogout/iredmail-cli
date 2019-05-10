@@ -50,10 +50,10 @@ func printUserList(mailboxes iredmail.Mailboxes) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Mailbox", "Quota (MB)"})
+	table.SetHeader([]string{"Display Name", "Mailbox", "Quota (MB)"})
 
 	for _, m := range mailboxes {
-		table.Append([]string{m.Email, strconv.Itoa(m.Quota)})
+		table.Append([]string{m.Name, m.Email, strconv.Itoa(m.Quota)})
 	}
 	table.Render()
 }

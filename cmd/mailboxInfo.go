@@ -72,6 +72,7 @@ func printMailboxInfo(mailbox iredmail.Mailbox, prettyPrint bool) {
 		table.SetColumnColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{})
 	}
 
+    table.Append([]string{"Display Name", mailbox.Name})
 	table.Append([]string{"Quota", fmt.Sprintf("%v MB", strconv.Itoa(mailbox.Quota))})
 
 	if len(mailbox.MailboxAliases) > 0 {
