@@ -82,7 +82,7 @@ func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 	return err
 }
 
-// MailboxAliasDeleteAll delets all mailbox aliases of a mailbox
+// MailboxAliasDeleteAll deletes all mailbox aliases of a mailbox
 func (s *Server) MailboxAliasDeleteAll(mailboxEmail string) error {
 	sqlQuery := "DELETE FROM forwardings WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0;"
 	_, err := s.DB.Exec(sqlQuery, mailboxEmail)
