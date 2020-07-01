@@ -13,11 +13,11 @@ import (
 
 const (
 	// Version of iredmail-cli
-	Version = "0.2.8"
+	Version = "0.2.9"
 
 	releaseFile         = "/etc/iredmail-release"
-	supportedReleaseMin = "0.9.8"
-	supportedReleaseMax = "0.9.8"
+	supportedReleaseMin = "1.0.0"
+	supportedReleaseMax = "1.2.0"
 )
 
 var (
@@ -40,7 +40,7 @@ func GetIredMailVersion() (iredMailVersion, error) {
 		return version, err
 	}
 
-	re := regexp.MustCompile(`^\d\.\d\.\d\s*MYSQL\s*edition`)
+	re := regexp.MustCompile(`^\d\.\d\.\d\s*(MYSQL|MARIADB)\s*edition`)
 	versionLine := re.FindString(string(file))
 
 	if versionLine == "" {
