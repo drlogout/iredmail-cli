@@ -129,8 +129,12 @@ func (s *Server) Mailbox(mailboxEmail string) (Mailbox, error) {
 }
 
 // MailboxAdd adds a new mailbox
-func (s *Server) MailboxAdd(mailboxEmail, password string, quota int, storageBasePath string) error {
+func (s *Server) MailboxAdd(mailboxEmail, password string, quota int, storageBasePath string, displayName string) error {
 	name, domain := parseEmail(mailboxEmail)
+
+    if  displayName != "" {
+        name = displayName
+    }
 
 	m := Mailbox{
 		Email:  mailboxEmail,
@@ -200,7 +204,7 @@ func (s *Server) MailboxAdd(mailboxEmail, password string, quota int, storageBas
 	return err
 }
 
-// MailboxDelete delets a mailbox
+// MailboxDelete deletes a mailbox
 func (s *Server) MailboxDelete(mailboxEmail string) error {
 	mailboxExists, err := s.mailboxExists(mailboxEmail)
 	if err != nil {
@@ -253,6 +257,21 @@ func (s *Server) MailboxSetQuota(mailboxEmail string, quota int) error {
 
 	return err
 }
+
+
+// MailboxSetName sets the mailbox display name
+func (s *Server) MailboxSetName(mailboxEmail string, displayName string) error {
+	sqlQuery := `UPDATE mailbox
+	SET name = ?
+	WHERE username = ?;`
+	_, err := s.DB.Exec(sqlQuery, displayName, mailboxEmail)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 
 // MailboxSetKeepCopy sets the keep-copy behavior if forwardings exist
 func (s *Server) MailboxSetKeepCopy(mailboxEmail string, keepCopyInMailbox bool) error {

@@ -24,7 +24,7 @@ var mailboxAddCmd = &cobra.Command{
 		}
 
 		if len(args[1]) < passwordMinLength {
-			return errors.New("[PLAIN_PASSWORD] length to short (min length " + strconv.Itoa(passwordMinLength) + ")")
+			return errors.New("[PLAIN_PASSWORD] length too short (min length " + strconv.Itoa(passwordMinLength) + ")")
 		}
 
 		return nil
@@ -37,7 +37,7 @@ var mailboxAddCmd = &cobra.Command{
 		defer server.Close()
 
 		mailboxEmail, password := args[0], args[1]
-		err = server.MailboxAdd(mailboxEmail, password, quota, storageBasePath)
+		err = server.MailboxAdd(mailboxEmail, password, quota, storageBasePath, displayName)
 		if err != nil {
 			fatal("%v\n", err)
 		}
@@ -51,6 +51,7 @@ func init() {
 
 	mailboxAddCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Quota (default 2048 MB)")
 	mailboxAddCmd.Flags().StringVarP(&storageBasePath, "storage-path", "s", "/var/vmail/vmail1", "Storage base path")
+	mailboxAddCmd.Flags().StringVarP(&displayName, "name", "n", "", "Display Name")
 
 	mailboxAddCmd.SetUsageTemplate(usageTemplate("mailbox add [MAILBOX_EMAIL] [PLAIN_PASSWORD]", printFlags))
 }
