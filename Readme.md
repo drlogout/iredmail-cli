@@ -47,8 +47,6 @@
 
 > The current version only supports the MySQL version of iRedMail
 
-Download the appropriate binary from https://github.com/drlogout/iredmail-cli/releases/latest, untar the file and move the binary to e.g. `/usr/local/bin/iredmail-cli`. 
-
 By default `iredmail-cli` expects a config file under `~/.my.cnf-vmailadmin`. This file is generated through the iRedMail installation. It's also possible to specify a config file with the `—config` flag.
 
 The `.my.cnf-vmailadmin` file needs following variables:
