@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/kostagorod/iredmail-cli/iredmail"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
