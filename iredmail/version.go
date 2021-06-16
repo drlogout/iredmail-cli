@@ -13,11 +13,11 @@ import (
 
 const (
 	// Version of iredmail-cli
-	Version = "0.2.9"
+	Version = "0.2.91"
 
 	releaseFile         = "/etc/iredmail-release"
 	supportedReleaseMin = "1.0.0"
-	supportedReleaseMax = "1.2.0"
+	supportedReleaseMax = "1.3.2"
 )
 
 var (
