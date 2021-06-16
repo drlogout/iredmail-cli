@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/kostagorod/iredmail-cli/iredmail"
+	"github.com/KostaGorod/iredmail-cli/iredmail"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
