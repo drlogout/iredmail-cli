@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/kostagorod/iredmail-cli/iredmail"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
