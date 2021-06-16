@@ -44,7 +44,7 @@ func GetIredMailVersion() (iredMailVersion, error) {
 	versionLine := re.FindString(string(file))
 
 	if versionLine == "" {
-		return version, fmt.Errorf("No MYSQL version info found in release file %s", releaseFile)
+		return version, fmt.Errorf("No MYSQL nor MariaDB version info found in release file %s", releaseFile)
 	}
 
 	splitLine := strings.Split(versionLine, " ")
