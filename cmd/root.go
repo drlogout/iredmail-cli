@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/kostagorod/iredmail-cli/iredmail"
 	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
