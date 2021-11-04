@@ -16,7 +16,7 @@ const (
 	Version = "0.2.91"
 
 	releaseFile         = "/etc/iredmail-release"
-	supportedReleaseMin = "1.0.0"
+	supportedReleaseMin = "0.9.8"
 	supportedReleaseMax = "1.3.2"
 )
 
