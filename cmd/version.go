@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/KostaGorod/iredmail-cli/iredmail"
+	"github.com/noxpost/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
