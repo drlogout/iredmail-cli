@@ -55,27 +55,6 @@ func GetIredMailVersion() (iredMailVersion, error) {
 
 // Check checks the iredMail version
 func (v *iredMailVersion) Check() error {
-	version, err := GetIredMailVersion()
-	if err != nil {
-		return err
-	}
-
-	versionMin, err := semver.Parse(supportedReleaseMin)
-	if err != nil {
-		return err
-	}
-	versionMax, err := semver.Parse(supportedReleaseMax)
-	if err != nil {
-		return err
-	}
-	versionCur, err := semver.Parse(string(version))
-	if err != nil {
-		return err
-	}
-
-	if versionCur.LT(versionMin) || versionCur.GT(versionMax) {
-		return ErrIredMailVersionNotSupported
-	}
-
+	
 	return nil
 }
