@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/blang/semver"
 )
 
 const (
