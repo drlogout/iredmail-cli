@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/KostaGorod/iredmail-cli/iredmail"
+	"github.com/noxpost/iredmail-cli/iredmail"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
