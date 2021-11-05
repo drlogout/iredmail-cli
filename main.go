@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/kostagorod/iredmail-cli/cmd"
+import "github.com/noxpost/iredmail-cli/cmd"
 
 func main() {
 	cmd.Execute()
