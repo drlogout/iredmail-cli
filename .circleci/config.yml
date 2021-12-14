@@ -5,8 +5,8 @@ version: 2
 jobs:
   integration-test:
     docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/drlogout/iredmail-cli
+      - image: cimg/go:1.17
+    working_directory: /go/src/github.com/eddiewebb/iredmail-cli
     steps:
       - checkout
       - run: sudo cp .circleci/iredmail-release /etc/iredmail-release
@@ -19,7 +19,7 @@ jobs:
   release:
     docker:
       - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/drlogout/iredmail-cli
+    working_directory: /go/src/github.com/eddiewebb/iredmail-cli
     steps:
       - checkout
       - run: go get -v -t -d ./...
