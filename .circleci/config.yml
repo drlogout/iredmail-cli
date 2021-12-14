@@ -35,8 +35,6 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-            branches:
-              ignore: /.*/
       - release:
           requires:
             - integration-test
