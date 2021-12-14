@@ -6,7 +6,6 @@ jobs:
   integration-test:
     docker:
       - image: cimg/go:1.17
-    working_directory: /go/src/github.com/eddiewebb/iredmail-cli
     steps:
       - checkout
       - run: sudo cp .circleci/iredmail-release /etc/iredmail-release
