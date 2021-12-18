@@ -16,7 +16,7 @@ import (
 
 const (
 	dbConnectionStringLocal = "vmail:sx4fDttWdWNbiBPsGxhbbxic2MmmGsmJ@tcp(127.0.0.1:8806)/vmail"
-	dbConnectionStringCI    = "vmail:MDmPEwViyNNrMVpxrRGQivvFdtxZAp98@tcp(iredmail-test-db.noltech.net:3357)/vmail"
+	dbConnectionStringCI    = "vmail:itslocalletmein@tcp(localhost:3306)/vmail"
 )
 
 var (

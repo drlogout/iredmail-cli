@@ -6,6 +6,11 @@ jobs:
   integration-test:
     docker:
       - image: cimg/go:1.17
+      - image: mariadb:10.7.1
+        environment:
+          MARIADB_USER: vmail
+          MARIADB_PASSWORD: itslocalletmein
+    #parallelism: 4
     steps:
       - checkout
       - run: sudo cp .circleci/iredmail-release /etc/iredmail-release
@@ -13,7 +18,15 @@ jobs:
       - run: sudo chmod a+x /usr/local/bin/doveadm
       - run: cp .circleci/my.cnf-vmailadmin $HOME/.my.cnf-vmailadmin
       - run: go install
-      - run: go get -v -t -d ./...
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      #- run: go test -v $(go list ./... | circleci tests split)
       - run: go test -v ./integration_test
 
   release:
@@ -21,7 +34,7 @@ jobs:
       - image: cimg/go:1.17
     steps:
       - checkout
-      - run: go get -v -t -d ./...
+      - run: go install
       - run: git config --global user.name eddiewebb
       - run: make dist
       - run: make release
