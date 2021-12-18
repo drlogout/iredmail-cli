@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/noxpost/iredmail-cli/iredmail"
 	"github.com/fatih/color"
+	"github.com/iredmail-cli/iredmail"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )

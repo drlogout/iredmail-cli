@@ -16,7 +16,6 @@ require (
 
 require (
 	github.com/blang/semver v3.5.1+incompatible // indirect
-	github.com/drlogout/iredmail-cli v0.2.7 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/noxpost/iredmail-cli/iredmail"
+	"github.com/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
