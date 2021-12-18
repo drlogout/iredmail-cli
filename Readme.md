@@ -1,6 +1,6 @@
 # iredmail-cli
 
-[![CircleCI](https://circleci.com/gh/drlogout/iredmail-cli/tree/master.svg?style=svg)](https://circleci.com/gh/drlogout/iredmail-cli/tree/master)
+[![CircleCI](https://img.shields.io/circleci/build/github/eddiewebb/iredmail-cli)](https://circleci.com/gh/eddiewebb/iredmail-cli/tree/master)
 
 ## Table of contents
 
