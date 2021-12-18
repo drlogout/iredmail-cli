@@ -47,7 +47,10 @@ workflows:
   version: 2
   run_release:
     jobs:
-      - integration-test
+      - integration-test:
+          filters:
+            tags:
+              only: /^v.*/
       - release:
           requires:
             - integration-test
