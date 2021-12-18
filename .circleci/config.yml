@@ -30,7 +30,7 @@ jobs:
           name: Wait for db
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
       #- run: go test -v $(go list ./... | circleci tests split)
-      - run: mysql -h 127.0.0.1 vmail < .circleci/define_tables.sql
+      - run: mysql -h 127.0.0.1 -uroot vmail < .circleci/define_tables.sql
       - run: go test -v ./integration_test
 
   release:
