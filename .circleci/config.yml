@@ -12,17 +12,17 @@ jobs:
       - run: sudo cp .circleci/doveadm /usr/local/bin/doveadm
       - run: sudo chmod a+x /usr/local/bin/doveadm
       - run: cp .circleci/my.cnf-vmailadmin $HOME/.my.cnf-vmailadmin
+      - run: go install
       - run: go get -v -t -d ./...
       - run: go test -v ./integration_test
 
   release:
     docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/eddiewebb/iredmail-cli
+      - image: cimg/go:1.17
     steps:
       - checkout
       - run: go get -v -t -d ./...
-      - run: git config --global user.name drlogout
+      - run: git config --global user.name eddiewebb
       - run: make dist
       - run: make release
         
@@ -30,10 +30,7 @@ workflows:
   version: 2
   run_release:
     jobs:
-      - integration-test:
-          filters:
-            tags:
-              ignore: /.*/
+      - integration-test
       - release:
           requires:
             - integration-test
