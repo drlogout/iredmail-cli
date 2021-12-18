@@ -18,13 +18,10 @@ require (
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/drlogout/iredmail-cli v0.2.7 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/hashicorp/go-version v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mitchellh/gox v1.0.1 // indirect
-	github.com/mitchellh/iochan v1.0.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
