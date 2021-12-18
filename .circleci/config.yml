@@ -11,6 +11,7 @@ jobs:
           MARIADB_USER: vmail
           MARIADB_PASSWORD: itslocalletmein
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "true"
+          MARIADB_DATABASE: vmail
     #parallelism: 4
     steps:
       - checkout
