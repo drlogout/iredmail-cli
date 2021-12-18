@@ -20,6 +20,7 @@ jobs:
       - run: sudo chmod a+x /usr/local/bin/doveadm
       - run: cp .circleci/my.cnf-vmailadmin $HOME/.my.cnf-vmailadmin
       - run: go install
+      - run: sudo apt-get update && sudo apt-get install mysql-shell
       - run:
           name: install dockerize
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
