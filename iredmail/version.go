@@ -6,13 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"strings"
-
 )
 
 const (
 	// Version of iredmail-cli
-	Version = "0.2.91"
+	Version = "0.3.0"
 
 	releaseFile         = "/etc/iredmail-release"
 	supportedReleaseMin = "0.9.8"
@@ -39,21 +37,20 @@ func GetIredMailVersion() (iredMailVersion, error) {
 		return version, err
 	}
 
-	re := regexp.MustCompile(`^\d\.\d\.\d\s*(MYSQL|MARIADB)\s*edition`)
-	versionLine := re.FindString(string(file))
+	re := regexp.MustCompile(`(?:^\d\.\d\.\d\s*(MYSQL|MARIADB)\s*edition)|(?:^\d{10} \(Backend: (mariadb|mysql).*)`)
+	versionLine := re.FindAllString(string(file), 2)
 
-	if versionLine == "" {
-		return version, fmt.Errorf("No MYSQL nor MariaDB version info found in release file %s", releaseFile)
+	if len(versionLine) < 1 {
+		return version, fmt.Errorf("No no MYSQL nor MariaDB version info found in release file %s", releaseFile)
 	}
 
-	splitLine := strings.Split(versionLine, " ")
-	version = iredMailVersion(splitLine[0])
+	version = iredMailVersion(versionLine[0] + versionLine[1])
 
 	return version, nil
 }
 
 // Check checks the iredMail version
 func (v *iredMailVersion) Check() error {
-	
+
 	return nil
 }
