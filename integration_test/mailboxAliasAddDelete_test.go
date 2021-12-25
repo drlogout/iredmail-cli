@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os/exec"
 	"reflect"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -105,11 +104,8 @@ var _ = Describe("mailbox alias add/delete", func() {
 			Fail("Expect an error")
 		}
 
-		domain := strings.Split(mailboxName1, "@")[1]
-		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
-
 		actual := string(output)
-		expected := fmt.Sprintf("A mailbox alias with %s already exists\n", aliasEmail)
+		expected := fmt.Sprintf("A mailbox alias with %s already exists\n", mailboxAlias1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
