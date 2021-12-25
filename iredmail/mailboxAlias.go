@@ -31,7 +31,8 @@ func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
 	}
 
 	_, domain := parseEmail(mailboxEmail)
-	aliasEmail := fmt.Sprintf("%s@%s", alias, domain)
+	aliasEmail := alias
+	_, aliasDomain := parseEmail(aliasEmail)
 
 	mailboxAliasExists, err := s.mailboxAliasExists(aliasEmail)
 	if err != nil {
@@ -60,7 +61,7 @@ func (s *Server) MailboxAliasAdd(alias, mailboxEmail string) error {
 	sqlQuery := `
 	INSERT INTO forwardings (address, forwarding, domain, dest_domain, is_forwarding, is_alias, is_list, active)
 	VALUES (?, ?, ?, ?, 0, 1, 0, 1)`
-	_, err = s.DB.Exec(sqlQuery, aliasEmail, mailboxEmail, domain, domain)
+	_, err = s.DB.Exec(sqlQuery, aliasEmail, mailboxEmail, aliasDomain, domain)
 
 	return err
 }
@@ -82,7 +83,7 @@ func (s *Server) MailboxAliasDelete(aliasEmail string) error {
 	return err
 }
 
-// MailboxAliasDeleteAll delets all mailbox aliases of a mailbox
+// MailboxAliasDeleteAll deletes all mailbox aliases of a mailbox
 func (s *Server) MailboxAliasDeleteAll(mailboxEmail string) error {
 	sqlQuery := "DELETE FROM forwardings WHERE forwarding = ? AND is_forwarding = 0 AND is_alias = 1 AND is_list = 0;"
 	_, err := s.DB.Exec(sqlQuery, mailboxEmail)

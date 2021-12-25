@@ -1,9 +1,9 @@
-+-----------------------+------------+
-|        MAILBOX        | QUOTA (MB) |
-+-----------------------+------------+
-| abuse@domain.com      |       2048 |
-| info@domain.com       |       2048 |
-| webmaster@example.com |       2048 |
-| mail@example.net      |       2048 |
-| support@example.org   |       2048 |
-+-----------------------+------------+
++--------------+-----------------------+------------+
+| DISPLAY NAME |        MAILBOX        | QUOTA (MB) |
++--------------+-----------------------+------------+
+| abuse        | abuse@domain.com      |       2048 |
+| info         | info@domain.com       |       2048 |
+| webmaster    | webmaster@example.com |       2048 |
+| mail         | mail@example.net      |       2048 |
+| support      | support@example.org   |       2048 |
++--------------+-----------------------+------------+

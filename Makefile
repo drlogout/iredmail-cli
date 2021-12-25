@@ -1,7 +1,8 @@
 RELEASE_TAG=$$(git describe --abbrev=0 --tags)
 
 dist-tools:
-	@go get github.com/mitchellh/gox
+	@go install github.com/mitchellh/gox@latest
+	export PATH="$PATH:$HOME/go/bin"
 
 dist: dist-tools
 	rm -rf ./bin/*
@@ -14,7 +15,7 @@ dist: dist-tools
 	rm -rf ./bin/iredmail-cli_linux-arm64_$(RELEASE_TAG)
 
 release-tools:
-	@go get github.com/tcnksm/ghr
+	@go install github.com/tcnksm/ghr@latest
 
 release: release-tools
 	ghr $(RELEASE_TAG) ./bin/

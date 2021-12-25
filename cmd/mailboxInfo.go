@@ -19,10 +19,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/iredmail-cli/iredmail"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -72,15 +71,14 @@ func printMailboxInfo(mailbox iredmail.Mailbox, prettyPrint bool) {
 		table.SetColumnColor(tablewriter.Colors{tablewriter.Bold}, tablewriter.Colors{})
 	}
 
+	table.Append([]string{"Display Name", mailbox.Name})
 	table.Append([]string{"Quota", fmt.Sprintf("%v MB", strconv.Itoa(mailbox.Quota))})
 
 	if len(mailbox.MailboxAliases) > 0 {
-		name := strings.Split(mailbox.MailboxAliases[0].Address, "@")[0]
-		table.Append([]string{"Mailbox aliases", name})
+		table.Append([]string{"Mailbox aliases", mailbox.MailboxAliases[0].Address})
 		for i := range mailbox.MailboxAliases {
 			if (i + 1) < len(mailbox.MailboxAliases) {
-				name = strings.Split(mailbox.MailboxAliases[i+1].Address, "@")[0]
-				table.Append([]string{"", name})
+				table.Append([]string{"", mailbox.MailboxAliases[i+1].Address})
 			}
 		}
 	}

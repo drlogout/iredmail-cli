@@ -1,6 +1,6 @@
 # iredmail-cli
 
-[![CircleCI](https://circleci.com/gh/drlogout/iredmail-cli/tree/master.svg?style=svg)](https://circleci.com/gh/drlogout/iredmail-cli/tree/master)
+[![CircleCI](https://img.shields.io/circleci/build/github/eddiewebb/iredmail-cli)](https://circleci.com/gh/eddiewebb/iredmail-cli/tree/master)
 
 ## Table of contents
 
@@ -46,8 +46,6 @@
 ## Installation
 
 > The current version only supports the MySQL version of iRedMail
-
-Download the appropriate binary from https://github.com/drlogout/iredmail-cli/releases/latest, untar the file and move the binary to e.g. `/usr/local/bin/iredmail-cli`. 
 
 By default `iredmail-cli` expects a config file under `~/.my.cnf-vmailadmin`. This file is generated through the iRedMail installation. It's also possible to specify a config file with the `—config` flag.
 
