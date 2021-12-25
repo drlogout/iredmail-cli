@@ -290,7 +290,7 @@ var _ = Describe("mailbox add/delete", func() {
 			Fail(string(output))
 		}
 
-		cli = exec.Command(cliPath, "mailbox", "add-alias", name, mailboxName)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxName1, mailboxName)
 		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))

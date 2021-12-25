@@ -80,8 +80,7 @@ func printMailboxInfo(mailbox iredmail.Mailbox, prettyPrint bool) {
 		table.Append([]string{"Mailbox aliases", name})
 		for i := range mailbox.MailboxAliases {
 			if (i + 1) < len(mailbox.MailboxAliases) {
-				name = strings.Split(mailbox.MailboxAliases[i+1].Address, "@")[0]
-				table.Append([]string{"", name})
+				table.Append([]string{"", mailbox.MailboxAliases[i+1].Address})
 			}
 		}
 	}
