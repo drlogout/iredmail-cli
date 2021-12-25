@@ -29,14 +29,14 @@ var mailboxAliasAddCmd = &cobra.Command{
 	Short: "Add a mailbox alias",
 	Long: `Add a mailbox alias
 	
-A mailbox [MAILBOX_EMAIL] can have additional email addresses [ALIAS]@[DOMAIN], all emails sent to these addresses will be delivered to the same mailbox.`,
+A mailbox [MAILBOX_EMAIL] can have additional email addresses [ALIAS]@[DOMAIN|ALIAS_DOMAIN], all emails sent to these addresses will be delivered to the same mailbox.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
-			return errors.New("Requires [ALIAS] and [MAILBOX_EMAIL]")
+			return errors.New("Requires [ALIAS_EMAIL] and [MAILBOX_EMAIL]")
 		}
 
-		if govalidator.IsEmail(args[0]) {
-			return fmt.Errorf("Invalid [ALIAS] format: %s, only name is required (the part before @)", args[0])
+		if !govalidator.IsEmail(args[0]) {
+			return fmt.Errorf("Invalid [ALIAS_EMAIL] format: %s, to support alias domains iredmail-cli now needs full alias email.", args[0])
 		}
 
 		if !govalidator.IsEmail(args[1]) {
