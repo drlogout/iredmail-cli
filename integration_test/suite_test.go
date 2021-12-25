@@ -44,10 +44,12 @@ var (
 	forwardingAddress1 = "info@otherdomain.com"
 	forwardingAddress2 = "webmaster@otherexample.net"
 
-	mailboxAlias1 = "postmaster"
-	mailboxAlias2 = "abuse"
-	mailboxAlias3 = "webmaster"
+	// update to allow full domain per ireddmail 0.9.7+
+	mailboxAlias1 = "postmaster@example.com"
+	mailboxAlias2 = "abuse@domain.com"
+	mailboxAlias3 = "webmaster@example.net"
 
+	// I'mnot sure why these are called alias, they're mail lists in the SQL...
 	alias1 = "developer@example.com"
 	alias2 = "support@domain.com"
 	alias3 = "help@example.net"
