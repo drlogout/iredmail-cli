@@ -29,7 +29,10 @@ var mailboxAliasAddCmd = &cobra.Command{
 	Short: "Add a mailbox alias",
 	Long: `Add a mailbox alias
 	
-A mailbox [MAILBOX_EMAIL] can have additional email addresses [ALIAS]@[DOMAIN|ALIAS_DOMAIN], all emails sent to these addresses will be delivered to the same mailbox.`,
+A mailbox [MAILBOX_EMAIL] can have additional email addresses;
+ [ALIAS]@[DOMAIN|ALIAS_DOMAIN], all emails sent to these addresses 
+ will be delivered to the same mailbox.
+ Only this type of alias gets SENDING permission. Even with domain alias, names must be declared.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			return errors.New("Requires [ALIAS_EMAIL] and [MAILBOX_EMAIL]")
