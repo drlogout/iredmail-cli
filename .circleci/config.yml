@@ -38,7 +38,7 @@ jobs:
                 command: |
                   TAG_VERSION=$(go run ./ version | head -n1 | cut -d":" -f2 | tr -d " ")
                   echo "tagging as: ${TAG_VERSION}"
-                  git tag ${TAG_VERSION}
+                  git tag "v${TAG_VERSION}""
                   git push --tags
   
   release:
