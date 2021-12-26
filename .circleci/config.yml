@@ -32,7 +32,22 @@ jobs:
       #- run: go test -v $(go list ./... | circleci tests split)
       - run: mysql -h 127.0.0.1 -uroot vmail < .circleci/define_tables.sql
       - run: go test -v ./integration_test
-
+  
+  tag_version:
+    docker:
+      - image: cimg/go:1.17
+    steps:
+      - checkout
+      - run: go install
+      - run: git config --global user.name eddiewebb
+      - run:
+          name: Tag it
+          command: |
+            TAG_VERSION=$(go run ./ version | head -n1 | cut -d":" -f2 | tr -d " ")
+            echo "tagging as: ${TAG_VERSION}"
+            git tag ${TAG_VERSION}
+            git push --tags
+  
   release:
     docker:
       - image: cimg/go:1.17
@@ -51,6 +66,12 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - tag_version:
+          filters:
+            branches:
+              only: master
+          requires:
+            - integration-test
       - release:
           requires:
             - integration-test
