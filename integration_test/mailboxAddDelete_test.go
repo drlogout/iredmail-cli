@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -280,17 +279,13 @@ var _ = Describe("mailbox add/delete", func() {
 			Skip("can't add an mailbox if an mailbox alias with same email exists")
 		}
 
-		splitMail := strings.Split(mailboxName1, "@")
-		name, domain := splitMail[0], splitMail[1]
-		mailboxName := "othername@" + domain
-
-		cli := exec.Command(cliPath, "mailbox", "add", mailboxName, mailboxPW)
+		cli := exec.Command(cliPath, "mailbox", "add", aliasForwarding4, mailboxPW)
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
 
-		cli = exec.Command(cliPath, "mailbox", "add-alias", name, mailboxName)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxName1, aliasForwarding4)
 		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))

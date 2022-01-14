@@ -20,7 +20,7 @@ import (
 	"strconv"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
@@ -31,8 +31,8 @@ var (
 // mailboxUpdateCmd represents the 'mailbox update' command
 var mailboxUpdateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "Update keep-copy and quota",
-	Long: `Update keep-copy and quota.
+	Short: "Update keep-copy, password, quota, and name",
+	Long: `Update keep-copy, password, quota, and name.
 
 -k, --keep-copy:
 If mailboxes with forwardings should not keep a copy of the forwarded email use "--keep-copy no".
@@ -74,6 +74,15 @@ Set quota "--quota 4096" (in MB).`,
 			updated = true
 		}
 
+		if cmd.Flag("name").Changed {
+			err = server.MailboxSetName(mailboxEmail, displayName)
+			if err != nil {
+				fatal("%v\n", err)
+			}
+			info("Updating quota...\n")
+			updated = true
+		}
+
 		if cmd.Flag("keep-copy").Changed {
 			err := server.MailboxSetKeepCopy(mailboxEmail, keepCopyInMailbox == "yes")
 			if err != nil {
@@ -86,7 +95,7 @@ Set quota "--quota 4096" (in MB).`,
 		if cmd.Flag("password").Changed {
 			pw := cmd.Flag("password").Value.String()
 			if len(pw) < passwordMinLength {
-				fatal("password length to short (min length " + strconv.Itoa(passwordMinLength) + ")")
+				fatal("password length too short (min length " + strconv.Itoa(passwordMinLength) + ")")
 			}
 			err := server.MailboxSetPassword(mailboxEmail, pw)
 			if err != nil {
@@ -110,6 +119,7 @@ func init() {
 	mailboxUpdateCmd.Flags().IntVarP(&quota, "quota", "q", 2048, "Sets quota (in MB)")
 	mailboxUpdateCmd.Flags().StringVarP(&keepCopyInMailbox, "keep-copy", "k", "yes", "Sets keep-copy of forwardings")
 	mailboxUpdateCmd.Flags().StringP("password", "p", "", "Set password")
+	mailboxUpdateCmd.Flags().StringVarP(&displayName, "name", "n", "", "Display Name")
 
 	mailboxUpdateCmd.SetUsageTemplate(usageTemplate("mailbox update [MAILBOX_EMAIL]", printFlags))
 }

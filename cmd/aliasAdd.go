@@ -19,15 +19,15 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
 // aliasAddCmd represents the 'alias add' command
 var aliasAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add an alias",
-	Long: `Add an alias.
+	Short: "Add a list/fwd alias",
+	Long: `Add a NON-user specific alias for lists or forwarding.
 Emails sent to [ALIAS_EMAIL] will be delivered to alias forwardings.
 Use the "alias add-forwarding" command to add forwardings to the alias.
 An alias can have multiple forwardings.`,

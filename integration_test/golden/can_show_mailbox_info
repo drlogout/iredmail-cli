@@ -1,9 +1,10 @@
 +----------------------+---------------------------------------------+
 |       MAILBOX        |              mail@example.net               |
 +----------------------+---------------------------------------------+
+| Display Name         | mail                                        |
 | Quota                | 2048 MB                                     |
-| Mailbox aliases      | abuse                                       |
-|                      | postmaster                                  |
+| Mailbox aliases      | abuse@domain.com                            |
+|                      | postmaster@example.com                      |
 | Forwardings          | info@otherdomain.com                        |
 |                      | webmaster@otherexample.net                  |
 | Keep copy in mailbox | yes                                         |

@@ -1,7 +1,9 @@
-# iredmail-cli
+# iredmail-cli Rebooted
 
-[![CircleCI](https://circleci.com/gh/drlogout/iredmail-cli/tree/master.svg?style=svg)](https://circleci.com/gh/drlogout/iredmail-cli/tree/master)
+[![CircleCI](https://img.shields.io/circleci/build/github/eddiewebb/iredmail-cli)](https://circleci.com/gh/eddiewebb/iredmail-cli/tree/master)
 
+ It Lives!! 
+ 
 ## Table of contents
 
 * [Table of contents](#table-of-contents)
@@ -18,9 +20,9 @@
         * [<em>info [MAILBOX_EMAIL]</em>](#info-mailbox_email)
         * [<em>list</em>](#list)
         * [<em>update [MAILBOX_EMAIL]</em>](#update-mailbox_email)
-        * [<em>add-alias [ALIAS] [MAILBOX_EMAIL]</em>](#add-alias-alias-mailbox_email)
+        * [<em>add-alias [ALIAS_EMAIL] [MAILBOX_EMAIL]</em>](#add-alias-alias-mailbox_email)
         * [<em>delete-alias [ALIAS_EMAIL]</em>](#delete-alias-alias_email)
-    * [<em>forwarding</em>](#forwarding)
+    * [<em>forwarding (not, exclusive,no sending rights)</em>](#forwarding) 
         * [<em>add [MAILBOX_EMAIL] [DESTINATION_EMAIL]</em>](#add-mailbox_email-destination_email)
         * [<em>delete [MAILBOX_EMAIL] [DESTINATION_EMAIL]</em>](#delete-mailbox_email-destination_email)
         * [<em>list</em>](#list-1)
@@ -32,7 +34,7 @@
         * [<em>delete-alias  [ALIAS_DOMAIN]</em>](#delete-alias--alias_domain)
         * [<em>add-catchall [DOMAIN] [DESTINATION_EMAIL]</em>](#add-catchall-domain-destination_email)
         * [<em>delete-catchall [DOMAIN] [DESTINATION_EMAIL]</em>](#delete-catchall-domain-destination_email)
-    * [<em>alias</em>](#alias)
+    * [<em>alias(NOT user specific, but for list or mass forwarding)</em>](#alias)
         * [<em>add [ALIAS_EMAIL]</em>](#add-alias_email)
         * [<em>delete [ALIAS_EMAIL]</em>](#delete-alias_email)
         * [<em>info [ALIAS_EMAIL]</em>](#info-alias_email)
@@ -46,8 +48,6 @@
 ## Installation
 
 > The current version only supports the MySQL version of iRedMail
-
-Download the appropriate binary from https://github.com/drlogout/iredmail-cli/releases/latest, untar the file and move the binary to e.g. `/usr/local/bin/iredmail-cli`. 
 
 By default `iredmail-cli` expects a config file under `~/.my.cnf-vmailadmin`. This file is generated through the iRedMail installation. It's also possible to specify a config file with the `—config` flag.
 

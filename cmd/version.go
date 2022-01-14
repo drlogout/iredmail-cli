@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/drlogout/iredmail-cli/iredmail"
+	"github.com/iredmail-cli/iredmail"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ var versionCmd = &cobra.Command{
 		}
 
 		info("cli version: %s\n", iredmail.Version)
-		info("iredMail version (MySQL): %s\n", iredMailVersion)
+		info("%s version (%s): %s\n", iredMailVersion.Product, iredMailVersion.Dbtype, iredMailVersion.Version)
 
 		if iredMailVersion.Check() == iredmail.ErrIredMailVersionNotSupported {
 			warning("%v\n", iredmail.ErrIredMailVersionNotSupported)

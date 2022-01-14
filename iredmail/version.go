@@ -6,18 +6,15 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"strings"
-
-	"github.com/blang/semver"
 )
 
 const (
 	// Version of iredmail-cli
-	Version = "0.2.8"
+	Version = "0.3.3"
 
 	releaseFile         = "/etc/iredmail-release"
 	supportedReleaseMin = "0.9.8"
-	supportedReleaseMax = "0.9.8"
+	supportedReleaseMax = "1.3.2"
 )
 
 var (
@@ -25,7 +22,12 @@ var (
 	ErrIredMailVersionNotSupported = errors.New("iredMail version is not supported")
 )
 
-type iredMailVersion string
+type iredMailVersion struct {
+	Dbtype  string
+	Version string
+	Easy    bool
+	Product string
+}
 
 // GetIredMailVersion retrievs the iredMail version
 func GetIredMailVersion() (iredMailVersion, error) {
@@ -40,42 +42,25 @@ func GetIredMailVersion() (iredMailVersion, error) {
 		return version, err
 	}
 
-	re := regexp.MustCompile(`^\d\.\d\.\d\s*MYSQL\s*edition`)
-	versionLine := re.FindString(string(file))
+	re := regexp.MustCompile(`(?:^(\d\.\d\.\d)\s*(MYSQL|MARIADB)\s*edition)|(?:^(\d{10}) \(Backend: (mariadb|mysql).*)`)
+	versionLine := re.FindStringSubmatch(string(file))
 
-	if versionLine == "" {
-		return version, fmt.Errorf("No MYSQL version info found in release file %s", releaseFile)
+	if len(versionLine) < 1 {
+		return version, fmt.Errorf("No no MYSQL nor MariaDB version info found in release file %s", releaseFile)
 	}
 
-	splitLine := strings.Split(versionLine, " ")
-	version = iredMailVersion(splitLine[0])
+	//TODO: add support understand easy version
+	if versionLine[3] != "" {
+		version = iredMailVersion{versionLine[4], versionLine[3], true, "iredMail Easy"}
+	} else {
+		version = iredMailVersion{versionLine[2], versionLine[1], false, "iredMail (manual)"}
+	}
 
 	return version, nil
 }
 
 // Check checks the iredMail version
 func (v *iredMailVersion) Check() error {
-	version, err := GetIredMailVersion()
-	if err != nil {
-		return err
-	}
-
-	versionMin, err := semver.Parse(supportedReleaseMin)
-	if err != nil {
-		return err
-	}
-	versionMax, err := semver.Parse(supportedReleaseMax)
-	if err != nil {
-		return err
-	}
-	versionCur, err := semver.Parse(string(version))
-	if err != nil {
-		return err
-	}
-
-	if versionCur.LT(versionMin) || versionCur.GT(versionMax) {
-		return ErrIredMailVersionNotSupported
-	}
-
+	//TODO use version.EASY boolean to check semver style or new easy date tag style
 	return nil
 }

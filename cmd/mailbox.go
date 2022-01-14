@@ -7,6 +7,7 @@ import (
 var (
 	quota           int
 	storageBasePath string
+    displayName     string
 )
 
 var mailboxCmd = &cobra.Command{

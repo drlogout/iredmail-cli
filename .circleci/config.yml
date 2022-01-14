@@ -1,29 +1,53 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
 jobs:
   integration-test:
     docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/drlogout/iredmail-cli
+      - image: cimg/go:1.17
+      - image: mariadb:10.7.1
+        environment:
+          MARIADB_USER: vmail
+          MARIADB_PASSWORD: itslocalletmein
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "true"
+          MARIADB_DATABASE: vmail
+    #parallelism: 4
     steps:
       - checkout
       - run: sudo cp .circleci/iredmail-release /etc/iredmail-release
       - run: sudo cp .circleci/doveadm /usr/local/bin/doveadm
       - run: sudo chmod a+x /usr/local/bin/doveadm
       - run: cp .circleci/my.cnf-vmailadmin $HOME/.my.cnf-vmailadmin
-      - run: go get -v -t -d ./...
+      - run: go install
+      - run: sudo apt-get update && sudo apt-get install mysql-client
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      #- run: go test -v $(go list ./... | circleci tests split)
+      - run: mysql -h 127.0.0.1 -uroot vmail < .circleci/define_tables.sql
       - run: go test -v ./integration_test
-
+      - when:
+          condition: 
+            equal: [ "master", << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Tag it
+                command: |
+                  TAG_VERSION=$(go run ./ version | head -n1 | cut -d":" -f2 | tr -d " ")
+                  echo "tagging as: ${TAG_VERSION}"
+                  git tag "v${TAG_VERSION}"
+                  git push --tags
+  
   release:
     docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/drlogout/iredmail-cli
+      - image: cimg/go:1.17
     steps:
       - checkout
-      - run: go get -v -t -d ./...
-      - run: git config --global user.name drlogout
+      - run: go install
+      - run: git config --global user.name eddiewebb
       - run: make dist
       - run: make release
         
@@ -34,9 +58,7 @@ workflows:
       - integration-test:
           filters:
             tags:
-              ignore: /.*/
-            branches:
-              ignore: /.*/
+              only: /^v.*/
       - release:
           requires:
             - integration-test

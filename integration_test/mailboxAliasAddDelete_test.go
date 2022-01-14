@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os/exec"
 	"reflect"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -46,8 +45,7 @@ var _ = Describe("mailbox alias add/delete", func() {
 		defer db.Close()
 
 		var exists bool
-		domain := strings.Split(mailboxName1, "@")[1]
-		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
+		aliasEmail := mailboxAlias1
 
 		sqlQuery := `SELECT exists
 		(SELECT address FROM forwardings
@@ -70,9 +68,7 @@ var _ = Describe("mailbox alias add/delete", func() {
 			Fail(string(output))
 		}
 
-		name := strings.Split(mailboxName1, "@")[0]
-
-		cli = exec.Command(cliPath, "mailbox", "add-alias", name, mailboxName1)
+		cli = exec.Command(cliPath, "mailbox", "add-alias", mailboxName1, mailboxName1)
 		output, err = cli.CombinedOutput()
 		if err == nil {
 			Fail("Expect an error")
@@ -108,11 +104,8 @@ var _ = Describe("mailbox alias add/delete", func() {
 			Fail("Expect an error")
 		}
 
-		domain := strings.Split(mailboxName1, "@")[1]
-		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
-
 		actual := string(output)
-		expected := fmt.Sprintf("A mailbox alias with %s already exists\n", aliasEmail)
+		expected := fmt.Sprintf("A mailbox alias with %s already exists\n", mailboxAlias1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -124,10 +117,7 @@ var _ = Describe("mailbox alias add/delete", func() {
 			Skip("can't add a mailbox alias if alias already exists")
 		}
 
-		domain := strings.Split(mailboxName1, "@")[1]
-		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
-
-		cli := exec.Command(cliPath, "alias", "add", aliasEmail)
+		cli := exec.Command(cliPath, "alias", "add", mailboxAlias1)
 		output, err := cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
@@ -146,7 +136,7 @@ var _ = Describe("mailbox alias add/delete", func() {
 		}
 
 		actual := string(output)
-		expected := fmt.Sprintf("An alias with %s already exists\n", aliasEmail)
+		expected := fmt.Sprintf("An alias with %s already exists\n", mailboxAlias1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
@@ -187,17 +177,14 @@ var _ = Describe("mailbox alias add/delete", func() {
 			Fail(string(output))
 		}
 
-		domain := strings.Split(mailboxName1, "@")[1]
-		aliasEmail := fmt.Sprintf("%s@%s", mailboxAlias1, domain)
-
-		cli = exec.Command(cliPath, "mailbox", "delete-alias", aliasEmail)
+		cli = exec.Command(cliPath, "mailbox", "delete-alias", mailboxAlias1)
 		output, err = cli.CombinedOutput()
 		if err != nil {
 			Fail(string(output))
 		}
 
 		actual := string(output)
-		expected := fmt.Sprintf("Successfully deleted mailbox alias %s\n", fmt.Sprintf("%s@%s", mailboxAlias1, domain))
+		expected := fmt.Sprintf("Successfully deleted mailbox alias %s\n", mailboxAlias1)
 
 		if !reflect.DeepEqual(actual, expected) {
 			Fail(fmt.Sprintf("actual = %s, expected = %s", actual, expected))
